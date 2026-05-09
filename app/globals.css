@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Shadcn/UI CSS variables mapped to Avira design tokens */
+    --background: 60 3% 96%;          /* #f5f5f3 = bg-page */
+    --foreground: 0 0% 7%;            /* #111111 = primary */
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 7%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 97 73% 51%;            /* #6DDE26 = electric green */
+    --primary-foreground: 0 0% 7%;    /* #111111 text on green */
+    --secondary: 60 3% 96%;
+    --secondary-foreground: 0 0% 7%;
+    --muted: 60 3% 96%;
+    --muted-foreground: 0 0% 34%;     /* #565656 */
+    --accent: 0 0% 10%;               /* #1a1a1a = surface dark */
+    --accent-foreground: 60 3% 96%;
+    --destructive: 0 100% 44%;        /* #e10000 */
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 7%;                /* #111111 */
+    --input: 0 0% 7%;                 /* #111111 */
+    --ring: 97 73% 51%;               /* #6DDE26 */
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  .dark {
+    --border: 0 0% 100% / 0.12;
+    --input: 0 0% 100% / 0.15;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-bg-page dark:bg-bg-dark text-text-body dark:text-text-on-dark font-primary;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-text-primary dark:text-text-on-dark;
+  }
+}
+
+/* Prevent layout shift from Zustand cart hydration */
+[data-cart-loading] {
+  visibility: hidden;
+}
+
+@layer components {
+  /* Responsive horizontal page padding — use instead of px-content-inset */
+  .px-site {
+    @apply px-4 sm:px-8 lg:px-[55px];
+  }
+
+  .field-input {
+    @apply w-full h-12 px-4 border border-border-primary/40 dark:border-white/20 rounded-btn-sm text-base text-text-primary dark:text-text-on-dark bg-bg-white dark:bg-bg-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors;
+  }
+
+  .field-input::placeholder {
+    @apply text-text-placeholder dark:text-text-footer-link;
+  }
+
+  select.field-input {
+    @apply appearance-none;
+  }
+}
+
+/* ── Checkout-specific scale-downs on mobile ──────────────────────────── */
+/* Only the intentionally large checkout tokens need shrinking on small screens */
+@media (max-width: 767px) {
+  .text-checkout-field { font-size: 1rem !important; }   /* 35px → 16px on mobile */
+  .text-place-order    { font-size: 1rem !important; }   /* 60px → 16px on mobile */
+  .text-order-notes    { font-size: 1rem !important; }   /* 50px → 16px on mobile */
+}
