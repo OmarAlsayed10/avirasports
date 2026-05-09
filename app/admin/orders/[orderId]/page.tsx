@@ -5,8 +5,11 @@ import { OrderItemImage } from '@/components/admin/orders/order-item-image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getOrderStatusLabels, ORDER_STATUS_COLORS } from '@/lib/constants/order-status';
+import type { Prisma } from '@prisma/client';
 import type { Metadata } from 'next';
 import { getT } from '@/lib/locale';
+
+type OrderItem = Prisma.OrderItemGetPayload<Record<string, never>>;
 
 export const metadata: Metadata = { title: 'Order Detail' };
 
@@ -161,7 +164,7 @@ export default async function AdminOrderDetailPage({
           </h2>
         </div>
         <div className="divide-y divide-gray-100">
-          {order.items.map((item) => (
+          {order.items.map((item: OrderItem) => (
             <div key={item.id} className="flex items-center gap-3 px-5 py-4">
               <div className="w-12 h-12 rounded-md bg-gray-100 overflow-hidden shrink-0">
                 <OrderItemImage src={item.imageUrlSnapshot} alt={item.productNameSnapshot} />

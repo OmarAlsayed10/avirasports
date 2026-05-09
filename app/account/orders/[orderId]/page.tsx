@@ -4,7 +4,10 @@ import { auth } from '@/lib/auth';
 import { getOrder } from '@/lib/queries/orders';
 import { formatEgp } from '@/lib/utils/format-egp';
 import { getT } from '@/lib/locale';
+import type { Prisma } from '@prisma/client';
 import type { Metadata } from 'next';
+
+type OrderItem = Prisma.OrderItemGetPayload<Record<string, never>>;
 
 export const metadata: Metadata = { title: 'Order Details' };
 
@@ -100,7 +103,7 @@ export default async function OrderDetailPage({ params }: { params: { orderId: s
       <div className="bg-bg-white rounded-card-lg border border-border-primary/10 p-6 mb-6">
         <h2 className="text-nav-sm font-semibold text-text-primary mb-4">{tr.itemsHeading}</h2>
         <div className="space-y-3">
-          {order.items.map((item) => (
+          {order.items.map((item: OrderItem) => (
             <div key={item.id} className="flex items-center justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <p className="text-nav-sm font-semibold text-text-primary truncate">
