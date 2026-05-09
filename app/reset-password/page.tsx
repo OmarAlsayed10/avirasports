@@ -8,28 +8,30 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { resetPassword } from '@/lib/server-actions/password-reset';
-
-const schema = z
-  .object({
-    password: z
-      .string()
-      .min(8, 'Password must be at least 8 characters')
-      .regex(/[a-zA-Z]/, 'Password must include a letter')
-      .regex(/[0-9]/, 'Password must include a number'),
-    confirmPassword: z.string(),
-  })
-  .refine((d) => d.password === d.confirmPassword, {
-    message: 'Passwords do not match',
-    path: ['confirmPassword'],
-  });
-
-type FormInput = z.infer<typeof schema>;
+import { useLocale } from '@/lib/i18n/context';
 
 export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token') ?? '';
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useLocale();
+
+  const schema = z
+    .object({
+      password: z
+        .string()
+        .min(8, t.auth.resetPasswordPassMin)
+        .regex(/[a-zA-Z]/, t.auth.resetPasswordPassLetter)
+        .regex(/[0-9]/, t.auth.resetPasswordPassNumber),
+      confirmPassword: z.string(),
+    })
+    .refine((d) => d.password === d.confirmPassword, {
+      message: t.auth.resetPasswordPassMatch,
+      path: ['confirmPassword'],
+    });
+
+  type FormInput = z.infer<typeof schema>;
 
   const {
     register,
@@ -39,7 +41,7 @@ export default function ResetPasswordPage() {
 
   const onSubmit = async (data: FormInput) => {
     if (!token) {
-      toast.error('Invalid reset link. Please request a new one.');
+      toast.error(t.auth.resetPasswordMissingToken);
       return;
     }
 
@@ -52,7 +54,7 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    toast.success('Password updated. You can now sign in.');
+    toast.success(t.auth.resetPasswordSuccess);
     router.push('/login');
   };
 
@@ -61,12 +63,14 @@ export default function ResetPasswordPage() {
       <div className="min-h-[70vh] flex items-center justify-center px-site py-12">
         <div className="w-full max-w-md">
           <div className="bg-bg-white rounded-card-lg shadow-newsletter px-8 py-10 text-center">
-            <h1 className="text-section-heading font-semibold text-text-primary mb-2">Invalid link</h1>
+            <h1 className="text-section-heading font-semibold text-text-primary mb-2">
+              {t.auth.resetPasswordInvalidLink}
+            </h1>
             <p className="text-nav-sm text-text-secondary mb-6">
-              This reset link is missing or malformed.
+              {t.auth.resetPasswordInvalidLinkSub}
             </p>
             <Link href="/forgot-password" className="text-nav-sm text-primary font-semibold hover:underline">
-              Request a new link
+              {t.auth.resetPasswordRequestNew}
             </Link>
           </div>
         </div>
@@ -79,16 +83,16 @@ export default function ResetPasswordPage() {
       <div className="w-full max-w-md">
         <div className="bg-bg-white rounded-card-lg shadow-newsletter px-8 py-10">
           <h1 className="text-section-heading font-semibold text-text-primary mb-2 text-center">
-            Set new password
+            {t.auth.resetPasswordHeading}
           </h1>
           <p className="text-nav-sm text-text-secondary text-center mb-8">
-            Must be at least 8 characters and include a letter and a number.
+            {t.auth.resetPasswordSub}
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
             <div>
               <label className="block text-nav-sm font-medium text-text-primary mb-1.5" htmlFor="password">
-                New password
+                {t.auth.resetPasswordNewPassword}
               </label>
               <input
                 id="password"
@@ -105,7 +109,7 @@ export default function ResetPasswordPage() {
 
             <div>
               <label className="block text-nav-sm font-medium text-text-primary mb-1.5" htmlFor="confirmPassword">
-                Confirm new password
+                {t.auth.resetPasswordConfirm}
               </label>
               <input
                 id="confirmPassword"
@@ -125,13 +129,13 @@ export default function ResetPasswordPage() {
               disabled={isLoading}
               className="w-full h-12 bg-primary text-text-on-dark rounded-btn-sm text-nav-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
             >
-              {isLoading ? 'Updating…' : 'Update password'}
+              {isLoading ? t.auth.resetPasswordUpdating : t.auth.resetPasswordButton}
             </button>
           </form>
 
           <p className="text-nav-sm text-text-secondary text-center mt-6">
             <Link href="/login" className="text-primary font-semibold hover:underline">
-              Back to Sign In
+              {t.auth.forgotPasswordBackToLogin}
             </Link>
           </p>
         </div>

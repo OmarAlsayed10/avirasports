@@ -7,15 +7,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { requestPasswordReset } from '@/lib/server-actions/password-reset';
-
-const schema = z.object({
-  email: z.string().email('Please enter a valid email address'),
-});
-type FormInput = z.infer<typeof schema>;
+import { useLocale } from '@/lib/i18n/context';
 
 export default function ForgotPasswordPage() {
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useLocale();
+
+  const schema = z.object({
+    email: z.string().email(t.auth.forgotPasswordEmailError),
+  });
+  type FormInput = z.infer<typeof schema>;
 
   const {
     register,
@@ -47,34 +49,36 @@ export default function ForgotPasswordPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h1 className="text-section-heading font-semibold text-text-primary mb-2">Check your email</h1>
+              <h1 className="text-section-heading font-semibold text-text-primary mb-2">
+                {t.auth.forgotPasswordSuccess}
+              </h1>
               <p className="text-nav-sm text-text-secondary mb-6">
-                If an account exists for that address, we&apos;ve sent a password reset link. It expires in 1 hour.
+                {t.auth.forgotPasswordSuccessSub}
               </p>
               <Link href="/login" className="text-nav-sm text-primary font-semibold hover:underline">
-                Back to Sign In
+                {t.auth.forgotPasswordBackToLogin}
               </Link>
             </div>
           ) : (
             <>
               <h1 className="text-section-heading font-semibold text-text-primary mb-2 text-center">
-                Forgot password?
+                {t.auth.forgotPasswordHeading}
               </h1>
               <p className="text-nav-sm text-text-secondary text-center mb-8">
-                Enter your email and we&apos;ll send you a reset link.
+                {t.auth.forgotPasswordSub}
               </p>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
                 <div>
                   <label className="block text-nav-sm font-medium text-text-primary mb-1.5" htmlFor="email">
-                    Email
+                    {t.auth.email}
                   </label>
                   <input
                     id="email"
                     type="email"
                     {...register('email')}
                     className="field-input"
-                    placeholder="your@email.com"
+                    placeholder={t.auth.emailPlaceholder}
                     autoComplete="email"
                   />
                   {errors.email && (
@@ -87,13 +91,13 @@ export default function ForgotPasswordPage() {
                   disabled={isLoading}
                   className="w-full h-12 bg-primary text-text-on-dark rounded-btn-sm text-nav-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-60"
                 >
-                  {isLoading ? 'Sending…' : 'Send reset link'}
+                  {isLoading ? t.auth.forgotPasswordSending : t.auth.forgotPasswordButton}
                 </button>
               </form>
 
               <p className="text-nav-sm text-text-secondary text-center mt-6">
                 <Link href="/login" className="text-primary font-semibold hover:underline">
-                  Back to Sign In
+                  {t.auth.forgotPasswordBackToLogin}
                 </Link>
               </p>
             </>
