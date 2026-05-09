@@ -101,7 +101,7 @@ export async function getBestSellers(limit = 4, excludeProductId?: string) {
 
   if (topItems.length === 0) return [];
 
-  const ranked = topItems.map((i) => i.productId);
+  const ranked = topItems.map((i:any) => i.productId);
 
   const products = await prisma.product.findMany({
     where: { id: { in: ranked }, isActive: true },
@@ -112,8 +112,8 @@ export async function getBestSellers(limit = 4, excludeProductId?: string) {
   });
 
   return ranked
-    .map((id) => products.find((p) => p.id === id))
-    .filter((p): p is NonNullable<typeof p> => p != null)
+    .map((id:any) => products.find((p:any) => p.id === id))
+    .filter((p:any): p is NonNullable<typeof p> => p != null)
     .slice(0, limit);
 }
 
@@ -127,7 +127,7 @@ export async function getAlsoBought(productId: string, limit = 4) {
 
   if (orderItems.length === 0) return [];
 
-  const orderIds = orderItems.map((i) => i.orderId);
+  const orderIds = orderItems.map((i:any) => i.orderId);
 
   const coItems = await prisma.orderItem.groupBy({
     by: ['productId'],
@@ -139,7 +139,7 @@ export async function getAlsoBought(productId: string, limit = 4) {
 
   if (coItems.length === 0) return [];
 
-  const ranked = coItems.map((i) => i.productId);
+  const ranked = coItems.map((i:any) => i.productId);
 
   const products = await prisma.product.findMany({
     where: { id: { in: ranked }, isActive: true },
@@ -150,8 +150,8 @@ export async function getAlsoBought(productId: string, limit = 4) {
   });
 
   return ranked
-    .map((id) => products.find((p) => p.id === id))
-    .filter((p): p is NonNullable<typeof p> => p != null)
+    .map((id:any) => products.find((p:any) => p.id === id))
+    .filter((p:any): p is NonNullable<typeof p> => p != null)
     .slice(0, limit);
 }
 

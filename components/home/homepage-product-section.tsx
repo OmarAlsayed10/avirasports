@@ -39,7 +39,7 @@ export async function HomepageProductSection({ section }: { section: HomepageSec
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {products.map((product, index) => (
+          {products.map((product:any, index:any) => (
             <ProductCard
               key={product.id}
               priority={index === 0}
@@ -48,7 +48,7 @@ export async function HomepageProductSection({ section }: { section: HomepageSec
                 slug: product.slug,
                 name: product.name,
                 brand: product.brand,
-                basePriceEgp: product.basePriceEgp,
+                basePriceEgp: Number(product.basePriceEgp),
                 discountPercent: product.discountPercent,
                 ratingAvg: product.ratingAvg,
                 reviewCount: product.reviewCount,

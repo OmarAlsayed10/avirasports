@@ -1,19 +1,21 @@
-import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
-import { ProductCard } from '@/components/product/product-card';
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import { ProductCard } from "@/components/product/product-card";
 
 async function getFeaturedProducts() {
   return prisma.product.findMany({
     where: { isFeatured: true, isActive: true },
     take: 12,
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: "desc" },
     include: {
-      images: { orderBy: { sortOrder: 'asc' as const }, take: 1 },
+      images: { orderBy: { sortOrder: "asc" as const }, take: 1 },
       variants: { select: { stockCount: true } },
       category: { select: { slug: true, name: true } },
     },
   });
 }
+
+type FeaturedProduct = Awaited<ReturnType<typeof getFeaturedProducts>>[number];
 
 export async function FeaturedProducts() {
   const products = await getFeaturedProducts();
@@ -36,7 +38,7 @@ export async function FeaturedProducts() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {products.map((product, index) => (
+          {products.map((product: FeaturedProduct, index: number) => (
             <ProductCard
               key={product.id}
               priority={index === 0}
@@ -45,11 +47,14 @@ export async function FeaturedProducts() {
                 slug: product.slug,
                 name: product.name,
                 brand: product.brand,
-                basePriceEgp: product.basePriceEgp,
-                discountPercent: product.discountPercent,
-                ratingAvg: product.ratingAvg,
+                basePriceEgp: Number(product.basePriceEgp),
+                discountPercent: product.discountPercent ? Number(product.discountPercent) : null,
+                ratingAvg: Number(product.ratingAvg),
                 reviewCount: product.reviewCount,
-                images: product.images.map((img) => ({ url: img.url, alt: img.alt ?? product.name })),
+                images: product.images.map((img:any) => ({
+                  url: img.url,
+                  alt: img.alt ?? product.name,
+                })),
                 variants: product.variants,
                 category: product.category ?? undefined,
               }}

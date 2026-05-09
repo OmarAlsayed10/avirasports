@@ -54,7 +54,7 @@ const getFilterData = unstable_cache(
       prisma.category.findMany({ orderBy: { sortOrder: 'asc' }, select: { slug: true, name: true, nameAr: true } }),
       prisma.product.findMany({ where: { isActive: true }, select: { brand: true }, distinct: ['brand'], orderBy: { brand: 'asc' } }),
     ]);
-    return { categories, brands: brandRows.map((r) => r.brand) };
+    return { categories, brands: brandRows.map((r:any) => r.brand) };
   },
   ['shop-filter-data'],
   { revalidate: 300, tags: ['products', 'categories'] },
