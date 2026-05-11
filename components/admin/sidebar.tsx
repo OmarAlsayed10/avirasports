@@ -37,14 +37,14 @@ export default function AdminSidebar({ locale }: { locale: Locale }) {
 
   return (
     <>
-      {/* Desktop sidebar — fixed */}
+      {/* Desktop sidebar */}
       <aside className="hidden lg:flex flex-col w-56 bg-primary fixed top-0 left-0 h-screen z-30 overflow-y-auto">
         <div className="px-5 py-4 border-b border-white/10 shrink-0">
           <p className="text-white font-semibold text-sm tracking-wide">
-            {t.admin.aviraAdmin}
+            <Link href={"/"}>{t.admin.aviraAdmin}</Link>
           </p>
         </div>
-        <nav className="flex flex-col gap-0.5 p-3">
+        <nav className="flex flex-col gap-0.5 p-3 pb-6">
           {navItems.map(({ href, label, icon: Icon, exact }) => (
             <Link
               key={href}
@@ -92,9 +92,6 @@ export default function AdminSidebar({ locale }: { locale: Locale }) {
           );
         })}
       </nav>
-
-      {/* Mobile bottom padding so content doesn't hide behind the bar */}
-      <div className="lg:hidden h-16" />
     </>
   );
 }

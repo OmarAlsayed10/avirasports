@@ -25,8 +25,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="flex min-h-screen bg-gray-100" dir="ltr">
       <AdminSidebar locale={locale} />
-      <div className="flex-1 min-w-0">
-        <main className="p-5 lg:p-8 pt-20 lg:pt-8">{children}</main>
+      <div className="flex-1 min-w-0 pb-16 lg:pb-0">
+        <main id="main-content" tabIndex={-1} className="p-5 lg:p-8">{children}</main>
       </div>
     </div>
   );

@@ -3,13 +3,10 @@ import { DM_Sans, Barlow_Condensed, Cairo } from 'next/font/google';
 import { Suspense } from 'react';
 import './globals.css';
 import { Providers } from './providers';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { MobileMenu } from '@/components/layout/mobile-menu';
 import { SearchOverlay } from '@/components/search/search-overlay';
 import { ScrollToTop } from '@/components/shared/scroll-to-top';
 import { getLocale } from '@/lib/locale';
-import { listCategories } from '@/lib/queries/categories';
 import { auth } from '@/lib/auth';
 
 const dmSans = DM_Sans({
@@ -80,8 +77,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const locale = getLocale();
-  const [session, allCategories] = await Promise.all([auth(), listCategories()]);
-  const navCategories = allCategories.slice(0, 8);
+  const session = await auth();
   return (
     <html
       lang={locale}
@@ -102,13 +98,10 @@ export default async function RootLayout({
           </Suspense>
           <MobileMenu />
           <SearchOverlay />
-          <Header locale={locale} categories={navCategories} />
-          <main id="main-content" tabIndex={-1}>
-            {children}
-          </main>
-          <Footer />
+          {children}
         </Providers>
       </body>
     </html>
   );
 }
+
