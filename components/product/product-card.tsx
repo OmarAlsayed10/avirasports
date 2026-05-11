@@ -29,7 +29,8 @@ interface ProductCardProps {
 }
 
 export const ProductCard = memo(function ProductCard({ product, priority = false }: ProductCardProps) {
-  const { t }  = useLocale();
+  const { locale, t } = useLocale();
+  const displayName = locale === 'ar' && product.nameAr ? product.nameAr : product.name;
   const basePrice =
     typeof product.basePriceEgp === 'object'
       ? product.basePriceEgp.toNumber()
@@ -72,7 +73,7 @@ export const ProductCard = memo(function ProductCard({ product, priority = false
         <div className="p-4">
           <p className="text-xs text-text-secondary dark:text-text-footer-link font-medium mb-1">{product.brand}</p>
           <h3 className="text-base font-semibold text-text-primary dark:text-text-on-dark leading-tight line-clamp-2 mb-2">
-            {product.name}
+            {displayName}
           </h3>
           <StarRating rating={product.ratingAvg} count={product.reviewCount} />
           <div className="mt-2">

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { cn } from '@/lib/utils/cn';
-import { useLocale } from '@/lib/i18n/context';
+import { useState, useMemo } from "react";
+import { cn } from "@/lib/utils/cn";
+import { useLocale } from "@/lib/i18n/context";
 
 export type VariantOption = {
   id: string;
@@ -18,13 +18,9 @@ interface VariantSelectorProps {
   onSelect: (variantId: string | null) => void;
 }
 
-function isHexColor(value: string): boolean {
-  return /^#[0-9A-Fa-f]{3,8}$/.test(value);
-}
-
-function isColorKey(key: string, variants: VariantOption[]): boolean {
-  const withKey = variants.filter((v) => key in v.attributes);
-  return withKey.length > 0 && withKey.every((v) => isHexColor(v.attributes[key]));
+// A key is a color key if it's literally named "color" — hex-scan heuristic removed (YAGNI)
+function isColorKey(key: string): boolean {
+  return key.toLowerCase() === "color";
 }
 
 export function VariantSelector({ variants, selectedId, onSelect }: VariantSelectorProps) {
@@ -37,11 +33,6 @@ export function VariantSelector({ variants, selectedId, onSelect }: VariantSelec
     return Array.from(keys);
   }, [variants]);
 
-  const colorKeys = useMemo(
-    () => new Set(allKeys.filter((k) => isColorKey(k, variants))),
-    [allKeys, variants]
-  );
-
   const valuesByKey = useMemo(() => {
     const result: Record<string, string[]> = {};
     allKeys.forEach((key) => {
@@ -49,7 +40,7 @@ export function VariantSelector({ variants, selectedId, onSelect }: VariantSelec
       const values: string[] = [];
       variants.forEach((v) => {
         const val = v.attributes[key];
-        if (val !== undefined && !seen.has(val)) {
+        if (val !== undefined && val !== "" && !seen.has(val)) {
           seen.add(val);
           values.push(val);
         }
@@ -59,6 +50,7 @@ export function VariantSelector({ variants, selectedId, onSelect }: VariantSelec
     return result;
   }, [allKeys, variants]);
 
+  // Single-variant products or attribute-less products don't need a selector
   if (variants.length <= 1 || allKeys.length === 0) return null;
 
   function getStatesForKey(key: string) {
@@ -67,10 +59,11 @@ export function VariantSelector({ variants, selectedId, onSelect }: VariantSelec
     const inStock = new Set<string>();
 
     variants.forEach((v) => {
+      const attrVal = v.attributes[key];
       const matchesOthers = otherEntries.every(([k, val]) => v.attributes[k] === val);
-      if (matchesOthers && v.attributes[key] !== undefined) {
-        available.add(v.attributes[key]);
-        if (v.stockCount > 0) inStock.add(v.attributes[key]);
+      if (matchesOthers && attrVal !== undefined) {
+        available.add(attrVal);
+        if (v.stockCount > 0) inStock.add(attrVal);
       }
     });
 
@@ -78,28 +71,36 @@ export function VariantSelector({ variants, selectedId, onSelect }: VariantSelec
   }
 
   function handleSelect(key: string, value: string) {
+    // Toggle: clicking the already-selected value deselects it
+    if (selections[key] === value) {
+      const next = { ...selections };
+      delete next[key];
+      setSelections(next);
+      onSelect(null);
+      return;
+    }
+
     const next = { ...selections, [key]: value };
 
+    // Invalidate other selections that are no longer reachable
     allKeys.forEach((k) => {
       if (k === key || next[k] === undefined) return;
       const stillReachable = variants.some((v) =>
-        Object.entries(next).every(([ak, av]) => v.attributes[ak] === av)
+        Object.entries(next).every(([ak, av]) => v.attributes[ak] === av),
       );
       if (!stillReachable) delete next[k];
     });
 
     setSelections(next);
 
-    const matched = variants.find((v) =>
-      allKeys.every((k) => v.attributes[k] === next[k])
-    );
+    const matched = variants.find((v) => allKeys.every((k) => v.attributes[k] === next[k]));
     onSelect(matched?.id ?? null);
   }
 
   return (
     <div className="space-y-4" role="group" aria-label={t.product.variantSelect}>
       {allKeys.map((key) => {
-        const isColor = colorKeys.has(key);
+        const isColor = isColorKey(key);
         const values = valuesByKey[key];
         const { available, inStock } = getStatesForKey(key);
         const selected = selections[key];
@@ -127,17 +128,17 @@ export function VariantSelector({ variants, selectedId, onSelect }: VariantSelec
                       onClick={() => isAvailable && handleSelect(key, val)}
                       disabled={!isAvailable}
                       aria-pressed={isSelected}
-                      aria-label={`${key} ${val}${!isInStock ? ` — ${t.product.variantOutOfStock}` : ''}`}
+                      aria-label={`${key} ${val}${!isInStock ? ` — ${t.product.variantOutOfStock}` : ""}`}
                       title={val}
                       className={cn(
-                        'w-8 h-8 rounded-full border-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
+                        "w-8 h-8 rounded-full border-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1",
                         isSelected
-                          ? 'border-primary ring-2 ring-primary ring-offset-2 dark:ring-offset-bg-surface'
+                          ? "border-primary ring-2 ring-primary ring-offset-2 dark:ring-offset-bg-surface"
                           : isAvailable
-                            ? 'border-transparent hover:border-primary/60'
-                            : 'border-transparent',
-                        !isAvailable && 'opacity-30 cursor-not-allowed',
-                        isAvailable && !isInStock && 'opacity-50'
+                            ? "border-transparent hover:border-primary/60"
+                            : "border-transparent",
+                        !isAvailable && "opacity-30 cursor-not-allowed",
+                        isAvailable && !isInStock && "opacity-50",
                       )}
                       style={{ backgroundColor: val }}
                     />
@@ -151,16 +152,16 @@ export function VariantSelector({ variants, selectedId, onSelect }: VariantSelec
                     onClick={() => isAvailable && handleSelect(key, val)}
                     disabled={!isAvailable}
                     aria-pressed={isSelected}
-                    aria-label={`${val}${!isInStock ? ` — ${t.product.variantOutOfStock}` : ''}`}
+                    aria-label={`${val}${!isInStock ? ` — ${t.product.variantOutOfStock}` : ""}`}
                     className={cn(
-                      'px-4 py-2 rounded-btn-sm border text-nav-sm font-medium transition-colors',
+                      "px-4 py-2 rounded-btn-sm border text-nav-sm font-medium transition-colors",
                       isSelected
-                        ? 'border-primary bg-primary text-text-on-dark'
+                        ? "border-primary bg-primary text-text-on-dark"
                         : isAvailable && isInStock
-                          ? 'border-border-primary/40 dark:border-white/20 text-text-primary dark:text-text-on-dark hover:border-primary'
+                          ? "border-border-primary/40 dark:border-white/20 text-text-primary dark:text-text-on-dark hover:border-primary"
                           : isAvailable
-                            ? 'border-border-primary/30 dark:border-white/15 text-text-placeholder dark:text-text-footer-link/50 line-through cursor-not-allowed'
-                            : 'border-border-primary/20 dark:border-white/10 text-text-placeholder dark:text-text-footer-link/50 opacity-50 cursor-not-allowed'
+                            ? "border-border-primary/30 dark:border-white/15 text-text-placeholder dark:text-text-footer-link/50 line-through cursor-not-allowed"
+                            : "border-border-primary/20 dark:border-white/10 text-text-placeholder dark:text-text-footer-link/50 opacity-50 cursor-not-allowed",
                     )}
                   >
                     {val}

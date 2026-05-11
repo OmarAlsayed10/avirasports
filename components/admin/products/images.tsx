@@ -14,9 +14,7 @@ function previewUrl(url: string) {
   return `https://res.cloudinary.com/${cloudName}/image/upload/w_200,h_200,c_fill/${url}`;
 }
 
-function uid() {
-  return Math.random().toString(36).slice(2);
-}
+
 
 export function ImagesSection() {
   const { form, pendingFiles, setPendingFiles } = useProductForm();
@@ -26,7 +24,7 @@ export function ImagesSection() {
   const { fields, append, remove } = useFieldArray({ control, name: 'images' });
 
   const handleFileUpload = (file: File) => {
-    const tempId = `pending:${uid()}`;
+    const tempId = `pending:${crypto.randomUUID()}`;
     const preview = URL.createObjectURL(file);
     setPendingFiles((prev) => new Map(prev).set(tempId, { file, preview }));
     append({ url: tempId, alt: '', isPrimary: fields.length === 0, sortOrder: fields.length });
@@ -52,7 +50,7 @@ export function ImagesSection() {
   return (
     <SectionShell title={t.admin.images}>
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-        {fields.map((field:any, i) => {
+        {fields.map((field, i) => {
           const displayUrl = field.url.startsWith('pending:')
             ? (pendingFiles.get(field.url)?.preview ?? '')
             : previewUrl(field.url);

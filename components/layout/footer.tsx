@@ -1,9 +1,13 @@
-import Link from 'next/link';
-import Image from 'next/image';
-import { getLocale } from '@/lib/locale';
-import { tr } from '@/lib/i18n/translations';
-import { listCategories } from '@/lib/queries/categories';
-import { CONTACT_LINKS, getServiceLinks, getSocialLinks } from '@/lib/constants/footer';
+import Link from "next/link";
+import Image from "next/image";
+import { getLocale } from "@/lib/locale";
+import { tr } from "@/lib/i18n/translations";
+import { listCategories } from "@/lib/queries/categories";
+import {
+  CONTACT_LINKS,
+  getServiceLinks,
+  getSocialLinks,
+} from "@/lib/constants/footer";
 
 export async function Footer() {
   const locale = getLocale();
@@ -12,7 +16,7 @@ export async function Footer() {
   const allCategories = await listCategories();
   const categoryLinks = allCategories.slice(0, 6).map((cat) => ({
     href: `/shop?category=${cat.slug}`,
-    label: locale === 'ar' ? (cat.nameAr ?? cat.name) : cat.name,
+    label: locale === "ar" ? (cat.nameAr ?? cat.name) : cat.name,
   }));
 
   const SERVICE_LINKS = getServiceLinks(t);
@@ -24,7 +28,14 @@ export async function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
             <div className="inline-block bg-white dark:bg-bg-dark rounded mb-1">
-              <Image src="/avira-logo.png" alt="Avira" width={800} height={800} className="h-10 w-auto" unoptimized />
+              <Image
+                src="/avira-logo.png"
+                alt="Avira"
+                width={800}
+                height={800}
+                className="h-10 w-auto"
+                unoptimized
+              />
             </div>
             <p className="text-xs font-semibold uppercase tracking-widest text-primary-btn mb-3">
               {t.footer.tagline}
@@ -66,7 +77,13 @@ export async function Footer() {
   );
 }
 
-function FooterColumn({ title, links }: { title: string; links: { href: string; label: string }[] }) {
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: { href: string; label: string }[];
+}) {
   return (
     <nav aria-label={title}>
       <h3 className="text-xs font-semibold uppercase tracking-wider text-text-on-dark dark:text-text-primary mb-4">
@@ -77,7 +94,7 @@ function FooterColumn({ title, links }: { title: string; links: { href: string; 
           <li key={link.href}>
             <Link
               href={link.href}
-              className="text-sm text-text-footer-link dark:text-text-secondary hover:text-text-on-dark dark:hover:text-text-primary transition-colors"
+              className="text-sm text-text-footer-link dark:text-text-secondary hover:text-text-on-dark dark:hover:text-text-primary transition-colors break-all"
             >
               {link.label}
             </Link>

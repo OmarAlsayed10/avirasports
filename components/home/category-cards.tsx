@@ -1,15 +1,21 @@
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
-import { prisma } from '@/lib/prisma';
-import { getT } from '@/lib/locale';
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import { getT } from "@/lib/locale";
+import { toCloudinaryUrl } from "@/lib/utils/cloudinary-url";
 
-type DbCategory = { slug: string; name: string; nameAr: string | null; iconUrl: string | null };
+type DbCategory = {
+  slug: string;
+  name: string;
+  nameAr: string | null;
+  iconUrl: string | null;
+};
 
 export async function CategoryCards() {
   const { locale, t } = getT();
 
   const categories = await prisma.category.findMany({
-    orderBy: { sortOrder: 'asc' },
+    orderBy: { sortOrder: "asc" },
     select: { slug: true, name: true, nameAr: true, iconUrl: true },
   });
 
@@ -38,16 +44,36 @@ export async function CategoryCards() {
         </div>
 
         {large1 && (
-          <div className={`grid gap-4 mb-4 ${large2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
-            <CategoryCard cat={large1} locale={locale} shopLabel={t.home.shopCollection} minHeight="min-h-[220px] md:min-h-[280px]" />
-            {large2 && <CategoryCard cat={large2} locale={locale} shopLabel={t.home.shopCollection} minHeight="min-h-[220px] md:min-h-[280px]" />}
+          <div
+            className={`grid gap-4 mb-4 ${large2 ? "grid-cols-2" : "grid-cols-1"}`}
+          >
+            <CategoryCard
+              cat={large1}
+              locale={locale}
+              shopLabel={t.home.shopCollection}
+              minHeight="min-h-[220px] md:min-h-[280px]"
+            />
+            {large2 && (
+              <CategoryCard
+                cat={large2}
+                locale={locale}
+                shopLabel={t.home.shopCollection}
+                minHeight="min-h-[220px] md:min-h-[280px]"
+              />
+            )}
           </div>
         )}
 
         {small.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {small.map((cat) => (
-              <CategoryCard key={cat.slug} cat={cat} locale={locale} shopLabel={t.home.shopCollection} minHeight="min-h-[130px] md:min-h-[160px]" />
+              <CategoryCard
+                key={cat.slug}
+                cat={cat}
+                locale={locale}
+                shopLabel={t.home.shopCollection}
+                minHeight="min-h-[130px] md:min-h-[160px]"
+              />
             ))}
           </div>
         )}
@@ -63,11 +89,11 @@ function CategoryCard({
   minHeight,
 }: {
   cat: DbCategory;
-  locale: 'en' | 'ar';
+  locale: "en" | "ar";
   shopLabel: string;
   minHeight: string;
 }) {
-  const displayName = locale === 'ar' && cat.nameAr ? cat.nameAr : cat.name;
+  const displayName = locale === "ar" && cat.nameAr ? cat.nameAr : cat.name;
   return (
     <Link
       href={`/shop?category=${cat.slug}`}
@@ -76,7 +102,12 @@ function CategoryCard({
     >
       {cat.iconUrl ? (
         <>
-          <img src={cat.iconUrl} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" />
+          <img
+            src={toCloudinaryUrl(cat.iconUrl)}
+            alt=""
+            aria-hidden
+            className="absolute inset-0 w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors" />
         </>
       ) : (

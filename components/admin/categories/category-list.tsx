@@ -6,6 +6,7 @@ import { createCategory, updateCategory, deleteCategory } from '@/lib/server-act
 import { Pencil, Trash2, Plus, X, Check, Loader2, Upload, ImageIcon } from 'lucide-react';
 import { slugify } from '@/lib/utils/slugify';
 import { useLocale } from '@/lib/i18n/context';
+import { toCloudinaryUrl } from '@/lib/utils/cloudinary-url';
 
 type Category = {
   id: string;
@@ -18,13 +19,6 @@ type Category = {
   _count: { products: number };
 };
 
-const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-
-function previewUrl(url: string) {
-  if (!url) return '';
-  if (url.startsWith('http')) return url;
-  return `https://res.cloudinary.com/${cloudName}/image/upload/w_120,h_80,c_fill/${url}`;
-}
 
 function ImageUploadField({ initialUrl }: { initialUrl?: string | null }) {
   const [url, setUrl] = useState(initialUrl ?? '');
@@ -38,7 +32,7 @@ function ImageUploadField({ initialUrl }: { initialUrl?: string | null }) {
       fd.append('file', file);
       const res = await fetch('/api/admin/upload?folder=categories', { method: 'POST', body: fd });
       const data = await res.json() as { url?: string; secureUrl?: string; error?: string };
-      if (data.url) setUrl(data.url);
+      if (data.secureUrl) setUrl(data.secureUrl);
       else alert(data.error ?? 'Upload failed');
     } finally {
       setUploading(false);
@@ -51,7 +45,7 @@ function ImageUploadField({ initialUrl }: { initialUrl?: string | null }) {
       <div className="flex items-center gap-3">
         <div className="w-24 h-16 rounded border border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center shrink-0">
           {url ? (
-            <img src={previewUrl(url)} alt="" className="w-full h-full object-cover" />
+            <img src={toCloudinaryUrl(url, 'w_120,h_80,c_fill')} alt="" className="w-full h-full object-cover" />
           ) : (
             <ImageIcon className="w-6 h-6 text-gray-300" />
           )}
@@ -294,7 +288,7 @@ export default function CategoryList({ categories }: { categories: Category[] })
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell">
                       {cat.iconUrl ? (
-                        <img src={previewUrl(cat.iconUrl)} alt="" className="w-16 h-10 rounded object-cover border border-gray-100" />
+                        <img src={toCloudinaryUrl(cat.iconUrl, 'w_120,h_80,c_fill')} alt="" className="w-16 h-10 rounded object-cover border border-gray-100" />
                       ) : (
                         <span className="italic text-gray-300 text-xs">—</span>
                       )}
