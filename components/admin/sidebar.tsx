@@ -85,7 +85,9 @@ export default function AdminSidebar({ locale }: { locale: Locale }) {
                   active && "drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]",
                 )}
               />
-              <span className="leading-none">{label}</span>
+              <span className="leading-none text-center w-full" dir="auto">
+                {label}
+              </span>
             </Link>
           );
         })}
