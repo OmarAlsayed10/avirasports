@@ -166,9 +166,11 @@ export default async function AdminOrderDetailPage({
         <div className="divide-y divide-gray-100">
           {order.items.map((item: OrderItem) => (
             <div key={item.id} className="flex items-center gap-3 px-5 py-4">
-              <div className="w-12 h-12 rounded-md bg-gray-100 overflow-hidden shrink-0">
-                <OrderItemImage src={item.imageUrlSnapshot} alt={item.productNameSnapshot} />
-              </div>
+              {item.imageUrlSnapshot && (
+                <div className="w-12 h-12 rounded-md bg-gray-100 overflow-hidden shrink-0">
+                  <OrderItemImage src={item.imageUrlSnapshot} alt={item.productNameSnapshot} />
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 line-clamp-1">
                   {item.productNameSnapshot}
@@ -177,11 +179,23 @@ export default async function AdminOrderDetailPage({
                 {item.variantAttributesSnapshot &&
                   Object.keys(item.variantAttributesSnapshot as Record<string, string>).length >
                     0 && (
-                    <p className="text-xs text-gray-400">
-                      {Object.entries(item.variantAttributesSnapshot as Record<string, string>)
-                        .map(([k, v]) => `${k}: ${v}`)
-                        .join(', ')}
-                    </p>
+                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                      {Object.entries(item.variantAttributesSnapshot as Record<string, string>).map(
+                        ([k, v]) =>
+                          k.toLowerCase() === 'color' ? (
+                            <div
+                              key={k}
+                              className="w-5 h-5 rounded-full border-2 border-gray-200 shrink-0"
+                              style={{ backgroundColor: v }}
+                              title={v}
+                            />
+                          ) : (
+                            <span key={k} className="text-xs text-gray-400">
+                              {k}: {v}
+                            </span>
+                          ),
+                      )}
+                    </div>
                   )}
               </div>
               <div className="text-right shrink-0">
