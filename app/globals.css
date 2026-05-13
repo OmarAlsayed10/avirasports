@@ -55,6 +55,45 @@
   visibility: hidden;
 }
 
+/* ── Admin dark mode ──────────────────────────────────────────────────────── */
+/* Scoped to [data-admin] — does not affect the store                          */
+.dark [data-admin] .bg-white        { background-color: #1e293b }
+.dark [data-admin] .bg-gray-50      { background-color: #0f172a }
+.dark [data-admin] .bg-gray-100     { background-color: #020617 }
+
+.dark [data-admin] .text-gray-900   { color: #f1f5f9 }
+.dark [data-admin] .text-gray-800   { color: #e2e8f0 }
+.dark [data-admin] .text-gray-700   { color: #cbd5e1 }
+.dark [data-admin] .text-gray-600   { color: #94a3b8 }
+.dark [data-admin] .text-gray-500   { color: #94a3b8 }
+.dark [data-admin] .text-gray-400   { color: #64748b }
+
+.dark [data-admin] .border-gray-200 { border-color: #334155 }
+.dark [data-admin] .border-gray-100 { border-color: rgb(51 65 85 / 0.5) }
+.dark [data-admin] .border-gray-300 { border-color: #475569 }
+
+.dark [data-admin] .divide-gray-100 > * + * { border-color: rgb(51 65 85 / 0.5) }
+.dark [data-admin] .divide-gray-200 > * + * { border-color: #334155 }
+
+.dark [data-admin] .hover\:bg-gray-50:hover  { background-color: #1e293b }
+.dark [data-admin] .hover\:bg-gray-100:hover { background-color: #0f172a }
+.dark [data-admin] .hover\:bg-gray-200:hover { background-color: #1e293b }
+
+/* Form inputs */
+.dark [data-admin] input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.dark [data-admin] select,
+.dark [data-admin] textarea {
+  background-color: #1e293b;
+  color: #f1f5f9;
+  border-color: #475569;
+}
+.dark [data-admin] input::placeholder,
+.dark [data-admin] textarea::placeholder { color: #64748b }
+
+/* Tables */
+.dark [data-admin] thead { background-color: #0f172a }
+.dark [data-admin] tbody tr:hover { background-color: #1e293b }
+
 @layer components {
   /* Responsive horizontal page padding — use instead of px-content-inset */
   .px-site {

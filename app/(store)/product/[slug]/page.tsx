@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Star } from 'lucide-react';
 import { getProduct, getRelatedProducts, getBestSellers, getAlsoBought, getUserProductReview } from '@/lib/queries/products';
+import { getProductOffers } from '@/lib/queries/offers';
+import { OfferBanner } from '@/components/product/offer-banner';
 import { auth } from '@/lib/auth';
 import { Breadcrumb } from '@/components/shared/breadcrumb';
 import { PriceDisplay } from '@/components/shared/price-display';
@@ -170,11 +172,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const userId = session?.user?.id ?? null;
 
-  const [related, alsoBought, bestSellers, existingReview] = await Promise.all([
+  const [related, alsoBought, bestSellers, existingReview, offers] = await Promise.all([
     getRelatedProducts(product.id, product.categoryId).catch(() => []),
     getAlsoBought(product.id).catch(() => []),
     getBestSellers(4, product.id).catch(() => []),
     userId ? getUserProductReview(product.id, userId).catch(() => null) : Promise.resolve(null),
+    getProductOffers(product.id).catch(() => []),
   ]);
 
   const basePrice = Number(product.basePriceEgp);
@@ -265,6 +268,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           {/* Key specs summary */}
           {specs.length > 0 && <ProductSpecs specs={specs} locale={locale} />}
+
+          {/* Offers */}
+          <OfferBanner offers={offers} locale={locale} />
 
           {/* Add to cart */}
           <AddToCartSection

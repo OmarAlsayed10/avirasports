@@ -154,6 +154,8 @@ model Product {
   reviews         Review[]
   wishlistItems   WishlistItem[]
   orderItems      OrderItem[]
+  triggeredOffers OfferTriggerProduct[] @relation("OfferTriggerProducts")
+  rewardOffers    Offer[]               @relation("OfferReward")
 
   @@index([categoryId])
   @@index([brand])
@@ -329,6 +331,34 @@ model Coupon {
   validUntil       DateTime
   isActive         Boolean    @default(true)
   orders           Order[]
+}
+
+// ─── Offers ───────────────────────────────────────────────────────────────────
+
+enum OfferRewardType {
+  GIFT
+  PERCENT_OFF
+}
+
+model Offer {
+  id              String               @id @default(cuid())
+  isActive        Boolean              @default(true)
+  rewardType      OfferRewardType
+  discountPercent Int?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  rewardProductId String
+  rewardProduct   Product              @relation("OfferReward", fields: [rewardProductId], references: [id])
+  triggers        OfferTriggerProduct[]
+}
+
+model OfferTriggerProduct {
+  offerId   String
+  productId String
+  offer     Offer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  product   Product @relation("OfferTriggerProducts", fields: [productId], references: [id])
+
+  @@id([offerId, productId])
 }
 
 // ─── Newsletter ───────────────────────────────────────────────────────────────

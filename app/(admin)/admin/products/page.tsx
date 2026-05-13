@@ -2,7 +2,7 @@
 import { prisma } from '@/lib/prisma';
 import { formatEgp } from '@/lib/utils/format-egp';
 import cloudinaryLoader from '@/lib/cloudinary-loader';
-import DeleteProductButton from '@/components/admin/products/delete-product-button';
+import ProductRowActions from '@/components/admin/products/product-row-actions';
 import ToggleStatusButton from '@/components/admin/products/toggle-status-button';
 import type { Metadata } from 'next';
 import { getT } from '@/lib/locale';
@@ -167,15 +167,7 @@ export default async function AdminProductsPage({ searchParams }: Props) {
                       <ToggleStatusButton id={product.id} isActive={product.isActive} />
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-3 justify-end">
-                        <Link
-                          href={`/admin/products/${product.id}/edit`}
-                          className="text-xs text-primary-btn hover:underline font-medium"
-                        >
-                          {t.admin.edit}
-                        </Link>
-                        <DeleteProductButton id={product.id} />
-                      </div>
+                      <ProductRowActions id={product.id} />
                     </td>
                   </tr>
                 );

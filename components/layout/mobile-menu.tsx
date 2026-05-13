@@ -89,11 +89,11 @@ export function MobileMenu() {
           {session ? (
             <>
               <Link
-                href="/account"
+                href={session.user?.role === 'ADMIN' ? '/admin' : '/account'}
                 onClick={() => setMobileMenuOpen(false)}
                 className="block w-full text-center py-2 text-nav-sm font-medium text-text-primary hover:text-primary transition-colors"
               >
-                {t.mobileMenu.account}
+                {session.user?.role === 'ADMIN' ? t.admin.dashboard : t.mobileMenu.account}
               </Link>
               <button
                 onClick={() => { setMobileMenuOpen(false); signOut({ callbackUrl: '/' }); }}

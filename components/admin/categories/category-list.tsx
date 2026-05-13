@@ -3,7 +3,8 @@
 import { useFormState, useFormStatus } from 'react-dom';
 import { useState, useEffect } from 'react';
 import { createCategory, updateCategory, deleteCategory } from '@/lib/server-actions/admin/categories';
-import { Pencil, Trash2, Plus, X, Check, Loader2, Upload, ImageIcon } from 'lucide-react';
+import { Pencil, Trash2, Plus, X, Check, Loader2, Upload, ImageIcon, MoreHorizontal } from 'lucide-react';
+import { RowActions } from '@/components/admin/shared/row-actions';
 import { slugify } from '@/lib/utils/slugify';
 import { useLocale } from '@/lib/i18n/context';
 import { toCloudinaryUrl } from '@/lib/utils/cloudinary-url';
@@ -242,7 +243,15 @@ function DeleteButton({ id, productCount }: { id: string; productCount: number }
 export default function CategoryList({ categories }: { categories: Category[] }) {
   const [showAdd, setShowAdd] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const { t } = useLocale();
+
+  async function handleDeleteCategory(id: string) {
+    if (!confirm(t.admin.deleteCategoryConfirm)) return;
+    setPendingDeleteId(id);
+    await deleteCategory(id);
+    setPendingDeleteId(null);
+  }
 
   return (
     <div className="space-y-4">
@@ -296,16 +305,20 @@ export default function CategoryList({ categories }: { categories: Category[] })
                     <td className="px-4 py-3 text-center text-gray-700">{cat._count.products}</td>
                     <td className="px-4 py-3 text-center text-gray-500">{cat.sortOrder}</td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => setEditingId(editingId === cat.id ? null : cat.id)}
-                          className="p-1.5 text-gray-400 hover:text-primary transition-colors"
-                          title={t.admin.edit}
-                        >
-                          {editingId === cat.id ? <X className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
-                        </button>
-                        <DeleteButton id={cat.id} productCount={cat._count.products} />
-                      </div>
+                      <RowActions
+                        actions={[
+                          {
+                            label: editingId === cat.id ? t.admin.cancel : t.admin.edit,
+                            onClick: () => setEditingId(editingId === cat.id ? null : cat.id),
+                          },
+                          {
+                            label: pendingDeleteId === cat.id ? 'Deleting…' : t.admin.delete,
+                            variant: 'danger',
+                            disabled: cat._count.products > 0 || pendingDeleteId === cat.id,
+                            onClick: () => handleDeleteCategory(cat.id),
+                          },
+                        ]}
+                      />
                     </td>
                   </tr>
                   {editingId === cat.id && (

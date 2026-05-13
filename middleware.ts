@@ -31,11 +31,21 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  if (isProtectedRoute && !cookieName) {
-    const url = req.nextUrl.clone();
-    url.pathname = '/login';
-    url.searchParams.set('callbackUrl', pathname);
-    return NextResponse.redirect(url);
+  if (isProtectedRoute) {
+    if (!cookieName) {
+      const url = req.nextUrl.clone();
+      url.pathname = '/login';
+      url.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(url);
+    }
+
+    // Redirect admins away from /account to /admin
+    if (pathname.startsWith('/account')) {
+      const token = await getToken({ req, secret: process.env.AUTH_SECRET, cookieName });
+      if (token?.role === 'ADMIN') {
+        return NextResponse.redirect(new URL('/admin', req.url));
+      }
+    }
   }
 
   return NextResponse.next();
