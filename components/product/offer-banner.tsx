@@ -52,9 +52,9 @@ export function OfferBanner({ offers, locale }: OfferBannerProps) {
       {offers.map((offer) => (
         <div
           key={offer.id}
-          className="flex items-start gap-2.5 px-4 py-3 rounded-lg bg-primary/10 border border-primary/20 text-sm text-text-primary"
+          className="flex items-start gap-2.5 px-4 py-3 rounded-lg bg-primary/10 dark:bg-white/10 border border-primary/20 dark:border-white/20 text-sm text-text-primary dark:text-text-on-dark"
         >
-          <Tag className="w-4 h-4 shrink-0 mt-0.5 text-primary" />
+          <Tag className="w-4 h-4 shrink-0 mt-0.5 text-primary dark:text-white/70" />
           <span>{offerMessage(offer, locale)}</span>
         </div>
       ))}

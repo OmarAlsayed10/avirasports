@@ -32,7 +32,7 @@ const config: Config = {
 
         // Backgrounds
         'bg-page': '#f5f5f3',      // Page / body background
-        'bg-white': '#ffffff',
+        'bg-white': '#f5f5f3',
         'bg-dark': '#111111',      // Footer, hero, nav pill
         'bg-surface': '#1a1a1a',   // Surface-dark cards / elevated elements
 

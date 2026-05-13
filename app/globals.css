@@ -55,6 +55,26 @@
   visibility: hidden;
 }
 
+/* ── Global dark mode — semantic token overrides ─────────────────────────── */
+/* Fixes every component that uses these tokens without explicit dark: variant */
+
+/* Text */
+.dark .text-text-primary     { color: #f5f5f3 }
+.dark .text-text-body        { color: #f5f5f3 }
+.dark .text-text-near-black  { color: #f5f5f3 }
+.dark .text-text-secondary   { color: #a1a1aa }
+.dark .text-text-muted       { color: #a1a1aa }
+.dark .text-text-placeholder { color: #71717a }
+.dark .text-text-placeholder-alt { color: #71717a }
+
+/* Backgrounds */
+.dark .bg-bg-white  { background-color: #1a1a1a }
+.dark .bg-bg-page   { background-color: #111111 }
+
+/* Borders — only bare class, opacity variants (border-border-primary/20 etc.) are unaffected */
+.dark .border-border-primary { border-color: rgb(255 255 255 / 0.15) }
+.dark .border-border-input   { border-color: rgb(255 255 255 / 0.2)  }
+
 /* ── Admin dark mode ──────────────────────────────────────────────────────── */
 /* Scoped to [data-admin] — does not affect the store                          */
 .dark [data-admin] .bg-white        { background-color: #1e293b }

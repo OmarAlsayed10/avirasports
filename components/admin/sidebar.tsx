@@ -78,7 +78,6 @@ export default function AdminSidebar({ locale }: { locale: Locale }) {
         <div className="border-t border-white/10 px-4 py-3 flex items-center gap-2 shrink-0">
           <LocaleToggle locale={locale} />
           <ThemeToggle />
-          <span className="text-xs text-white/40 ml-auto">{t.admin.siteLanguage}</span>
         </div>
       </aside>
 

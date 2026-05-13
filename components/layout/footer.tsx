@@ -23,11 +23,11 @@ export async function Footer() {
   const SOCIAL_LINKS = getSocialLinks(t);
 
   return (
-    <footer className="bg-bg-dark dark:bg-white text-text-on-dark dark:text-text-primary">
+    <footer className="bg-bg-dark dark:bg-[#f5f5f3] text-text-on-dark dark:text-text-primary">
       <div className="max-w-content mx-auto px-site py-10 md:py-14">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
-            <div className="inline-block bg-white dark:bg-bg-dark rounded mb-1">
+            <div className="inline-block bg-bg-page rounded mb-1">
               <Image
                 src="/avira-logo.png"
                 alt="Avira"

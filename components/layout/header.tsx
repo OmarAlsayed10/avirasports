@@ -25,7 +25,7 @@ export function Header({ locale, categories }: { locale: Locale; categories: Nav
   }));
 
   return (
-    <header className="sticky top-0 z-50 bg-bg-white dark:bg-bg-surface shadow-sm dark:shadow-none dark:border-b dark:border-white/10">
+    <header className="sticky top-0 z-50 bg-bg-page dark:bg-bg-surface shadow-sm dark:shadow-none dark:border-b dark:border-white/10">
       <div className="max-w-content mx-auto px-site h-16 md:h-main-nav flex items-center justify-between gap-4 md:gap-8">
         <button
           className="md:hidden p-1 text-text-primary dark:text-text-on-dark hover:text-primary-btn transition-colors"
@@ -67,7 +67,7 @@ export function Header({ locale, categories }: { locale: Locale; categories: Nav
         </div>
       </div>
 
-      <div className="hidden md:block bg-primary dark:bg-white">
+      <div className="hidden md:block bg-primary dark:bg-bg-page">
         <nav
           className="max-w-nav-bar mx-auto h-nav-pill flex items-center justify-center gap-12 px-8"
           aria-label="Main navigation"
