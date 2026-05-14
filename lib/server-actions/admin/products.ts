@@ -14,7 +14,7 @@ export async function createProduct(data: AdminProductInput) {
   const parsed = adminProductSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
 
-  const { images, variants, specs, ...rest } = parsed.data;
+  const { images, variants, specs, quantityOffers, ...rest } = parsed.data;
 
   try {
     await prisma.product.create({
@@ -38,6 +38,18 @@ export async function createProduct(data: AdminProductInput) {
             imageUrl: v.imageUrl ?? null,
           })),
         },
+        ...((prisma as any).productQuantityOffer && quantityOffers.length > 0
+          ? {
+              quantityOffers: {
+                create: quantityOffers.map((qo) => ({
+                  quantity: qo.quantity,
+                  offerPriceEgp: qo.offerPriceEgp,
+                  isActive: qo.isActive,
+                  popupIntervalMinutes: qo.popupIntervalMinutes,
+                })),
+              },
+            }
+          : {}),
       },
     });
   } catch (e) {
@@ -57,7 +69,7 @@ export async function updateProduct(id: string, data: AdminProductInput) {
   const parsed = adminProductSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
 
-  const { images, variants, specs, ...rest } = parsed.data;
+  const { images, variants, specs, quantityOffers, ...rest } = parsed.data;
 
   const newImageUrls = new Set(images.map((img) => img.url));
   const oldImages = await prisma.productImage.findMany({
@@ -104,24 +116,20 @@ export async function updateProduct(id: string, data: AdminProductInput) {
     });
 
     if (toUpdate.length > 0) {
-      await prisma.$executeRaw`
-        UPDATE "ProductVariant" AS pv
-        SET
-          sku                = v.sku,
-          attributes         = v.attributes::jsonb,
-          "priceOverrideEgp" = v.price::numeric,
-          "stockCount"       = v.stock::int,
-          "imageUrl"         = v.image
-        FROM unnest(
-          ${toUpdate.map((v) => v.id)}::text[],
-          ${toUpdate.map((v) => v.sku)}::text[],
-          ${toUpdate.map((v) => JSON.stringify(v.attributes))}::text[],
-          ${toUpdate.map((v) => v.priceOverrideEgp?.toString() ?? null)}::text[],
-          ${toUpdate.map((v) => v.stockCount)}::int[],
-          ${toUpdate.map((v) => v.imageUrl ?? null)}::text[]
-        ) AS v(id, sku, attributes, price, stock, image)
-        WHERE pv.id = v.id::text
-      `;
+      await Promise.all(
+        toUpdate.map((v) =>
+          prisma.productVariant.update({
+            where: { id: v.id! },
+            data: {
+              sku: v.sku,
+              attributes: v.attributes,
+              priceOverrideEgp: v.priceOverrideEgp ?? null,
+              stockCount: v.stockCount,
+              imageUrl: v.imageUrl ?? null,
+            },
+          })
+        )
+      );
     }
 
     if (toCreate.length > 0) {
@@ -135,6 +143,22 @@ export async function updateProduct(id: string, data: AdminProductInput) {
           imageUrl: v.imageUrl ?? null,
         })),
       });
+    }
+
+    const qoModel = (prisma as any).productQuantityOffer;
+    if (qoModel) {
+      await qoModel.deleteMany({ where: { productId: id } });
+      if (quantityOffers.length > 0) {
+        await qoModel.createMany({
+          data: quantityOffers.map((qo: typeof quantityOffers[number]) => ({
+            productId: id,
+            quantity: qo.quantity,
+            offerPriceEgp: qo.offerPriceEgp,
+            isActive: qo.isActive,
+            popupIntervalMinutes: qo.popupIntervalMinutes,
+          })),
+        });
+      }
     }
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {

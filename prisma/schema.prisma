@@ -156,6 +156,7 @@ model Product {
   orderItems      OrderItem[]
   triggeredOffers OfferTriggerProduct[] @relation("OfferTriggerProducts")
   rewardOffers    Offer[]               @relation("OfferReward")
+  quantityOffers  ProductQuantityOffer[]
 
   @@index([categoryId])
   @@index([brand])
@@ -359,6 +360,22 @@ model OfferTriggerProduct {
   product   Product @relation("OfferTriggerProducts", fields: [productId], references: [id])
 
   @@id([offerId, productId])
+}
+
+// ─── Product Quantity Offers ──────────────────────────────────────────────────
+
+model ProductQuantityOffer {
+  id                   String   @id @default(cuid())
+  productId            String
+  quantity             Int
+  offerPriceEgp        Decimal  @db.Decimal(10, 2)
+  isActive             Boolean  @default(true)
+  popupIntervalMinutes Int      @default(10)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  product              Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
 }
 
 // ─── Newsletter ───────────────────────────────────────────────────────────────

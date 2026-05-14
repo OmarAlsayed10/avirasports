@@ -12,6 +12,7 @@ import { VariantsSection } from './variants';
 import { FormActions } from './formActions';
 import { ProductFormProvider } from './product-form-provider';
 import { ImagesSection } from './images';
+import { QuantityOffersSection } from './quantity-offers';
 
 interface ProductFormProps {
   categories: Category[];
@@ -45,6 +46,7 @@ function ProductFormInnerWithEdit({
       <BasicInfoSection categories={categories} brands={brands} />
       <PricingSection />
       <SettingsSection />
+      <QuantityOffersSection />
       <SpecsSection />
       <ImagesSection />
       <VariantsSection />

@@ -20,6 +20,14 @@ export default async function EditProductPage({ params }: { params: { id: string
 
   if (!product) notFound();
 
+  // Safe query — falls back to [] if migration/prisma generate hasn't run yet
+  const existingQuantityOffers = await (
+    (prisma as any).productQuantityOffer?.findMany({
+      where: { productId: params.id },
+      orderBy: { quantity: 'asc' },
+    }) ?? Promise.resolve([])
+  ).catch(() => []);
+
   const rawSpecs = product.specs;
   const specs = Array.isArray(rawSpecs)
     ? rawSpecs as { key: string; keyAr: string; value: string; valueAr: string }[]
@@ -56,6 +64,13 @@ export default async function EditProductPage({ params }: { params: { id: string
       priceOverrideEgp: v.priceOverrideEgp ? Number(v.priceOverrideEgp) : null,
       stockCount: v.stockCount,
       imageUrl: v.imageUrl ?? null,
+    })),
+    quantityOffers: existingQuantityOffers.map((qo) => ({
+      id: qo.id,
+      quantity: qo.quantity,
+      offerPriceEgp: Number(qo.offerPriceEgp),
+      isActive: qo.isActive,
+      popupIntervalMinutes: qo.popupIntervalMinutes,
     })),
   };
 

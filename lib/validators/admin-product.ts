@@ -47,6 +47,15 @@ export const adminProductSchema = z.object({
       imageUrl: z.string().optional().nullable(),
     })
   ),
+  quantityOffers: z.array(
+    z.object({
+      id: z.string().optional(),
+      quantity: z.coerce.number().int().min(2, 'Min quantity is 2'),
+      offerPriceEgp: z.coerce.number().positive('Price must be positive'),
+      isActive: z.boolean().default(true),
+      popupIntervalMinutes: z.coerce.number().int().min(1).max(120).default(10),
+    })
+  ).default([]),
 });
 
 export type AdminProductInput = z.infer<typeof adminProductSchema>;

@@ -29,6 +29,19 @@ export const getProductOffers = unstable_cache(
 
 export type ProductOffer = Awaited<ReturnType<typeof getProductOffers>>[number];
 
+export const getProductQuantityOffers = unstable_cache(
+  async (productId: string) => {
+    return prisma.productQuantityOffer.findMany({
+      where: { productId, isActive: true },
+      orderBy: { quantity: 'asc' },
+    });
+  },
+  ['product-quantity-offers'],
+  { tags: ['products'], revalidate: 60 }
+);
+
+export type ProductQuantityOfferRow = Awaited<ReturnType<typeof getProductQuantityOffers>>[number];
+
 export async function listOffersAdmin() {
   return prisma.offer.findMany({
     orderBy: { createdAt: 'desc' },

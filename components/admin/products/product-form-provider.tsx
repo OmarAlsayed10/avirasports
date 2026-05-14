@@ -63,6 +63,7 @@ export function ProductFormProvider({ children, defaultValues, productId }: Prod
       isHolidayOffer: false,
       images: [],
       variants: [],
+      quantityOffers: [],
       ...defaultValues,
     },
   });

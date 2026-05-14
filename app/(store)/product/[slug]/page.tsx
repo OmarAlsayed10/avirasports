@@ -3,8 +3,10 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Star } from 'lucide-react';
 import { getProduct, getRelatedProducts, getBestSellers, getAlsoBought, getUserProductReview } from '@/lib/queries/products';
-import { getProductOffers } from '@/lib/queries/offers';
+import { getProductOffers, getProductQuantityOffers } from '@/lib/queries/offers';
 import { OfferBanner } from '@/components/product/offer-banner';
+import { QuantityOffersBanner } from '@/components/product/quantity-offers-banner';
+import { QuantityOfferPopup } from '@/components/product/quantity-offer-popup';
 import { auth } from '@/lib/auth';
 import { Breadcrumb } from '@/components/shared/breadcrumb';
 import { PriceDisplay } from '@/components/shared/price-display';
@@ -172,12 +174,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const userId = session?.user?.id ?? null;
 
-  const [related, alsoBought, bestSellers, existingReview, offers] = await Promise.all([
+  const [related, alsoBought, bestSellers, existingReview, offers, quantityOffers] = await Promise.all([
     getRelatedProducts(product.id, product.categoryId).catch(() => []),
     getAlsoBought(product.id).catch(() => []),
     getBestSellers(4, product.id).catch(() => []),
     userId ? getUserProductReview(product.id, userId).catch(() => null) : Promise.resolve(null),
     getProductOffers(product.id).catch(() => []),
+    getProductQuantityOffers(product.id).catch(() => []),
   ]);
 
   const basePrice = Number(product.basePriceEgp);
@@ -296,6 +299,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       </div>
 
+      {/* Quantity Offers */}
+      {quantityOffers.length > 0 && (
+        <div className="mt-8">
+          <QuantityOffersBanner
+            offers={quantityOffers.map((qo) => ({
+              id: qo.id,
+              quantity: qo.quantity,
+              offerPriceEgp: Number(qo.offerPriceEgp),
+            }))}
+            basePrice={basePrice}
+            locale={locale}
+          />
+        </div>
+      )}
+
       {/* Description / Specs / Reviews */}
       <div className="mt-12">
         <TabsSection
@@ -350,6 +368,22 @@ export default async function ProductPage({ params }: ProductPageProps) {
             products={related.map(toCardData)}
           />
         </div>
+      )}
+
+      {/* Quantity offer popup */}
+      {quantityOffers.length > 0 && (
+        <QuantityOfferPopup
+          offers={quantityOffers.map((qo) => ({
+            id: qo.id,
+            quantity: qo.quantity,
+            offerPriceEgp: Number(qo.offerPriceEgp),
+            popupIntervalMinutes: qo.popupIntervalMinutes,
+          }))}
+          productId={product.id}
+          productName={displayName}
+          basePrice={basePrice}
+          locale={locale}
+        />
       )}
     </div>
   );
