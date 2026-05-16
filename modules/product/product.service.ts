@@ -17,7 +17,7 @@ export async function createProduct(data: AdminProductInput) {
   const { images, variants, specs, quantityOffers, ...rest } = parsed.data;
 
   try {
-    await prisma.product.create({
+    const product = await prisma.product.create({
       data: {
         ...rest,
         specs,
@@ -38,20 +38,24 @@ export async function createProduct(data: AdminProductInput) {
             imageUrl: v.imageUrl ?? null,
           })),
         },
-        ...((prisma as any).productQuantityOffer && quantityOffers.length > 0
-          ? {
-              quantityOffers: {
-                create: quantityOffers.map((qo) => ({
-                  quantity: qo.quantity,
-                  offerPriceEgp: qo.offerPriceEgp,
-                  isActive: qo.isActive,
-                  popupIntervalMinutes: qo.popupIntervalMinutes,
-                })),
-              },
-            }
-          : {}),
       },
     });
+
+    if (quantityOffers.length > 0) {
+      try {
+        await prisma.productQuantityOffer.createMany({
+          data: quantityOffers.map((qo) => ({
+            productId: product.id,
+            quantity: qo.quantity,
+            offerPriceEgp: qo.offerPriceEgp,
+            isActive: qo.isActive,
+            popupIntervalMinutes: qo.popupIntervalMinutes,
+          })),
+        });
+      } catch (e) {
+        if (!(e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2021')) throw e;
+      }
+    }
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
       return { error: { slug: ['A product with this slug already exists.'] } };
@@ -145,11 +149,10 @@ export async function updateProduct(id: string, data: AdminProductInput) {
       });
     }
 
-    const qoModel = (prisma as any).productQuantityOffer;
-    if (qoModel) {
-      await qoModel.deleteMany({ where: { productId: id } });
+    try {
+      await prisma.productQuantityOffer.deleteMany({ where: { productId: id } });
       if (quantityOffers.length > 0) {
-        await qoModel.createMany({
+        await prisma.productQuantityOffer.createMany({
           data: quantityOffers.map((qo: typeof quantityOffers[number]) => ({
             productId: id,
             quantity: qo.quantity,
@@ -158,6 +161,12 @@ export async function updateProduct(id: string, data: AdminProductInput) {
             popupIntervalMinutes: qo.popupIntervalMinutes,
           })),
         });
+      }
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2021') {
+        // Table not yet migrated on this environment — skip quantity offers
+      } else {
+        throw e;
       }
     }
   } catch (e) {
