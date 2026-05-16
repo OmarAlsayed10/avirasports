@@ -1,20 +1,20 @@
 ﻿import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { unstable_cache } from 'next/cache';
-import { productFiltersSchema } from '@/lib/validators/product';
-import { listProducts } from '@/lib/queries/products';
-import { prisma } from '@/lib/prisma';
-import { ProductGrid, ProductGridSkeleton } from '@/components/product/product-grid';
-import { FilterSidebar } from '@/components/shop/filter-sidebar';
-import { FilterDrawer } from '@/components/shop/filter-drawer';
-import { FilterChips } from '@/components/shop/filter-chips';
-import { SortDropdown } from '@/components/shop/sort-dropdown';
-import { ResultsCount } from '@/components/shop/results-count';
-import { ResultsPending } from '@/components/shop/results-pending';
-import { Pagination } from '@/components/shop/pagination';
-import { NoResults } from '@/components/shop/no-results';
-import { Breadcrumb } from '@/components/shared/breadcrumb';
-import { getT } from '@/lib/locale';
+import { productFiltersSchema } from '@/modules/product/product.validators';
+import { listProducts } from '@/modules/product/product.queries';
+import { prisma } from '@/infrastructure/db/prisma';
+import { ProductGrid, ProductGridSkeleton } from '@/modules/product/components/product-grid';
+import { FilterSidebar } from '@/modules/shop/components/filter-sidebar';
+import { FilterDrawer } from '@/modules/shop/components/filter-drawer';
+import { FilterChips } from '@/modules/shop/components/filter-chips';
+import { SortDropdown } from '@/modules/shop/components/sort-dropdown';
+import { ResultsCount } from '@/modules/shop/components/results-count';
+import { ResultsPending } from '@/modules/shop/components/results-pending';
+import { Pagination } from '@/modules/shop/components/pagination';
+import { NoResults } from '@/modules/shop/components/no-results';
+import { Breadcrumb } from '@/modules/_shared/ui/breadcrumb';
+import { getT } from '@/modules/_shared/i18n/locale';
 
 export const metadata: Metadata = {
   title: 'Shop Sports Gear',

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
-import { getT } from '@/lib/locale';
-import { OfferForm } from '@/components/admin/offers/offer-form';
+import { prisma } from '@/infrastructure/db/prisma';
+import { getT } from '@/modules/_shared/i18n/locale';
+import { OfferForm } from '@/modules/admin/offers/components/offer-form';
 
 export const metadata: Metadata = { title: 'Edit Offer' };
 

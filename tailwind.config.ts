@@ -7,6 +7,9 @@ const config: Config = {
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
     './lib/**/*.{js,ts,jsx,tsx,mdx}',
+    './modules/**/*.{js,ts,jsx,tsx,mdx}',
+    './infrastructure/**/*.{js,ts,jsx,tsx,mdx}',
+    './config/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     screens: {

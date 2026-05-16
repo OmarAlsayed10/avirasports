@@ -1,0 +1,199 @@
+'use server';
+
+import { prisma } from '@/infrastructure/db/prisma';
+import { Prisma } from '@prisma/client';
+import { revalidateTag, revalidatePath } from 'next/cache';
+import { adminProductSchema, type AdminProductInput } from '@/modules/product/product.validators';
+import { redirect } from 'next/navigation';
+import { requireAdmin } from '@/modules/admin/_shared/require-admin';
+import { deleteCloudinaryAssets } from '@/infrastructure/storage/cloudinary';
+
+export async function createProduct(data: AdminProductInput) {
+  await requireAdmin();
+
+  const parsed = adminProductSchema.safeParse(data);
+  if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
+
+  const { images, variants, specs, quantityOffers, ...rest } = parsed.data;
+
+  try {
+    await prisma.product.create({
+      data: {
+        ...rest,
+        specs,
+        images: {
+          create: images.map((img, i) => ({
+            url: img.url,
+            alt: img.alt || rest.name,
+            isPrimary: img.isPrimary,
+            sortOrder: img.sortOrder ?? i,
+          })),
+        },
+        variants: {
+          create: variants.map((v) => ({
+            sku: v.sku,
+            attributes: v.attributes,
+            priceOverrideEgp: v.priceOverrideEgp ?? null,
+            stockCount: v.stockCount,
+            imageUrl: v.imageUrl ?? null,
+          })),
+        },
+        ...((prisma as any).productQuantityOffer && quantityOffers.length > 0
+          ? {
+              quantityOffers: {
+                create: quantityOffers.map((qo) => ({
+                  quantity: qo.quantity,
+                  offerPriceEgp: qo.offerPriceEgp,
+                  isActive: qo.isActive,
+                  popupIntervalMinutes: qo.popupIntervalMinutes,
+                })),
+              },
+            }
+          : {}),
+      },
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+      return { error: { slug: ['A product with this slug already exists.'] } };
+    }
+    throw e;
+  }
+
+  revalidateTag('products');
+  redirect('/admin/products');
+}
+
+export async function updateProduct(id: string, data: AdminProductInput) {
+  await requireAdmin();
+
+  const parsed = adminProductSchema.safeParse(data);
+  if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
+
+  const { images, variants, specs, quantityOffers, ...rest } = parsed.data;
+
+  const newImageUrls = new Set(images.map((img) => img.url));
+  const oldImages = await prisma.productImage.findMany({
+    where: { productId: id },
+    select: { url: true },
+  });
+  const removedImageUrls = oldImages.map((i) => i.url).filter((url) => !newImageUrls.has(url));
+
+  const toUpdate = variants.filter((v) => v.id);
+  const toCreate = variants.filter((v) => !v.id);
+
+  try {
+    await prisma.productImage.deleteMany({ where: { productId: id } });
+
+    const currentVariants = await prisma.productVariant.findMany({
+      where: { productId: id },
+      include: { orderItems: { take: 1 } },
+    });
+
+    const formVariantIds = new Set(toUpdate.map((v) => v.id!));
+    const toDelete = currentVariants.filter(
+      (v) => !formVariantIds.has(v.id) && v.orderItems.length === 0
+    );
+    if (toDelete.length > 0) {
+      await prisma.productVariant.deleteMany({
+        where: { id: { in: toDelete.map((v) => v.id) } },
+      });
+    }
+
+    await prisma.product.update({
+      where: { id },
+      data: {
+        ...rest,
+        specs,
+        images: {
+          create: images.map((img, i) => ({
+            url: img.url,
+            alt: img.alt || rest.name,
+            isPrimary: img.isPrimary,
+            sortOrder: img.sortOrder ?? i,
+          })),
+        },
+      },
+    });
+
+    if (toUpdate.length > 0) {
+      await Promise.all(
+        toUpdate.map((v) =>
+          prisma.productVariant.update({
+            where: { id: v.id! },
+            data: {
+              sku: v.sku,
+              attributes: v.attributes,
+              priceOverrideEgp: v.priceOverrideEgp ?? null,
+              stockCount: v.stockCount,
+              imageUrl: v.imageUrl ?? null,
+            },
+          })
+        )
+      );
+    }
+
+    if (toCreate.length > 0) {
+      await prisma.productVariant.createMany({
+        data: toCreate.map((v) => ({
+          productId: id,
+          sku: v.sku,
+          attributes: v.attributes,
+          priceOverrideEgp: v.priceOverrideEgp ?? null,
+          stockCount: v.stockCount,
+          imageUrl: v.imageUrl ?? null,
+        })),
+      });
+    }
+
+    const qoModel = (prisma as any).productQuantityOffer;
+    if (qoModel) {
+      await qoModel.deleteMany({ where: { productId: id } });
+      if (quantityOffers.length > 0) {
+        await qoModel.createMany({
+          data: quantityOffers.map((qo: typeof quantityOffers[number]) => ({
+            productId: id,
+            quantity: qo.quantity,
+            offerPriceEgp: qo.offerPriceEgp,
+            isActive: qo.isActive,
+            popupIntervalMinutes: qo.popupIntervalMinutes,
+          })),
+        });
+      }
+    }
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+      return { error: { slug: ['A product with this slug already exists.'] } };
+    }
+    throw e;
+  }
+
+  if (removedImageUrls.length > 0) await deleteCloudinaryAssets(removedImageUrls);
+
+  revalidateTag('products');
+  redirect('/admin/products');
+}
+
+export async function deleteProduct(id: string) {
+  await requireAdmin();
+
+  const images = await prisma.productImage.findMany({
+    where: { productId: id },
+    select: { url: true },
+  });
+
+  await prisma.product.delete({ where: { id } });
+
+  if (images.length > 0) {
+    await deleteCloudinaryAssets(images.map((img) => img.url));
+  }
+
+  revalidateTag('products');
+  revalidatePath('/admin/products');
+}
+
+export async function toggleProductStatus(id: string, isActive: boolean) {
+  await requireAdmin();
+  await prisma.product.update({ where: { id }, data: { isActive } });
+  revalidateTag('products');
+  revalidatePath('/admin/products');
+}

@@ -1,10 +1,10 @@
 ﻿import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { auth } from '@/lib/auth';
-import { getOrderHistory } from '@/lib/queries/orders';
-import { formatEgp } from '@/lib/utils/format-egp';
-import { getOrderStatusLabels, ORDER_STATUS_COLORS } from '@/lib/constants/order-status';
-import { getT } from '@/lib/locale';
+import { auth } from '@/infrastructure/auth/auth.config';
+import { getOrderHistory } from '@/modules/order/order.queries';
+import { formatEgp } from '@/modules/_shared/utils/format-egp';
+import { getOrderStatusLabels, ORDER_STATUS_COLORS } from '@/modules/_shared/constants/order-status.constants';
+import { getT } from '@/modules/_shared/i18n/locale';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'Order History' };

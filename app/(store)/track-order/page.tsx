@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { Package, Search } from 'lucide-react';
-import { getOrderByNumber } from '@/lib/queries/orders';
-import { ORDER_STATUS_COLORS, getOrderStatusLabels } from '@/lib/constants/order-status';
-import { formatEgp } from '@/lib/utils/format-egp';
-import { getT } from '@/lib/locale';
+import { getOrderByNumber } from '@/modules/order/order.queries';
+import { ORDER_STATUS_COLORS, getOrderStatusLabels } from '@/modules/_shared/constants/order-status.constants';
+import { formatEgp } from '@/modules/_shared/utils/format-egp';
+import { getT } from '@/modules/_shared/i18n/locale';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -51,7 +51,6 @@ export default async function TrackOrderPage({ searchParams }: TrackOrderPagePro
         </p>
       </div>
 
-      {/* Search form */}
       <form method="GET" className="flex gap-2 mb-8">
         <input
           name="order"
@@ -71,7 +70,6 @@ export default async function TrackOrderPage({ searchParams }: TrackOrderPagePro
         </button>
       </form>
 
-      {/* Not found */}
       {notFound && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-card-lg p-6 text-center">
           <Package className="w-10 h-10 text-red-400 mx-auto mb-3" />
@@ -84,10 +82,8 @@ export default async function TrackOrderPage({ searchParams }: TrackOrderPagePro
         </div>
       )}
 
-      {/* Order found */}
       {order && (
         <div className="space-y-4">
-          {/* Header card */}
           <div className="bg-bg-white dark:bg-bg-surface rounded-card-lg border border-border-primary/10 dark:border-white/10 p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
@@ -107,7 +103,6 @@ export default async function TrackOrderPage({ searchParams }: TrackOrderPagePro
             </div>
           </div>
 
-          {/* Status timeline */}
           {!isCancelled && (
             <div className="bg-bg-white dark:bg-bg-surface rounded-card-lg border border-border-primary/10 dark:border-white/10 p-6">
               <h2 className="text-nav-sm font-semibold text-text-primary dark:text-text-on-dark mb-6">
@@ -145,7 +140,6 @@ export default async function TrackOrderPage({ searchParams }: TrackOrderPagePro
             </div>
           )}
 
-          {/* Fawry reference */}
           {order.status === 'pending_payment' && order.fawryPayment?.fawryRefNumber && (
             <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-card-lg p-4">
               <p className="text-nav-sm font-semibold text-yellow-800 dark:text-yellow-400 mb-1">
@@ -163,7 +157,6 @@ export default async function TrackOrderPage({ searchParams }: TrackOrderPagePro
             </div>
           )}
 
-          {/* Items summary */}
           <div className="bg-bg-white dark:bg-bg-surface rounded-card-lg border border-border-primary/10 dark:border-white/10 p-6">
             <h2 className="text-nav-sm font-semibold text-text-primary dark:text-text-on-dark mb-4">
               {tr.items(order.items.length)}

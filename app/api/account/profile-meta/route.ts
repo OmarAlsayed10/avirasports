@@ -1,5 +1,5 @@
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { auth } from '@/infrastructure/auth/auth.config';
+import { prisma } from '@/infrastructure/db/prisma';
 import { NextResponse } from 'next/server';
 
 export async function GET() {

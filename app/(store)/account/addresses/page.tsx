@@ -5,12 +5,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Plus, Trash2, Check } from 'lucide-react';
 import Link from 'next/link';
-import { addressSchema, type AddressInput } from '@/lib/validators/address';
-import { createAddress, deleteAddress, setDefaultAddress } from '@/lib/server-actions/account';
-import { GOVERNORATES, GOVERNORATE_NAMES_AR } from '@/lib/constants/governorates';
+import { addressSchema, type AddressInput } from '@/modules/account/account.validators';
+import { createAddress, deleteAddress, setDefaultAddress } from '@/modules/account/account.service';
+import { GOVERNORATES, GOVERNORATE_NAMES_AR } from '@/modules/_shared/constants/governorates.constants';
 import { toast } from 'sonner';
-import { useLocale } from '@/lib/i18n/context';
-import { createZodErrorMap } from '@/lib/i18n/zod-error-map';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
+import { createZodErrorMap } from '@/modules/_shared/i18n/i18n.zod-error-map';
 
 type Address = {
   id: string;
@@ -97,7 +97,6 @@ export default function AddressesPage() {
         </button>
       </div>
 
-      {/* Add address form */}
       {showForm && (
         <form onSubmit={handleSubmit(onSubmit)} className="bg-bg-white rounded-card-lg border border-border-primary/10 p-6 space-y-4 mb-6" noValidate>
           <h2 className="text-nav-sm font-semibold text-text-primary">{t.account.newAddress}</h2>
@@ -159,7 +158,6 @@ export default function AddressesPage() {
         </form>
       )}
 
-      {/* Address list */}
       {addresses.length === 0 && !showForm && (
         <div className="bg-bg-white rounded-card-lg border border-border-primary/10 p-10 text-center">
           <p className="text-nav-sm text-text-secondary">{t.account.noAddresses}</p>

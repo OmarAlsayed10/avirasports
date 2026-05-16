@@ -6,8 +6,8 @@ import { ThemeProvider } from 'next-themes';
 import { useState } from 'react';
 import { Toaster } from 'sonner';
 import NextTopLoader from 'nextjs-toploader';
-import { LocaleProvider } from '@/lib/i18n/context';
-import type { Locale } from '@/lib/locale';
+import { LocaleProvider } from '@/modules/_shared/i18n/i18n.context';
+import type { Locale } from '@/modules/_shared/i18n/locale';
 import type { Session } from 'next-auth';
 
 interface ProvidersProps {

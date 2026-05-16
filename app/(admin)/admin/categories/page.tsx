@@ -1,7 +1,7 @@
-﻿import { prisma } from '@/lib/prisma';
-import CategoryList from '@/components/admin/categories/category-list';
+﻿import { prisma } from '@/infrastructure/db/prisma';
+import CategoryList from '@/modules/admin/categories/components/category-list';
 import type { Metadata } from 'next';
-import { getT } from '@/lib/locale';
+import { getT } from '@/modules/_shared/i18n/locale';
 
 export const metadata: Metadata = { title: 'Categories' };
 

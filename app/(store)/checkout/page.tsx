@@ -6,15 +6,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { Loader2, Truck, ChevronDown } from 'lucide-react';
-import { useCartStore } from '@/lib/stores/cart-store';
-import { useHasMounted } from '@/lib/hooks/use-has-mounted';
-import { shippingFormSchema, type ShippingFormInput } from '@/lib/validators/checkout';
-import { placeOrder } from '@/lib/server-actions/checkout';
-import { GOVERNORATES, GOVERNORATE_NAMES_AR } from '@/lib/constants/governorates';
-import { OrderSummary } from '@/components/checkout/order-summary';
-import { Breadcrumb } from '@/components/shared/breadcrumb';
-import { useLocale } from '@/lib/i18n/context';
-import { createZodErrorMap } from '@/lib/i18n/zod-error-map';
+import { useCartStore } from '@/modules/cart/cart.store';
+import { useHasMounted } from '@/modules/_shared/hooks/use-has-mounted';
+import { shippingFormSchema, type ShippingFormInput } from '@/modules/checkout/checkout.validators';
+import { placeOrder } from '@/modules/checkout/checkout.service';
+import { GOVERNORATES, GOVERNORATE_NAMES_AR } from '@/modules/_shared/constants/governorates.constants';
+import { OrderSummary } from '@/modules/checkout/components/order-summary';
+import { Breadcrumb } from '@/modules/_shared/ui/breadcrumb';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
+import { createZodErrorMap } from '@/modules/_shared/i18n/i18n.zod-error-map';
 import { useSession } from 'next-auth/react';
 
 interface SavedAddress {
@@ -127,7 +127,6 @@ export default function CheckoutPage() {
       <h1 className="text-section-heading font-semibold text-text-primary mt-4 mb-8">{t.checkout.title}</h1>
 
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Form */}
         <div className="flex-1">
           <form onSubmit={handleSubmit} noValidate>
             <div className="space-y-5">
@@ -135,7 +134,6 @@ export default function CheckoutPage() {
                 {t.checkout.stepContact}
               </h2>
 
-              {/* Saved addresses */}
               {savedAddresses.length > 0 && (
                 <div>
                   <button
@@ -230,7 +228,6 @@ export default function CheckoutPage() {
                 </FieldGroup>
               </div>
 
-              {/* Payment info badge */}
               <div className="flex items-center gap-3 p-4 rounded-carousel border border-border-primary/20 bg-bg-page">
                 <Truck className="w-5 h-5 text-primary flex-shrink-0" />
                 <div>
@@ -251,7 +248,6 @@ export default function CheckoutPage() {
           </form>
         </div>
 
-        {/* Order Summary sidebar */}
         <div className="w-full lg:w-96 flex-shrink-0">
           <OrderSummary
             items={items}

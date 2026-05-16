@@ -1,8 +1,8 @@
 'use client';
 
 import { Search } from 'lucide-react';
-import { useUIStore } from '@/lib/stores/ui-store';
-import { useLocale } from '@/lib/i18n/context';
+import { useUIStore } from '@/modules/_shared/stores/ui.store';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 
 interface SearchTriggerProps {
   iconOnly?: boolean;

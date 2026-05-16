@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { auth } from '@/infrastructure/auth/auth.config';
+import { prisma } from '@/infrastructure/db/prisma';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

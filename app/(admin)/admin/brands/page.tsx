@@ -1,7 +1,7 @@
-﻿import { prisma } from '@/lib/prisma';
-import BrandList from '@/components/admin/brands/brand-list';
+﻿import { prisma } from '@/infrastructure/db/prisma';
+import BrandList from '@/modules/admin/brands/components/brand-list';
 import type { Metadata } from 'next';
-import { getT } from '@/lib/locale';
+import { getT } from '@/modules/_shared/i18n/locale';
 
 export const metadata: Metadata = { title: 'Brands' };
 

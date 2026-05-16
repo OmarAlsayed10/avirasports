@@ -2,24 +2,24 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Star } from 'lucide-react';
-import { getProduct, getRelatedProducts, getBestSellers, getAlsoBought, getUserProductReview } from '@/lib/queries/products';
-import { getProductOffers, getProductQuantityOffers } from '@/lib/queries/offers';
-import { OfferBanner } from '@/components/product/offer-banner';
-import { QuantityOffersBanner } from '@/components/product/quantity-offers-banner';
-import { QuantityOfferPopup } from '@/components/product/quantity-offer-popup';
-import { auth } from '@/lib/auth';
-import { Breadcrumb } from '@/components/shared/breadcrumb';
-import { PriceDisplay } from '@/components/shared/price-display';
-import { ProductGallery } from '@/components/product/product-gallery';
-import { ProductSpecs } from '@/components/product/product-specs';
-import { AddToCartSection } from '@/components/product/add-to-cart-section';
-import { ReviewsList } from '@/components/product/reviews-list';
-import { ReviewForm } from '@/components/product/review-form';
-import { RelatedProducts } from '@/components/product/related-products';
-import { getLocale, getT } from '@/lib/locale';
-import { specRowSchema } from '@/lib/validators/admin-product';
-import type { SpecRow } from '@/lib/validators/admin-product';
-import type { Translations } from '@/lib/i18n/translations';
+import { getProduct, getRelatedProducts, getBestSellers, getAlsoBought, getUserProductReview } from '@/modules/product/product.queries';
+import { getProductOffers, getProductQuantityOffers } from '@/modules/admin/offers/offers.queries';
+import { OfferBanner } from '@/modules/product/components/offer-banner';
+import { QuantityOffersBanner } from '@/modules/product/components/quantity-offers-banner';
+import { QuantityOfferPopup } from '@/modules/product/components/quantity-offer-popup';
+import { auth } from '@/infrastructure/auth/auth.config';
+import { Breadcrumb } from '@/modules/_shared/ui/breadcrumb';
+import { PriceDisplay } from '@/modules/_shared/ui/price-display';
+import { ProductGallery } from '@/modules/product/components/product-gallery';
+import { ProductSpecs } from '@/modules/product/components/product-specs';
+import { AddToCartSection } from '@/modules/product/components/add-to-cart-section';
+import { ReviewsList } from '@/modules/product/components/reviews-list';
+import { ReviewForm } from '@/modules/product/components/review-form';
+import { RelatedProducts } from '@/modules/product/components/related-products';
+import { getLocale, getT } from '@/modules/_shared/i18n/locale';
+import { specRowSchema } from '@/modules/product/product.validators';
+import type { SpecRow } from '@/modules/product/product.validators';
+import type { Translations } from '@/modules/_shared/i18n/i18n.translations';
 import { z } from 'zod';
 
 interface ProductPageProps {
@@ -221,13 +221,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mt-6">
-        {/* Gallery */}
         <ProductGallery
           images={product.images.map((img) => ({ url: img.url, alt: img.alt }))}
           productName={displayName}
         />
 
-        {/* Info panel */}
         <div className="space-y-5">
           <div>
             <p className="text-sm font-medium text-text-secondary mb-1">{product.brand}</p>
@@ -241,7 +239,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
             )}
           </div>
 
-          {/* Rating */}
           {product.reviewCount > 0 && (
             <div className="flex items-center gap-2">
               <div className="flex" aria-label={`${product.ratingAvg} out of 5 stars`} aria-hidden="true">
@@ -262,20 +259,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           )}
 
-          {/* Price */}
           <PriceDisplay
             priceEgp={basePrice}
             discountPercent={product.discountPercent}
             size="lg"
           />
 
-          {/* Key specs summary */}
           {specs.length > 0 && <ProductSpecs specs={specs} locale={locale} />}
 
-          {/* Offers */}
           <OfferBanner offers={offers} locale={locale} />
 
-          {/* Add to cart */}
           <AddToCartSection
             product={{
               id: product.id,
@@ -290,7 +283,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
             variants={variants}
           />
 
-          {/* Stock indicator */}
           {totalStock > 0 ? (
             <p className="text-sm text-success font-medium">{t.product.inStock}</p>
           ) : (
@@ -299,7 +291,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       </div>
 
-      {/* Quantity Offers */}
       {quantityOffers.length > 0 && (
         <div className="mt-8">
           <QuantityOffersBanner
@@ -314,7 +305,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       )}
 
-      {/* Description / Specs / Reviews */}
       <div className="mt-12">
         <TabsSection
           description={displayDescription}
@@ -340,7 +330,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
         />
       </div>
 
-      {/* Customers Also Bought */}
       {alsoBought.length > 0 && (
         <div className="mt-16">
           <RelatedProducts
@@ -350,7 +339,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       )}
 
-      {/* Best Sellers */}
       {bestSellers.length > 0 && (
         <div className="mt-16">
           <RelatedProducts
@@ -360,7 +348,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       )}
 
-      {/* Similar Products */}
       {related.length > 0 && (
         <div className="mt-16">
           <RelatedProducts
@@ -370,7 +357,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </div>
       )}
 
-      {/* Quantity offer popup */}
       {quantityOffers.length > 0 && (
         <QuantityOfferPopup
           offers={quantityOffers.map((qo) => ({

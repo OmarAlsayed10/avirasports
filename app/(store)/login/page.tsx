@@ -6,10 +6,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
-import { loginSchema, type LoginInput } from '@/lib/validators/auth';
-import { GoogleIcon } from '@/components/shared/google-icon';
+import { loginSchema, type LoginInput } from '@/modules/auth/auth.validators';
+import { GoogleIcon } from '@/modules/_shared/ui/google-icon';
 import { toast } from 'sonner';
-import { useLocale } from '@/lib/i18n/context';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 
 export default function LoginPage() {
   const searchParams = useSearchParams();

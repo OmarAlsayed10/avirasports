@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { listOffersAdmin } from '@/lib/queries/offers';
-import { getT } from '@/lib/locale';
-import OfferRowActions from '@/components/admin/offers/offer-row-actions';
+import { listOffersAdmin } from '@/modules/admin/offers/offers.queries';
+import { getT } from '@/modules/_shared/i18n/locale';
+import OfferRowActions from '@/modules/admin/offers/components/offer-row-actions';
 
 export const metadata: Metadata = { title: 'Offers' };
 

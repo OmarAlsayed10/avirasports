@@ -1,13 +1,13 @@
-﻿import { prisma } from '@/lib/prisma';
-import { formatEgp } from '@/lib/utils/format-egp';
-import OrderStatusSelect from '@/components/admin/orders/order-status-select';
-import { OrderItemImage } from '@/components/admin/orders/order-item-image';
+﻿import { prisma } from '@/infrastructure/db/prisma';
+import { formatEgp } from '@/modules/_shared/utils/format-egp';
+import OrderStatusSelect from '@/modules/admin/orders/components/order-status-select';
+import { OrderItemImage } from '@/modules/admin/orders/components/order-item-image';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getOrderStatusLabels, ORDER_STATUS_COLORS } from '@/lib/constants/order-status';
+import { getOrderStatusLabels, ORDER_STATUS_COLORS } from '@/modules/_shared/constants/order-status.constants';
 import type { Prisma } from '@prisma/client';
 import type { Metadata } from 'next';
-import { getT } from '@/lib/locale';
+import { getT } from '@/modules/_shared/i18n/locale';
 
 type OrderItem = Prisma.OrderItemGetPayload<Record<string, never>>;
 
@@ -44,7 +44,6 @@ export default async function AdminOrderDetailPage({
 
   return (
     <div className="max-w-3xl">
-      {/* Breadcrumb */}
       <div className="flex items-center gap-2 mb-6 text-sm">
         <Link href="/admin/orders" className="text-gray-400 hover:text-gray-600 transition-colors">
           {t.admin.ordersLink}
@@ -53,7 +52,6 @@ export default async function AdminOrderDetailPage({
         <span className="font-mono text-gray-700">{order.orderNumber}</span>
       </div>
 
-      {/* Header */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 mb-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -83,7 +81,6 @@ export default async function AdminOrderDetailPage({
       </div>
 
       <div className="grid md:grid-cols-2 gap-4 mb-4">
-        {/* Shipping */}
         <div className="bg-white rounded-lg border border-gray-200 p-5">
           <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
             {t.admin.shippingAddress}
@@ -104,7 +101,6 @@ export default async function AdminOrderDetailPage({
           </div>
         </div>
 
-        {/* Payment & Customer */}
         <div className="bg-white rounded-lg border border-gray-200 p-5">
           <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
             {t.admin.paymentCustomer}
@@ -156,7 +152,6 @@ export default async function AdminOrderDetailPage({
         </div>
       </div>
 
-      {/* Items */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-4">
         <div className="px-5 py-4 border-b border-gray-100">
           <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -211,7 +206,6 @@ export default async function AdminOrderDetailPage({
         </div>
       </div>
 
-      {/* Totals */}
       <div className="bg-white rounded-lg border border-gray-200 p-5">
         <div className="space-y-2 text-sm max-w-xs ml-auto">
           <div className="flex justify-between text-gray-600">

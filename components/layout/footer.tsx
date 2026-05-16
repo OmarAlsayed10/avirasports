@@ -1,13 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getLocale } from "@/lib/locale";
-import { tr } from "@/lib/i18n/translations";
-import { listCategories } from "@/lib/queries/categories";
+import { getLocale } from "@/modules/_shared/i18n/locale";
+import { tr } from "@/modules/_shared/i18n/i18n.translations";
+import { listCategories } from "@/modules/admin/categories/categories.queries";
 import {
   CONTACT_LINKS,
   getServiceLinks,
   getSocialLinks,
-} from "@/lib/constants/footer";
+} from "@/modules/_shared/constants/footer.constants";
 
 export async function Footer() {
   const locale = getLocale();

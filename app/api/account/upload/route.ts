@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth';
+import { auth } from '@/infrastructure/auth/auth.config';
 import { NextResponse } from 'next/server';
 import { createHash } from 'crypto';
 

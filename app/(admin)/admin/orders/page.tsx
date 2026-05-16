@@ -1,10 +1,10 @@
 ﻿import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
-import { formatEgp } from '@/lib/utils/format-egp';
-import { getOrderStatusLabels, ORDER_STATUS_COLORS } from '@/lib/constants/order-status';
+import { prisma } from '@/infrastructure/db/prisma';
+import { formatEgp } from '@/modules/_shared/utils/format-egp';
+import { getOrderStatusLabels, ORDER_STATUS_COLORS } from '@/modules/_shared/constants/order-status.constants';
 import type { Metadata } from 'next';
 import type { OrderStatus } from '@prisma/client';
-import { getT } from '@/lib/locale';
+import { getT } from '@/modules/_shared/i18n/locale';
 
 export const metadata: Metadata = { title: 'Orders' };
 
@@ -44,7 +44,6 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
     <div>
       <h1 className="text-2xl font-semibold text-gray-900 mb-6">{t.admin.orders}</h1>
 
-      {/* Status filter tabs */}
       <div className="flex gap-2 mb-5 flex-wrap">
         <Link
           href="/admin/orders"

@@ -1,5 +1,5 @@
-import { prisma } from '@/lib/prisma';
-import ProductForm from '@/components/admin/products/product-form';
+import { prisma } from '@/infrastructure/db/prisma';
+import ProductForm from '@/modules/admin/products/components/product-form';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'New Product' };

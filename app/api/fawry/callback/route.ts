@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { verifyFawrySignature } from '@/lib/fawry/verify-callback';
-import { fawryCallbackPayloadSchema } from '@/lib/validators/fawry';
-import { rateLimit, getClientIp } from '@/lib/rate-limit';
+import { prisma } from '@/infrastructure/db/prisma';
+import { verifyFawrySignature } from '@/infrastructure/payment/fawry/fawry.verify';
+import { fawryCallbackPayloadSchema } from '@/infrastructure/payment/fawry/fawry.validators';
+import { rateLimit, getClientIp } from '@/infrastructure/rate-limit/limiter';
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);

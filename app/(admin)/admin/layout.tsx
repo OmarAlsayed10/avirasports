@@ -1,7 +1,7 @@
-import { auth } from '@/lib/auth';
+import { auth } from '@/infrastructure/auth/auth.config';
 import { redirect } from 'next/navigation';
-import AdminSidebar from '@/components/admin/sidebar';
-import { getLocale, getT } from '@/lib/locale';
+import AdminSidebar from '@/modules/admin/_shared/components/sidebar';
+import { getLocale, getT } from '@/modules/_shared/i18n/locale';
 import type { Metadata } from 'next';
 
 export function generateMetadata(): Metadata {

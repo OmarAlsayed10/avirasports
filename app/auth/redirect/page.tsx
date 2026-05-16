@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth';
+import { auth } from '@/infrastructure/auth/auth.config';
 import { redirect } from 'next/navigation';
 
 export default async function PostLoginRedirect() {

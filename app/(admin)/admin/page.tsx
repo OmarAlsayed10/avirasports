@@ -1,9 +1,9 @@
-﻿import { prisma } from '@/lib/prisma';
-import { formatEgp } from '@/lib/utils/format-egp';
+﻿import { prisma } from '@/infrastructure/db/prisma';
+import { formatEgp } from '@/modules/_shared/utils/format-egp';
 import Link from 'next/link';
-import { getOrderStatusLabels } from '@/lib/constants/order-status';
+import { getOrderStatusLabels } from '@/modules/_shared/constants/order-status.constants';
 import type { Metadata } from 'next';
-import { getT } from '@/lib/locale';
+import { getT } from '@/modules/_shared/i18n/locale';
 
 export const metadata: Metadata = { title: 'Dashboard' };
 

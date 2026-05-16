@@ -1,7 +1,7 @@
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
-import { listCategories } from '@/lib/queries/categories';
-import { getLocale } from '@/lib/locale';
+import { listCategories } from '@/modules/admin/categories/categories.queries';
+import { getLocale } from '@/modules/_shared/i18n/locale';
 
 export default async function StoreLayout({ children }: { children: React.ReactNode }) {
   const locale = getLocale();

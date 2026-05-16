@@ -2,10 +2,10 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Check } from 'lucide-react';
-import { getOrderByNumber } from '@/lib/queries/orders';
-import { formatEgpSimple } from '@/lib/utils/format-egp';
-import { SHIPPING_METHODS } from '@/lib/constants/shipping-methods';
-import { getT } from '@/lib/locale';
+import { getOrderByNumber } from '@/modules/order/order.queries';
+import { formatEgpSimple } from '@/modules/_shared/utils/format-egp';
+import { SHIPPING_METHODS } from '@/modules/_shared/constants/shipping-methods.constants';
+import { getT } from '@/modules/_shared/i18n/locale';
 
 export const metadata: Metadata = {
   title: 'Order Confirmed',
@@ -29,7 +29,6 @@ export default async function OrderSuccessPage({ searchParams }: SuccessPageProp
   return (
     <div className="max-w-content mx-auto px-site py-12">
       <div className="max-w-xl mx-auto text-center">
-        {/* Success icon */}
         <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-success/15 flex items-center justify-center">
           <Check className="w-10 h-10 text-success" strokeWidth={2.5} aria-hidden="true" />
         </div>
@@ -41,7 +40,6 @@ export default async function OrderSuccessPage({ searchParams }: SuccessPageProp
           {t.checkout.orderConfirmedSub}
         </p>
 
-        {/* Order summary card */}
         <div className="bg-bg-white rounded-carousel border border-border-primary/10 p-6 text-start space-y-4 mb-8">
           <div className="flex justify-between">
             <span className="text-nav-sm text-text-secondary">{t.checkout.orderNumber}</span>
@@ -60,7 +58,6 @@ export default async function OrderSuccessPage({ searchParams }: SuccessPageProp
 
           <hr className="border-border-primary/10" />
 
-          {/* Items */}
           <div className="space-y-2">
             {order.items.map((item) => (
               <div key={item.id} className="flex justify-between">
@@ -84,7 +81,6 @@ export default async function OrderSuccessPage({ searchParams }: SuccessPageProp
           </div>
         </div>
 
-        {/* CTAs */}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/shop"

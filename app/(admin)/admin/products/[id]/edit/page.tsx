@@ -1,5 +1,5 @@
-import { prisma } from '@/lib/prisma';
-import ProductForm from '@/components/admin/products/product-form';
+import { prisma } from '@/infrastructure/db/prisma';
+import ProductForm from '@/modules/admin/products/components/product-form';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
@@ -20,7 +20,6 @@ export default async function EditProductPage({ params }: { params: { id: string
 
   if (!product) notFound();
 
-  // Safe query — falls back to [] if migration/prisma generate hasn't run yet
   const existingQuantityOffers = await (
     (prisma as any).productQuantityOffer?.findMany({
       where: { productId: params.id },

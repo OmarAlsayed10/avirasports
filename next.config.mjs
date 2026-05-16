@@ -5,7 +5,7 @@ const nextConfig = {
   },
   images: {
     loader: 'custom',
-    loaderFile: './lib/cloudinary-loader.ts',
+    loaderFile: './infrastructure/storage/cloudinary-loader.ts',
     remotePatterns: [
       {
         protocol: 'https',

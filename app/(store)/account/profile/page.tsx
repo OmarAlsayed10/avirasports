@@ -5,13 +5,13 @@ import { useSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { updateProfile, updateProfileImage } from '@/lib/server-actions/account';
+import { updateProfile, updateProfileImage } from '@/modules/account/account.service';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Upload, Loader2 } from 'lucide-react';
-import { useLocale } from '@/lib/i18n/context';
-import { createZodErrorMap } from '@/lib/i18n/zod-error-map';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
+import { createZodErrorMap } from '@/modules/_shared/i18n/i18n.zod-error-map';
 
 const profileSchema = z.object({
   name: z.string().min(2).max(80).trim().optional().or(z.literal('')),
@@ -101,7 +101,6 @@ export default function ProfilePage() {
 
       <h1 className="text-section-heading font-semibold text-text-primary dark:text-text-on-dark mb-8">{t.account.editProfile}</h1>
 
-      {/* Profile image */}
       <div className="flex items-center gap-4 mb-8">
         <div className="w-16 h-16 rounded-full bg-primary-btn flex items-center justify-center overflow-hidden flex-shrink-0">
           {image ? (
@@ -145,7 +144,6 @@ export default function ProfilePage() {
         <hr className="border-border-primary/10 dark:border-white/10" />
 
         {hasPassword === false ? (
-          /* Google user — no password yet */
           <>
             <div>
               <p className="text-xs font-semibold text-text-secondary dark:text-text-footer-link uppercase tracking-wider">{t.account.setPassword}</p>
@@ -158,7 +156,6 @@ export default function ProfilePage() {
             </div>
           </>
         ) : (
-          /* Email user — must verify current password */
           <>
             <p className="text-xs font-semibold text-text-secondary dark:text-text-footer-link uppercase tracking-wider">{t.account.changePassword}</p>
             <div>

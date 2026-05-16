@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/infrastructure/db/prisma';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = process.env.NEXTAUTH_URL ?? 'https://avira.eg';

@@ -3,15 +3,15 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Menu } from 'lucide-react';
-import { CartIcon } from '@/components/cart/cart-icon';
-import { WishlistIcon } from '@/components/wishlist/wishlist-icon';
+import { CartIcon } from '@/modules/cart/components/cart-icon';
+import { WishlistIcon } from '@/modules/wishlist/components/wishlist-icon';
 import { SearchTrigger } from './search-trigger';
 import { UserIcon } from './user-icon';
 import { ThemeToggle } from './theme-toggle';
 import { LocaleToggle } from './locale-toggle';
-import { useUIStore } from '@/lib/stores/ui-store';
-import { useLocale } from '@/lib/i18n/context';
-import type { Locale } from '@/lib/locale';
+import { useUIStore } from '@/modules/_shared/stores/ui.store';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
+import type { Locale } from '@/modules/_shared/i18n/locale';
 
 type NavCategory = { slug: string; name: string; nameAr?: string | null };
 
@@ -58,11 +58,9 @@ export function Header({ locale, categories }: { locale: Locale; categories: Nav
           <LocaleToggle locale={locale} />
           <ThemeToggle />
           <WishlistIcon />
+          <CartIcon />
           <div className="hidden md:block">
             <UserIcon />
-          </div>
-          <div className="hidden md:block">
-            <CartIcon />
           </div>
         </div>
       </div>

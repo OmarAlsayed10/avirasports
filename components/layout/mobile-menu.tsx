@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { X, Home, ShoppingBag, Tag, Info, Heart, ShoppingCart } from 'lucide-react';
+import { X, Home, ShoppingBag, Tag, Info, Heart, ShoppingCart, MessageSquare } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
-import { useUIStore } from '@/lib/stores/ui-store';
-import { useCartStore } from '@/lib/stores/cart-store';
-import { useHasMounted } from '@/lib/hooks/use-has-mounted';
-import { useLocale } from '@/lib/i18n/context';
+import { useUIStore } from '@/modules/_shared/stores/ui.store';
+import { useCartStore } from '@/modules/cart/cart.store';
+import { useHasMounted } from '@/modules/_shared/hooks/use-has-mounted';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { useEffect } from 'react';
 
 export function MobileMenu() {
@@ -23,7 +23,8 @@ export function MobileMenu() {
     { href: '/shop?onSale=true', label: t.mobileMenu.deals, icon: Tag },
     { href: '/about', label: t.mobileMenu.about, icon: Info },
     { href: '/wishlist', label: t.mobileMenu.wishlist, icon: Heart },
-    { href: '/checkout', label: t.mobileMenu.cart, icon: ShoppingCart },
+    { href: '/cart', label: t.mobileMenu.cart, icon: ShoppingCart },
+    { href: '/feedback', label: t.mobileMenu.feedback, icon: MessageSquare },
   ];
 
   useEffect(() => {

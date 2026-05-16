@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { prisma } from '@/lib/prisma';
-import { getAllHomepageSections } from '@/lib/queries/homepage';
-import { HomepageEditor } from '@/components/admin/homepage/homepage-editor';
-import { initDefaultSections } from '@/lib/server-actions/admin/homepage';
-import { getT } from '@/lib/locale';
+import { prisma } from '@/infrastructure/db/prisma';
+import { getAllHomepageSections } from '@/modules/home/home.queries';
+import { HomepageEditor } from '@/modules/admin/homepage/components/homepage-editor';
+import { initDefaultSections } from '@/modules/admin/homepage/homepage.service';
+import { getT } from '@/modules/_shared/i18n/locale';
 
 export const metadata: Metadata = { title: 'Homepage Sections' };
 

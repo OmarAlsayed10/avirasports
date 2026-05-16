@@ -6,8 +6,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { requestPasswordReset } from '@/lib/server-actions/password-reset';
-import { useLocale } from '@/lib/i18n/context';
+import { requestPasswordReset } from '@/modules/auth/auth.password-reset.service';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 
 export default function ForgotPasswordPage() {
   const [submitted, setSubmitted] = useState(false);

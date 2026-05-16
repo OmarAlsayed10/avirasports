@@ -1,11 +1,11 @@
 ﻿import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { auth } from '@/lib/auth';
-import { getOrderHistory } from '@/lib/queries/orders';
+import { auth } from '@/infrastructure/auth/auth.config';
+import { getOrderHistory } from '@/modules/order/order.queries';
 import { Package, MapPin, User, ChevronRight } from 'lucide-react';
-import { getOrderStatusLabels, ORDER_STATUS_COLORS } from '@/lib/constants/order-status';
-import { formatEgp } from '@/lib/utils/format-egp';
-import { getT } from '@/lib/locale';
+import { getOrderStatusLabels, ORDER_STATUS_COLORS } from '@/modules/_shared/constants/order-status.constants';
+import { formatEgp } from '@/modules/_shared/utils/format-egp';
+import { getT } from '@/modules/_shared/i18n/locale';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'My Account' };
@@ -37,7 +37,6 @@ export default async function AccountPage() {
 
   return (
     <div className="max-w-content mx-auto px-site py-12 space-y-8">
-      {/* Profile header */}
       <div className="flex items-center gap-4">
         <div className="w-16 h-16 rounded-full bg-primary-btn flex items-center justify-center flex-shrink-0">
           <span className="font-secondary font-black text-xl text-bg-dark">{initials}</span>
@@ -50,7 +49,6 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      {/* Quick links */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {QUICK_LINKS.map(({ href, label, icon: Icon, desc }) => (
           <Link
@@ -70,7 +68,6 @@ export default async function AccountPage() {
         ))}
       </div>
 
-      {/* Recent orders preview */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-nav-sm font-semibold text-text-primary dark:text-text-on-dark">

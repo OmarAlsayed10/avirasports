@@ -1,6 +1,6 @@
 ﻿import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getT } from '@/lib/locale';
+import { getT } from '@/modules/_shared/i18n/locale';
 
 export const metadata: Metadata = {
   title: 'About Avira — Sports Gear in Egypt',
@@ -24,7 +24,6 @@ export default function AboutPage() {
 
   return (
     <main className="max-w-content mx-auto px-site py-12 space-y-16">
-      {/* Hero */}
       <section className="text-center space-y-4 max-w-2xl mx-auto">
         <h1 className="font-secondary text-3xl md:text-4xl font-black uppercase tracking-tight text-text-primary dark:text-text-on-dark">
           {t.about.heading}
@@ -34,7 +33,6 @@ export default function AboutPage() {
         </p>
       </section>
 
-      {/* Why Avira */}
       <section>
         <h2 className="font-secondary text-2xl md:text-3xl font-black uppercase tracking-tight text-text-primary dark:text-text-on-dark mb-8 text-center">
           {t.about.whyShop}
@@ -54,7 +52,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Payment */}
       <section className="bg-bg-white dark:bg-bg-surface rounded-card-lg p-8 shadow-newsletter space-y-4 max-w-2xl mx-auto text-center">
         <h2 className="font-secondary text-2xl md:text-3xl font-black uppercase tracking-tight text-text-primary dark:text-text-on-dark">
           {t.about.paymentTitle}
@@ -64,7 +61,6 @@ export default function AboutPage() {
         </p>
       </section>
 
-      {/* CTA */}
       <section className="text-center space-y-4">
         <p className="text-base text-text-secondary dark:text-text-footer-link">
           {t.about.readyTitle}

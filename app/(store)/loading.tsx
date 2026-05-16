@@ -1,4 +1,4 @@
-import { ProductGridSkeleton } from '@/components/product/product-grid';
+import { ProductGridSkeleton } from '@/modules/product/components/product-grid';
 
 export default function RootLoading() {
   return (

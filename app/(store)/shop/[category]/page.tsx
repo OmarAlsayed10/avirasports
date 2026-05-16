@@ -1,6 +1,6 @@
 import { permanentRedirect, notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/infrastructure/db/prisma';
 
 interface CategoryPageProps {
   params: { category: string };

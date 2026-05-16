@@ -6,11 +6,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { registerSchema, type RegisterInput } from '@/lib/validators/auth';
-import { registerUser } from '@/lib/server-actions/auth';
-import { GoogleIcon } from '@/components/shared/google-icon';
+import { registerSchema, type RegisterInput } from '@/modules/auth/auth.validators';
+import { registerUser } from '@/modules/auth/auth.service';
+import { GoogleIcon } from '@/modules/_shared/ui/google-icon';
 import { toast } from 'sonner';
-import { useLocale } from '@/lib/i18n/context';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 
 export default function RegisterPage() {
   const router = useRouter();

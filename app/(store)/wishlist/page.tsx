@@ -1,15 +1,15 @@
 'use client';
 
-import { useHasMounted } from '@/lib/hooks/use-has-mounted';
+import { useHasMounted } from '@/modules/_shared/hooks/use-has-mounted';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Trash2, ShoppingCart, Heart } from 'lucide-react';
-import { useWishlistStore, type WishlistItem } from '@/lib/stores/wishlist-store';
-import { useCartStore } from '@/lib/stores/cart-store';
-import { useUIStore } from '@/lib/stores/ui-store';
-import { formatEgp } from '@/lib/utils/format-egp';
+import { useWishlistStore, type WishlistItem } from '@/modules/wishlist/wishlist.store';
+import { useCartStore } from '@/modules/cart/cart.store';
+import { useUIStore } from '@/modules/_shared/stores/ui.store';
+import { formatEgp } from '@/modules/_shared/utils/format-egp';
 import { toast } from 'sonner';
-import { useLocale } from '@/lib/i18n/context';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 
 function WishlistCard({ item }: { item: WishlistItem }) {
   const removeItem = useWishlistStore((s) => s.removeItem);

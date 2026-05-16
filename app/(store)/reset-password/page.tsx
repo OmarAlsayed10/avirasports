@@ -7,8 +7,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { resetPassword } from '@/lib/server-actions/password-reset';
-import { useLocale } from '@/lib/i18n/context';
+import { resetPassword } from '@/modules/auth/auth.password-reset.service';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 
 export default function ResetPasswordPage() {
   const router = useRouter();

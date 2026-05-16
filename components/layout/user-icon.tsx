@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { UserCircle, User, MapPin, Package, LogOut, ChevronRight, Loader2, LayoutDashboard } from 'lucide-react';
-import { useLocale } from '@/lib/i18n/context';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 
 function getInitials(name: string) {
   return name
@@ -59,7 +59,6 @@ export function UserIcon() {
 
   return (
     <div ref={ref} className="relative">
-      {/* Avatar trigger */}
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label={t.account.title}
@@ -74,7 +73,6 @@ export function UserIcon() {
 
       {open && (
         <div className="absolute right-0 top-full mt-2 w-64 bg-bg-white dark:bg-bg-surface rounded-card-lg shadow-newsletter border border-border-primary/10 dark:border-white/10 overflow-hidden z-50">
-          {/* User info header */}
           <div className="px-4 py-4 bg-bg-page dark:bg-bg-dark border-b border-border-primary/10 dark:border-white/10">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-full bg-primary-btn flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -95,7 +93,6 @@ export function UserIcon() {
             </div>
           </div>
 
-          {/* Navigation items */}
           <nav className="py-1">
             {menuItems.map(({ href, label, icon: Icon }) => (
               <Link
@@ -111,7 +108,6 @@ export function UserIcon() {
             ))}
           </nav>
 
-          {/* Sign out */}
           <div className="border-t border-border-primary/10 dark:border-white/10 py-1">
             <button
               onClick={() => signOut({ callbackUrl: '/' })}

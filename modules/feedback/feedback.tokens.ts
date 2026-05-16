@@ -1,0 +1,21 @@
+export const feedbackTokens = {
+  section: 'bg-bg-surface dark:bg-bg-dark py-16',
+  inner: 'max-w-2xl mx-auto px-site text-center',
+  heading: 'font-secondary text-section-heading font-black uppercase tracking-tight text-text-on-dark mb-2',
+  sub: 'text-base text-text-footer-link mb-8',
+  form: 'text-left space-y-4 mt-6',
+  starsRow: 'flex items-center justify-center gap-2 mb-1',
+  star: {
+    base: 'cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-btn rounded-sm',
+    active: 'text-yellow-400',
+    inactive: 'text-text-placeholder dark:text-text-footer-link hover:text-yellow-300',
+  },
+  ratingLabel: 'text-center text-sm text-text-secondary dark:text-text-footer-link mb-6',
+  field: 'w-full px-4 py-3 rounded-btn-sm border border-border-input bg-bg-white dark:bg-bg-surface text-text-primary dark:text-text-on-dark placeholder-text-placeholder dark:placeholder-text-footer-link text-sm focus:outline-none focus:ring-2 focus:ring-primary-btn/40',
+  textarea: 'w-full px-4 py-3 rounded-btn-sm border border-border-input bg-bg-white dark:bg-bg-surface text-text-primary dark:text-text-on-dark placeholder-text-placeholder dark:placeholder-text-footer-link text-sm focus:outline-none focus:ring-2 focus:ring-primary-btn/40 resize-none',
+  grid: 'grid sm:grid-cols-2 gap-4',
+  submitBtn: 'w-full py-3 bg-primary-btn text-bg-dark rounded-btn-sm text-nav-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed',
+  successWrapper: 'text-center py-10',
+  successMsg: 'text-success font-medium text-base',
+  errorMsg: 'text-sm text-color-error mt-1',
+} as const;

@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Copy, Check, RefreshCw, ClipboardList } from 'lucide-react';
 import { toast } from 'sonner';
-import { useCartStore } from '@/lib/stores/cart-store';
-import { useLocale } from '@/lib/i18n/context';
+import { useCartStore } from '@/modules/cart/cart.store';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 
 interface FawryReferencePageProps {
   params: { orderId: string };
@@ -84,7 +84,6 @@ export default function FawryReferencePage({ params }: FawryReferencePageProps) 
   return (
     <div className="max-w-content mx-auto px-site py-12">
       <div className="max-w-xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
             <ClipboardList className="w-8 h-8 text-primary" aria-hidden="true" />
@@ -97,7 +96,6 @@ export default function FawryReferencePage({ params }: FawryReferencePageProps) 
           )}
         </div>
 
-        {/* Reference Number */}
         <div className="bg-bg-dark text-text-on-dark rounded-carousel p-6 text-center mb-6">
           <p className="text-xs text-text-footer-link mb-2">{t.checkout.fawryRefLabel}</p>
           <p className="text-4xl font-bold tracking-widest mb-3 font-secondary">
@@ -118,7 +116,6 @@ export default function FawryReferencePage({ params }: FawryReferencePageProps) 
           )}
         </div>
 
-        {/* Instructions */}
         <div className="bg-bg-white rounded-carousel border border-border-primary/20 p-6 mb-6 space-y-4">
           <h2 className="text-nav-sm font-semibold text-text-primary">{t.checkout.howToPay}</h2>
           {FAWRY_STEPS.map(({ step, title, desc }) => (
@@ -138,7 +135,6 @@ export default function FawryReferencePage({ params }: FawryReferencePageProps) 
           {t.checkout.emailSent}
         </p>
 
-        {/* Actions */}
         <div className="space-y-3">
           <button
             onClick={checkStatus}

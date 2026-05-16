@@ -1,11 +1,9 @@
 export default function ProductLoading() {
   return (
     <div className="max-w-content mx-auto px-site py-8">
-      {/* Breadcrumb */}
       <div className="h-4 bg-indicator-inactive dark:bg-bg-surface rounded w-48 animate-pulse" />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mt-6">
-        {/* Gallery skeleton */}
         <div className="space-y-4">
           <div className="aspect-square bg-indicator-inactive dark:bg-bg-surface rounded-carousel animate-pulse" />
           <div className="flex gap-2">
@@ -15,7 +13,6 @@ export default function ProductLoading() {
           </div>
         </div>
 
-        {/* Info skeleton */}
         <div className="space-y-4">
           <div className="h-3 bg-indicator-inactive dark:bg-bg-surface rounded w-24 animate-pulse" />
           <div className="h-8 bg-indicator-inactive dark:bg-bg-surface rounded w-3/4 animate-pulse" />

@@ -39,7 +39,6 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Redirect admins away from /account to /admin
     if (pathname.startsWith('/account')) {
       const token = await getToken({ req, secret: process.env.AUTH_SECRET, cookieName });
       if (token?.role === 'ADMIN') {

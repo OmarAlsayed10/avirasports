@@ -1,9 +1,9 @@
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
-import { auth } from '@/lib/auth';
-import { getOrder } from '@/lib/queries/orders';
-import { formatEgp } from '@/lib/utils/format-egp';
-import { getT } from '@/lib/locale';
+import { auth } from '@/infrastructure/auth/auth.config';
+import { getOrder } from '@/modules/order/order.queries';
+import { formatEgp } from '@/modules/_shared/utils/format-egp';
+import { getT } from '@/modules/_shared/i18n/locale';
 import type { Prisma } from '@prisma/client';
 import type { Metadata } from 'next';
 
@@ -50,7 +50,6 @@ export default async function OrderDetailPage({ params }: { params: { orderId: s
         {new Date(order.createdAt).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })}
       </p>
 
-      {/* Status timeline */}
       {!isCancelled && (
         <div className="bg-bg-white rounded-card-lg border border-border-primary/10 p-6 mb-6">
           <h2 className="text-nav-sm font-semibold text-text-primary mb-4">{tr.orderStatus}</h2>
@@ -84,7 +83,6 @@ export default async function OrderDetailPage({ params }: { params: { orderId: s
         </div>
       )}
 
-      {/* Fawry reference if pending */}
       {order.status === 'pending_payment' && order.fawryPayment?.fawryRefNumber && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-card-lg p-4 mb-6">
           <p className="text-nav-sm font-semibold text-yellow-800 mb-1">{tr.awaitingPayment}</p>
@@ -99,7 +97,6 @@ export default async function OrderDetailPage({ params }: { params: { orderId: s
         </div>
       )}
 
-      {/* Items */}
       <div className="bg-bg-white rounded-card-lg border border-border-primary/10 p-6 mb-6">
         <h2 className="text-nav-sm font-semibold text-text-primary mb-4">{tr.itemsHeading}</h2>
         <div className="space-y-3">
@@ -136,7 +133,6 @@ export default async function OrderDetailPage({ params }: { params: { orderId: s
         </div>
       </div>
 
-      {/* Shipping address */}
       <div className="bg-bg-white rounded-card-lg border border-border-primary/10 p-6">
         <h2 className="text-nav-sm font-semibold text-text-primary mb-3">{tr.shippingAddress}</h2>
         <p className="text-nav-sm text-text-primary">{order.shippingFullName}</p>

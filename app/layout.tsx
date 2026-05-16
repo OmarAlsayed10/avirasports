@@ -4,10 +4,10 @@ import { Suspense } from 'react';
 import './globals.css';
 import { Providers } from './providers';
 import { MobileMenu } from '@/components/layout/mobile-menu';
-import { SearchOverlay } from '@/components/search/search-overlay';
-import { ScrollToTop } from '@/components/shared/scroll-to-top';
-import { getLocale } from '@/lib/locale';
-import { auth } from '@/lib/auth';
+import { SearchOverlay } from '@/modules/search/components/search-overlay';
+import { ScrollToTop } from '@/modules/_shared/ui/scroll-to-top';
+import { getLocale } from '@/modules/_shared/i18n/locale';
+import { auth } from '@/infrastructure/auth/auth.config';
 
 const dmSans = DM_Sans({
   subsets: ['latin'],

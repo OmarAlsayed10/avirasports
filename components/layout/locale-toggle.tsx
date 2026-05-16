@@ -1,8 +1,8 @@
 'use client';
 
 import { useTransition } from 'react';
-import { setLocale } from '@/lib/server-actions/locale';
-import type { Locale } from '@/lib/locale';
+import { setLocale } from '@/modules/_shared/i18n/locale.service';
+import type { Locale } from '@/modules/_shared/i18n/locale';
 
 export function LocaleToggle({ locale }: { locale: Locale }) {
   const [isPending, startTransition] = useTransition();

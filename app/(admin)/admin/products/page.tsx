@@ -1,11 +1,11 @@
 ﻿import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
-import { formatEgp } from '@/lib/utils/format-egp';
-import cloudinaryLoader from '@/lib/cloudinary-loader';
-import ProductRowActions from '@/components/admin/products/product-row-actions';
-import ToggleStatusButton from '@/components/admin/products/toggle-status-button';
+import { prisma } from '@/infrastructure/db/prisma';
+import { formatEgp } from '@/modules/_shared/utils/format-egp';
+import cloudinaryLoader from '@/infrastructure/storage/cloudinary-loader';
+import ProductRowActions from '@/modules/admin/products/components/product-row-actions';
+import ToggleStatusButton from '@/modules/admin/products/components/toggle-status-button';
 import type { Metadata } from 'next';
-import { getT } from '@/lib/locale';
+import { getT } from '@/modules/_shared/i18n/locale';
 
 export const metadata: Metadata = { title: 'Products' };
 
@@ -61,7 +61,6 @@ export default async function AdminProductsPage({ searchParams }: Props) {
         </Link>
       </div>
 
-      {/* Filters */}
       <form method="GET" className="flex gap-3 mb-5 flex-wrap">
         <input
           name="q"
@@ -97,7 +96,6 @@ export default async function AdminProductsPage({ searchParams }: Props) {
         )}
       </form>
 
-      {/* Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
