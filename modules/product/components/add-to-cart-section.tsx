@@ -10,6 +10,7 @@ import { useHasMounted } from '@/modules/_shared/hooks/use-has-mounted';
 import { QuantitySelector } from './quantity-selector';
 import { VariantSelector, type VariantOption } from './variant-selector';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
+import { calcDiscountedPrice } from '@/modules/_shared/utils/calc-discounted-price';
 import { productTokens } from '../product.tokens';
 
 interface AddToCartSectionProps {
@@ -44,9 +45,7 @@ export function AddToCartSection({ product, variants }: AddToCartSectionProps) {
     ? typeof selectedVariant.priceOverrideEgp === 'object'
       ? selectedVariant.priceOverrideEgp.toNumber()
       : Number(selectedVariant.priceOverrideEgp)
-    : product.discountPercent
-      ? Math.round(product.basePriceEgp * (1 - product.discountPercent / 100))
-      : product.basePriceEgp;
+    : calcDiscountedPrice(product.basePriceEgp, product.discountPercent);
 
   const hasMultipleVariants = variants.length > 1;
   const needsSelection = hasMultipleVariants && !selectedVariantId;

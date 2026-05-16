@@ -1,60 +1,35 @@
 'use client';
 
-import { useState, useTransition, useEffect, useMemo } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { Loader2, Truck, ChevronDown } from 'lucide-react';
+import { Loader2, Truck } from 'lucide-react';
 import { useCartStore } from '@/modules/cart/cart.store';
 import { useHasMounted } from '@/modules/_shared/hooks/use-has-mounted';
 import { shippingFormSchema, type ShippingFormInput } from '@/modules/checkout/checkout.validators';
 import { placeOrder } from '@/modules/checkout/checkout.service';
-import { GOVERNORATES, GOVERNORATE_NAMES_AR } from '@/modules/_shared/constants/governorates.constants';
 import { OrderSummary } from '@/modules/checkout/components/order-summary';
+import { SavedAddressPicker } from '@/modules/checkout/components/saved-address-picker';
+import { ShippingFields } from '@/modules/checkout/components/shipping-fields';
 import { Breadcrumb } from '@/modules/_shared/ui/breadcrumb';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { createZodErrorMap } from '@/modules/_shared/i18n/i18n.zod-error-map';
-import { useSession } from 'next-auth/react';
-
-interface SavedAddress {
-  id: string;
-  fullName: string;
-  phone: string;
-  addressLine: string;
-  city: string;
-  governorate: string;
-  postalCode?: string | null;
-  isDefault: boolean;
-}
+import { useAddresses, type SavedAddress } from '@/modules/checkout/hooks/use-addresses';
 
 export default function CheckoutPage() {
   const hasMounted = useHasMounted();
   const router = useRouter();
   const { t } = useLocale();
-  const isAr = t.dir === 'rtl';
-  const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
   const [discountEgp, setDiscountEgp] = useState(0);
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
-  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
-  const [showAddresses, setShowAddresses] = useState(false);
-
+  const savedAddresses = useAddresses();
   const items = useCartStore((s) => s.items);
 
   const resolver = useMemo(() => zodResolver(shippingFormSchema, { errorMap: createZodErrorMap(t) }), [t]);
   const form = useForm<ShippingFormInput>({ resolver });
-
-  useEffect(() => {
-    if (session?.user) {
-      fetch('/api/account/addresses')
-        .then((r) => r.json())
-        .then((data: SavedAddress[]) => {
-          if (Array.isArray(data)) setSavedAddresses(data);
-        })
-        .catch(() => {});
-    }
-  }, [session]);
 
   const handleCouponApplied = ({ discountEgp: d, code }: { discountEgp: number; code: string }) => {
     if (code) {
@@ -73,17 +48,12 @@ export default function CheckoutPage() {
     form.setValue('city', addr.city);
     form.setValue('governorate', addr.governorate as ShippingFormInput['governorate']);
     if (addr.postalCode) form.setValue('postalCode', addr.postalCode);
-    setShowAddresses(false);
   };
 
   const handleSubmit = form.handleSubmit((data) => {
     startTransition(async () => {
       const result = await placeOrder({
-        contact: {
-          email: data.email,
-          fullName: data.fullName,
-          phone: data.phone,
-        },
+        contact: { email: data.email, fullName: data.fullName, phone: data.phone },
         shipping: {
           addressLine: data.addressLine,
           city: data.city,
@@ -134,99 +104,9 @@ export default function CheckoutPage() {
                 {t.checkout.stepContact}
               </h2>
 
-              {savedAddresses.length > 0 && (
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => setShowAddresses((v) => !v)}
-                    className="flex items-center gap-2 text-nav-sm font-semibold text-primary hover:text-primary/80 transition-colors"
-                  >
-                    {t.checkout.savedAddresses}
-                    <ChevronDown className={`w-4 h-4 transition-transform ${showAddresses ? 'rotate-180' : ''}`} />
-                  </button>
-                  {showAddresses && (
-                    <div className="mt-2 space-y-2">
-                      {savedAddresses.map((addr) => (
-                        <div key={addr.id} className="flex items-start justify-between gap-3 p-3 border border-border-primary/20 rounded-btn-sm bg-bg-page">
-                          <div className="text-xs text-text-primary leading-relaxed">
-                            <p className="font-semibold">{addr.fullName}</p>
-                            <p>{addr.addressLine}, {addr.city}</p>
-                            <p>{isAr ? (GOVERNORATE_NAMES_AR[addr.governorate as keyof typeof GOVERNORATE_NAMES_AR] ?? addr.governorate) : addr.governorate}</p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => fillFromAddress(addr)}
-                            className="flex-shrink-0 text-xs font-semibold text-primary hover:underline"
-                          >
-                            {t.checkout.useAddress}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              <SavedAddressPicker addresses={savedAddresses} onSelect={fillFromAddress} />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FieldGroup label={t.checkout.fullName} error={form.formState.errors.fullName?.message} required>
-                  <input
-                    {...form.register('fullName')}
-                    type="text"
-                    placeholder={t.auth.fullNamePlaceholder}
-                    className="field-input"
-                  />
-                </FieldGroup>
-                <FieldGroup label={t.checkout.email} error={form.formState.errors.email?.message} required>
-                  <input
-                    {...form.register('email')}
-                    type="email"
-                    placeholder="you@example.com"
-                    className="field-input"
-                  />
-                </FieldGroup>
-                <FieldGroup label={t.checkout.phone} error={form.formState.errors.phone?.message} required className="sm:col-span-2">
-                  <input
-                    {...form.register('phone')}
-                    type="tel"
-                    placeholder="01xxxxxxxxx"
-                    className="field-input"
-                  />
-                </FieldGroup>
-                <FieldGroup label={t.checkout.address} error={form.formState.errors.addressLine?.message} required className="sm:col-span-2">
-                  <input
-                    {...form.register('addressLine')}
-                    type="text"
-                    placeholder="123 El Nasr Street, Apartment 5"
-                    className="field-input"
-                  />
-                </FieldGroup>
-                <FieldGroup label={t.checkout.city} error={form.formState.errors.city?.message} required>
-                  <input
-                    {...form.register('city')}
-                    type="text"
-                    placeholder="Cairo"
-                    className="field-input"
-                  />
-                </FieldGroup>
-                <FieldGroup label={t.checkout.governorate} error={form.formState.errors.governorate?.message} required>
-                  <select {...form.register('governorate')} className="field-input">
-                    <option value="">{t.checkout.selectGovernorate}</option>
-                    {GOVERNORATES.map((g) => (
-                      <option key={g} value={g}>
-                        {isAr ? GOVERNORATE_NAMES_AR[g] : g}
-                      </option>
-                    ))}
-                  </select>
-                </FieldGroup>
-                <FieldGroup label={t.checkout.postalCode} error={form.formState.errors.postalCode?.message}>
-                  <input
-                    {...form.register('postalCode')}
-                    type="text"
-                    placeholder={t.checkout.optional}
-                    className="field-input"
-                  />
-                </FieldGroup>
-              </div>
+              <ShippingFields form={form} />
 
               <div className="flex items-center gap-3 p-4 rounded-carousel border border-border-primary/20 bg-bg-page">
                 <Truck className="w-5 h-5 text-primary flex-shrink-0" />
@@ -257,31 +137,6 @@ export default function CheckoutPage() {
           />
         </div>
       </div>
-    </div>
-  );
-}
-
-function FieldGroup({
-  label,
-  error,
-  required,
-  children,
-  className,
-}: {
-  label: string;
-  error?: string;
-  required?: boolean;
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={className}>
-      <label className="block text-xs font-semibold text-text-primary mb-1.5">
-        {label}
-        {required && <span className="text-color-error ml-0.5">*</span>}
-      </label>
-      {children}
-      {error && <p className="text-xs text-color-error mt-1">{error}</p>}
     </div>
   );
 }

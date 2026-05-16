@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { X, Tag } from 'lucide-react';
 import type { Locale } from '@/modules/_shared/i18n/locale';
 import { productTokens } from '../product.tokens';
+import { tr } from '@/modules/_shared/i18n/i18n.translations';
 
 interface QuantityOffer {
   id: string;
@@ -63,6 +64,8 @@ export function QuantityOfferPopup({
   if (!visible) return null;
 
   const p = productTokens.quantityOffer.popup;
+  const t = tr(locale).product;
+  const numLocale = locale === 'ar' ? 'ar-EG' : undefined;
 
   return (
     <div
@@ -79,9 +82,7 @@ export function QuantityOfferPopup({
             <Tag className={p.icon} />
           </div>
           <div>
-            <p className={p.eyebrow}>
-              {locale === 'ar' ? 'عرض لفترة محدودة' : 'Limited Time Offer'}
-            </p>
+            <p className={p.eyebrow}>{t.limitedTimeOffer}</p>
             <p className={p.productName}>{productName}</p>
           </div>
         </div>
@@ -93,15 +94,11 @@ export function QuantityOfferPopup({
             return (
               <div key={offer.id} className={p.offerCard}>
                 <p className={p.offerTitle}>
-                  {locale === 'ar'
-                    ? `اشترِ ${offer.quantity} مقابل ${offer.offerPriceEgp.toLocaleString('ar-EG')} ج.م فقط!`
-                    : `Buy ${offer.quantity} for only EGP ${offer.offerPriceEgp.toLocaleString()}!`}
+                  {t.buyNForPrice(offer.quantity, offer.offerPriceEgp.toLocaleString(numLocale))}
                 </p>
                 {savings > 0 && (
                   <p className={p.offerSavings}>
-                    {locale === 'ar'
-                      ? `بدلاً من ${normalTotal.toLocaleString('ar-EG')} ج.م — وفّر ${savings.toLocaleString('ar-EG')} ج.م`
-                      : `Instead of EGP ${normalTotal.toLocaleString()} — save EGP ${savings.toLocaleString()}`}
+                    {t.insteadOfSave(normalTotal.toLocaleString(numLocale), savings.toLocaleString(numLocale))}
                   </p>
                 )}
               </div>
@@ -110,7 +107,7 @@ export function QuantityOfferPopup({
         </div>
 
         <button onClick={handleClose} className={p.ctaBtn}>
-          {locale === 'ar' ? 'تسوق الآن' : 'Shop Now'}
+          {t.shopNow}
         </button>
       </div>
     </div>

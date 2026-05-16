@@ -2,14 +2,12 @@
 
 import type { Category } from '@prisma/client';
 import { useProductForm } from './product-form-provider';
-import { SectionShell } from './sectionSheel';
+import { SectionShell } from './section-shell';
 import { slugify } from '@/modules/_shared/utils/slugify';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
+import { adminProductTokens } from '../admin-product.tokens';
 
-const inputCls =
-  'w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors';
-const labelCls = 'block text-sm font-medium text-gray-700 mb-1';
-const errorCls = 'text-xs text-red-500 mt-1';
+const { input: inputCls, label: labelCls, error: errorCls } = adminProductTokens.field;
 
 interface BasicInfoSectionProps {
   categories: Category[];

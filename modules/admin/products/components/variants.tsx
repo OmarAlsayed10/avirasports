@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import { useFieldArray } from 'react-hook-form';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { useProductForm } from './product-form-provider';
-import { SectionShell } from './sectionSheel';
+import { SectionShell } from './section-shell';
 import { VariantGenerator } from './variant-generator';
 import { VariantTable } from './variant-table';
 

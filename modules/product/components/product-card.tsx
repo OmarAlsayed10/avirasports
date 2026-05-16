@@ -7,6 +7,7 @@ import { PriceDisplay } from '@/modules/_shared/ui/price-display';
 import { StarRating } from '@/modules/_shared/ui/star-rating';
 import { WishlistToggle, QuickAddButton } from './product-card-actions';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
+import { calcDiscountedPrice } from '@/modules/_shared/utils/calc-discounted-price';
 import { productTokens } from '../product.tokens';
 
 export type ProductCardData = {
@@ -37,9 +38,7 @@ export const ProductCard = memo(function ProductCard({ product, priority = false
       ? product.basePriceEgp.toNumber()
       : Number(product.basePriceEgp);
 
-  const discountedPrice = product.discountPercent
-    ? Math.round(basePrice * (1 - product.discountPercent / 100))
-    : basePrice;
+  const discountedPrice = calcDiscountedPrice(basePrice, product.discountPercent);
 
   const imageUrl = product.images[0]?.url ?? '/placeholder-product.jpg';
   const imageAlt = product.images[0]?.alt ?? product.name;

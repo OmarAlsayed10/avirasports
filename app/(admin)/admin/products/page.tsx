@@ -74,7 +74,7 @@ export default async function AdminProductsPage({ searchParams }: Props) {
           className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
         >
           <option value="">{t.admin.allCategories}</option>
-          {categories.map((cat:any) => (
+          {categories.map((cat) => (
             <option key={cat.id} value={cat.slug}>
               {isAr && cat.nameAr ? cat.nameAr : cat.name}
             </option>
@@ -120,8 +120,8 @@ export default async function AdminProductsPage({ searchParams }: Props) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {products.map((product:any) => {
-                const totalStock = product.variants.reduce((s:any, v:any) => s + v.stockCount, 0);
+              {products.map((product) => {
+                const totalStock = product.variants.reduce((s, v) => s + v.stockCount, 0);
                 const primaryImage = product.images[0];
                 return (
                   <tr key={product.id} className="hover:bg-gray-50 transition-colors">

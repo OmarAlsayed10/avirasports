@@ -1,13 +1,14 @@
 import NextAuth from 'next-auth';
-import { PrismaAdapter } from '@auth/prisma-adapter';
 import Credentials from 'next-auth/providers/credentials';
 import Google from 'next-auth/providers/google';
 import { compare } from 'bcryptjs';
 import { prisma } from '@/infrastructure/db/prisma';
 import { loginSchema } from '@/modules/auth/auth.validators';
+import { rateLimit, getClientIp } from '@/infrastructure/rate-limit/limiter';
+import { encryptedPrismaAdapter } from './prisma-adapter-encrypted';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: encryptedPrismaAdapter(prisma),
   session: { strategy: 'jwt', maxAge: 30 * 24 * 60 * 60 },
   providers: [
     Google({
@@ -19,7 +20,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
-      authorize: async (credentials) => {
+      authorize: async (credentials, req) => {
+        const ip = getClientIp(req as Request);
+        const rl = rateLimit(`signin:${ip}`, 5, 15 * 60 * 1000);
+        if (!rl.allowed) return null;
+
         const parsed = loginSchema.safeParse(credentials);
         if (!parsed.success) return null;
 

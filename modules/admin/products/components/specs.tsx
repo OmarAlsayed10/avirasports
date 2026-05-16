@@ -4,7 +4,7 @@ import { useFieldArray } from 'react-hook-form';
 import { Plus, Trash2 } from 'lucide-react';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { useProductForm } from './product-form-provider';
-import { SectionShell } from './sectionSheel';
+import { SectionShell } from './section-shell';
 
 const inputCls =
   'w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-colors';

@@ -1,11 +1,10 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { ShoppingCart, ShoppingBag } from 'lucide-react';
 import { useCartStore } from '@/modules/cart/cart.store';
 import { useHasMounted } from '@/modules/_shared/hooks/use-has-mounted';
+import { useDropdown } from '@/modules/_shared/hooks/use-dropdown';
 import { formatEgpSimple } from '@/modules/_shared/utils/format-egp';
 import { CartItemRow } from './cart-item-row';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
@@ -14,26 +13,9 @@ import { cartTokens } from '../cart.tokens';
 export function CartIcon() {
   const hasMounted = useHasMounted();
   const { t } = useLocale();
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
+  const { open, setOpen, ref } = useDropdown();
   const itemCount = useCartStore((s) => s.itemCount());
   const { items, removeItem, updateQuantity, totalEgp } = useCartStore();
-
-  useEffect(() => {
-    if (!open) return;
-    function onClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
-  }, [open]);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   const ariaLabel = hasMounted && itemCount > 0 ? t.cart.openCart(itemCount) : t.cart.title;
 

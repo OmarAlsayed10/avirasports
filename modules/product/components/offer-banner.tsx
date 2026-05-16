@@ -3,8 +3,10 @@ import { Tag } from 'lucide-react';
 import type { ProductOffer } from '@/modules/admin/offers/offers.queries';
 import type { Locale } from '@/modules/_shared/i18n/locale';
 import { productTokens } from '../product.tokens';
+import { tr } from '@/modules/_shared/i18n/i18n.translations';
 
 function offerMessage(offer: ProductOffer, locale: Locale): React.ReactNode {
+  const t = tr(locale).product;
   const rewardName =
     locale === 'ar' && offer.rewardProduct.nameAr
       ? offer.rewardProduct.nameAr
@@ -22,18 +24,18 @@ function offerMessage(offer: ProductOffer, locale: Locale): React.ReactNode {
   if (offer.rewardType === 'GIFT') {
     return (
       <>
-        {locale === 'ar' ? 'اشترِ واحصل على ' : 'Buy and get '}
+        {t.offerBuyGetGiftPre}
         {rewardLink}
-        {locale === 'ar' ? ' كهدية مجانية!' : ' as a free gift!'}
+        {t.offerBuyGetGiftPost}
       </>
     );
   }
 
   return (
     <>
-      {locale === 'ar' ? 'اشترِ واحصل على خصم ' : 'Buy and get '}
+      {t.offerBuyGetDiscountPre}
       <span className="font-semibold">{offer.discountPercent}%</span>
-      {locale === 'ar' ? ' على ' : ' off '}
+      {t.offerBuyGetDiscountMid}
       {rewardLink}
       {'!'}
     </>

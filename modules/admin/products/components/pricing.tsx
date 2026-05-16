@@ -1,7 +1,7 @@
 'use client';
 
 import { useProductForm } from './product-form-provider';
-import { SectionShell } from './sectionSheel';
+import { SectionShell } from './section-shell';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 
 const inputCls =

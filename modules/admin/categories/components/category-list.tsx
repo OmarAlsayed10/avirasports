@@ -91,17 +91,33 @@ function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: st
   );
 }
 
-function AddCategoryForm({ onDone }: { onDone: () => void }) {
-  const [state, action] = useFormState(createCategory, null);
+type CategoryFormState = { success?: boolean; error?: { name?: string[]; slug?: string[] } } | null;
+
+function CategoryForm({
+  action,
+  state,
+  category,
+  onDone,
+}: {
+  action: (payload: FormData) => void;
+  state: CategoryFormState;
+  category?: Category;
+  onDone: () => void;
+}) {
   const { t } = useLocale();
+  const isEdit = !!category;
 
   useEffect(() => {
     if (state?.success) onDone();
   }, [state, onDone]);
 
   return (
-    <form action={action} className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
-      <p className="text-sm font-semibold text-gray-700">{t.admin.newCategory}</p>
+    <form
+      action={action}
+      className={`border rounded-lg p-4 space-y-3 ${isEdit ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'}`}
+    >
+      {isEdit && <input type="hidden" name="id" value={category.id} />}
+      {!isEdit && <p className="text-sm font-semibold text-gray-700">{t.admin.newCategory}</p>}
       {state?.error?.name && <p className={errorCls}>{state.error.name[0]}</p>}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -110,43 +126,48 @@ function AddCategoryForm({ onDone }: { onDone: () => void }) {
           <input
             name="name"
             required
+            defaultValue={category?.name}
             className={inputCls}
             placeholder="e.g. Running"
-            onChange={(e) => {
+            onChange={!isEdit ? (e) => {
               const slugInput = e.currentTarget.form?.querySelector<HTMLInputElement>('[name="slug"]');
               if (slugInput && !slugInput.dataset.edited) slugInput.value = slugify(e.target.value);
-            }}
+            } : undefined}
           />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.nameArLabel}</label>
-          <input name="nameAr" className={inputCls} dir="rtl" placeholder="مثلاً: الجري" />
+          <input name="nameAr" defaultValue={category?.nameAr ?? ''} className={inputCls} dir="rtl" placeholder="مثلاً: الجري" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.slugLabel}</label>
           <input
             name="slug"
             required
+            defaultValue={category?.slug}
             className={inputCls}
             placeholder="e.g. running"
-            onInput={(e) => { e.currentTarget.dataset.edited = 'true'; }}
+            onInput={!isEdit ? (e) => { e.currentTarget.dataset.edited = 'true'; } : undefined}
           />
           {state?.error?.slug && <p className={errorCls}>{state.error.slug[0]}</p>}
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.descriptionLabel}</label>
-          <input name="description" className={inputCls} placeholder="Optional" />
+          <input name="description" defaultValue={category?.description ?? ''} className={inputCls} placeholder="Optional" />
         </div>
         <div>
           <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.sortOrderLabel}</label>
-          <input name="sortOrder" type="number" min="0" defaultValue={0} className={inputCls} />
+          <input name="sortOrder" type="number" min="0" defaultValue={category?.sortOrder ?? 0} className={inputCls} />
         </div>
       </div>
 
-      <ImageUploadField />
+      <ImageUploadField initialUrl={category?.iconUrl} />
 
       <div className="flex gap-2 pt-1">
-        <SubmitButton label={t.admin.save} pendingLabel={t.admin.saving} />
+        <SubmitButton
+          label={isEdit ? t.admin.update : t.admin.save}
+          pendingLabel={t.admin.saving}
+        />
         <button
           type="button"
           onClick={onDone}
@@ -159,57 +180,14 @@ function AddCategoryForm({ onDone }: { onDone: () => void }) {
   );
 }
 
+function AddCategoryForm({ onDone }: { onDone: () => void }) {
+  const [state, action] = useFormState(createCategory, null);
+  return <CategoryForm action={action} state={state} onDone={onDone} />;
+}
+
 function EditCategoryForm({ category, onDone }: { category: Category; onDone: () => void }) {
   const [state, action] = useFormState(updateCategory, null);
-  const { t } = useLocale();
-
-  useEffect(() => {
-    if (state?.success) onDone();
-  }, [state, onDone]);
-
-  return (
-    <form action={action} className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
-      <input type="hidden" name="id" value={category.id} />
-      {state?.error?.name && <p className={errorCls}>{state.error.name[0]}</p>}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.nameLabel}</label>
-          <input name="name" required defaultValue={category.name} className={inputCls} />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.nameArLabel}</label>
-          <input name="nameAr" defaultValue={category.nameAr ?? ''} className={inputCls} dir="rtl" placeholder="الاسم بالعربية" />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.slugLabel}</label>
-          <input name="slug" required defaultValue={category.slug} className={inputCls} />
-          {state?.error?.slug && <p className={errorCls}>{state.error.slug[0]}</p>}
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.descriptionLabel}</label>
-          <input name="description" defaultValue={category.description ?? ''} className={inputCls} />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.sortOrderLabel}</label>
-          <input name="sortOrder" type="number" min="0" defaultValue={category.sortOrder} className={inputCls} />
-        </div>
-      </div>
-
-      <ImageUploadField initialUrl={category.iconUrl} />
-
-      <div className="flex gap-2 pt-1">
-        <SubmitButton label={t.admin.update} pendingLabel={t.admin.saving} />
-        <button
-          type="button"
-          onClick={onDone}
-          className="px-4 py-2 border border-gray-300 text-gray-600 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
-        >
-          {t.admin.cancel}
-        </button>
-      </div>
-    </form>
-  );
+  return <CategoryForm action={action} state={state} category={category} onDone={onDone} />;
 }
 
 function DeleteButton({ id, productCount }: { id: string; productCount: number }) {

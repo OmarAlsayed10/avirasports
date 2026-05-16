@@ -8,29 +8,8 @@ import { searchProducts } from '@/modules/search/search.service';
 import { ProductResultItem, CategoryResultItem } from './search-result-item';
 import { useRouter } from 'next/navigation';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
-
-const RECENT_KEY = 'avira-recent-searches';
-const MAX_RECENT = 5;
-
-function getRecent(): string[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    return JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]');
-  } catch {
-    return [];
-  }
-}
-
-function saveRecent(query: string) {
-  const existing = getRecent().filter((q) => q !== query);
-  const updated = [query, ...existing].slice(0, MAX_RECENT);
-  localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
-}
-
-function removeRecent(query: string) {
-  const updated = getRecent().filter((q) => q !== query);
-  localStorage.setItem(RECENT_KEY, JSON.stringify(updated));
-}
+import { useRecentSearches } from '../hooks/use-recent-searches';
+import { useSearchKeyboardShortcuts } from '../hooks/use-search-keyboard-shortcuts';
 
 type SearchResults = Awaited<ReturnType<typeof searchProducts>>;
 
@@ -39,40 +18,31 @@ export function SearchOverlay() {
   const { t } = useLocale();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResults | null>(null);
-  const [recent, setRecent] = useState<string[]>([]);
   const [isPending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
+  const { recent, load: loadRecent, save: saveRecent, remove: removeRecent } = useRecentSearches();
+
   const debouncedQuery = useDebounce(query, 300);
+
+  useSearchKeyboardShortcuts({
+    open: searchOpen,
+    onToggle: () => setSearchOpen(!searchOpen),
+    onClose: () => setSearchOpen(false),
+  });
 
   useEffect(() => {
     if (searchOpen) {
-      setRecent(getRecent());
+      loadRecent();
       setQuery('');
       setResults(null);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
-  }, [searchOpen]);
+  }, [searchOpen, loadRecent]);
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setSearchOpen(!searchOpen);
-      }
-      if (e.key === 'Escape') setSearchOpen(false);
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [searchOpen, setSearchOpen]);
-
-  useEffect(() => {
-    if (searchOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    document.body.style.overflow = searchOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [searchOpen]);
 
@@ -92,13 +62,8 @@ export function SearchOverlay() {
     setSearchOpen(false);
   };
 
-  const handleRecentClick = (q: string) => {
-    setQuery(q);
-  };
-
   const handleRemoveRecent = (q: string) => {
     removeRecent(q);
-    setRecent(getRecent());
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -206,7 +171,7 @@ export function SearchOverlay() {
                   <Clock className="w-4 h-4 text-text-secondary flex-shrink-0" aria-hidden="true" />
                   <button
                     className="flex-1 text-left text-nav-sm text-text-primary"
-                    onClick={() => handleRecentClick(q)}
+                    onClick={() => setQuery(q)}
                   >
                     {q}
                   </button>

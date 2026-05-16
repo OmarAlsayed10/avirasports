@@ -1,6 +1,7 @@
 import { Tag } from 'lucide-react';
 import type { Locale } from '@/modules/_shared/i18n/locale';
 import { productTokens } from '../product.tokens';
+import { tr } from '@/modules/_shared/i18n/i18n.translations';
 
 interface QuantityOffer {
   id: string;
@@ -17,12 +18,15 @@ interface QuantityOffersBannerProps {
 export function QuantityOffersBanner({ offers, basePrice, locale }: QuantityOffersBannerProps) {
   if (offers.length === 0) return null;
 
+  const t = tr(locale).product;
+  const numLocale = locale === 'ar' ? 'ar-EG' : undefined;
+
   return (
     <div className={productTokens.quantityOffer.banner.root}>
       <div className={productTokens.quantityOffer.banner.header}>
         <Tag className={productTokens.quantityOffer.banner.icon} />
         <h3 className={productTokens.quantityOffer.banner.title}>
-          {locale === 'ar' ? 'عروض خاصة على الكمية' : 'Quantity Offers'}
+          {t.quantityOffersBannerTitle}
         </h3>
       </div>
       <div className={productTokens.quantityOffer.banner.list}>
@@ -32,21 +36,15 @@ export function QuantityOffersBanner({ offers, basePrice, locale }: QuantityOffe
           return (
             <div key={offer.id} className={productTokens.quantityOffer.banner.row}>
               <span className={productTokens.quantityOffer.banner.label}>
-                {locale === 'ar'
-                  ? `اشترِ ${offer.quantity} قطع`
-                  : `Buy ${offer.quantity} items`}
+                {t.buyNItems(offer.quantity)}
               </span>
               <div className="flex items-center gap-2 shrink-0">
                 <span className={productTokens.quantityOffer.banner.price}>
-                  {locale === 'ar'
-                    ? `${offer.offerPriceEgp.toLocaleString('ar-EG')} ج.م`
-                    : `EGP ${offer.offerPriceEgp.toLocaleString()}`}
+                  {t.offerPrice(offer.offerPriceEgp.toLocaleString(numLocale))}
                 </span>
                 {savings > 0 && (
                   <span className={productTokens.quantityOffer.banner.savings}>
-                    {locale === 'ar'
-                      ? `وفّر ${savings.toLocaleString('ar-EG')} ج.م`
-                      : `save EGP ${savings.toLocaleString()}`}
+                    {t.saveAmount(savings.toLocaleString(numLocale))}
                   </span>
                 )}
               </div>

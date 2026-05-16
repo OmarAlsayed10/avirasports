@@ -4,7 +4,7 @@ import { useFieldArray } from 'react-hook-form';
 import { Trash2, Upload, ImageIcon } from 'lucide-react';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { useProductForm } from './product-form-provider';
-import { SectionShell } from './sectionSheel';
+import { SectionShell } from './section-shell';
 
 const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
 

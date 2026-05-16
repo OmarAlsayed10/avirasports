@@ -1,15 +1,15 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
 import { useWishlistStore, type WishlistItem } from '@/modules/wishlist/wishlist.store';
 import { useCartStore } from '@/modules/cart/cart.store';
 import { useHasMounted } from '@/modules/_shared/hooks/use-has-mounted';
+import { useDropdown } from '@/modules/_shared/hooks/use-dropdown';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { formatEgpSimple } from '@/modules/_shared/utils/format-egp';
+import { calcDiscountedPrice } from '@/modules/_shared/utils/calc-discounted-price';
 import { toast } from 'sonner';
 import { wishlistTokens } from '../wishlist.tokens';
 
@@ -18,9 +18,7 @@ function WishlistRow({ item, onClose }: { item: WishlistItem; onClose: () => voi
   const addItem = useCartStore((s) => s.addItem);
   const { t } = useLocale();
 
-  const finalPrice = item.discountPercent
-    ? Math.round(item.priceEgp * (1 - item.discountPercent / 100))
-    : item.priceEgp;
+  const finalPrice = calcDiscountedPrice(item.priceEgp, item.discountPercent);
 
   const handleMoveToCart = () => {
     addItem({
@@ -93,26 +91,9 @@ function WishlistRow({ item, onClose }: { item: WishlistItem; onClose: () => voi
 export function WishlistIcon() {
   const hasMounted = useHasMounted();
   const { t } = useLocale();
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
+  const { open, setOpen, ref } = useDropdown();
   const items = useWishlistStore((s) => s.items);
   const itemCount = hasMounted ? items.length : 0;
-
-  useEffect(() => {
-    if (!open) return;
-    function onClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
-  }, [open]);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
 
   const close = () => setOpen(false);
 
