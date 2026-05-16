@@ -10,7 +10,7 @@ export const homeTokens = {
   },
   hero: {
     root: 'relative bg-primary dark:bg-white overflow-hidden min-h-[280px] md:min-h-hero',
-    glow: 'absolute right-0 top-1/2 -translate-y-1/2 w-[400px] md:w-[600px] h-[400px] md:h-[600px] rounded-full bg-primary-btn/20 blur-3xl',
+    glow: 'absolute right-0 top-1/2 -translate-y-1/2 w-[300px] md:w-[400px] h-[300px] md:h-[400px] rounded-full bg-primary-btn/20 blur-2xl will-change-transform pointer-events-none',
     inner: 'relative max-w-content mx-auto px-site py-12 md:py-0 md:h-hero flex items-center',
     content: 'max-w-xl',
     eyebrow: 'text-xs md:text-nav-sm font-medium text-text-footer-link dark:text-text-secondary mb-2 md:mb-3 uppercase tracking-widest',

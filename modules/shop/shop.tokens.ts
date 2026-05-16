@@ -1,6 +1,6 @@
 export const shopTokens = {
   layout: {
-    page: 'min-h-screen bg-bg-page dark:bg-bg-dark',
+    page: 'min-h-dvh bg-bg-page dark:bg-bg-dark',
     inner: 'max-w-content mx-auto px-site py-8',
     grid: 'flex gap-8',
     sidebar: 'hidden lg:block w-sidebar flex-shrink-0',
