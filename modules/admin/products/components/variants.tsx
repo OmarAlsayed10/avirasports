@@ -13,7 +13,7 @@ export function VariantsSection() {
   const { control, register, watch, formState: { errors } } = form;
   const { t } = useLocale();
 
-  const { fields, remove, replace } = useFieldArray({ control, name: 'variants' });
+  const { fields, remove, append } = useFieldArray({ control, name: 'variants' });
 
   const attrNames = useMemo(() => {
     const hasColor = fields.some((f) => Boolean((f.attributes as Record<string, string>)?.color));
@@ -24,7 +24,7 @@ export function VariantsSection() {
     <SectionShell title={t.admin.variants}>
       <p className="text-xs text-gray-400 -mt-2 mb-5">{t.admin.variantsDesc}</p>
 
-      <VariantGenerator slug={watch('slug')} onGenerate={replace} />
+      <VariantGenerator slug={watch('slug')} onGenerate={(newVariants) => append(newVariants)} />
 
       <VariantTable
         fields={fields}
