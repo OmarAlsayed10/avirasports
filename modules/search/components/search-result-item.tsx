@@ -30,7 +30,7 @@ export function ProductResultItem({ item, onSelect }: ProductResultProps) {
       className="flex items-center gap-3 px-4 py-2.5 hover:bg-bg-page rounded-md transition-colors"
     >
       <div className="w-10 h-10 relative flex-shrink-0 bg-bg-page rounded overflow-hidden">
-        <Image src={item.imageUrl} alt={item.imageAlt} fill className="object-contain p-1" />
+        <Image src={item.imageUrl} alt={item.imageAlt} fill sizes="40px" className="object-contain p-1" />
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-nav-sm font-semibold text-text-primary truncate">{item.name}</p>
