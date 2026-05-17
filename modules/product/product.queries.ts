@@ -39,7 +39,7 @@ export const listProducts = unstable_cache(
               ? { ratingAvg: 'desc' as const }
               : { isFeatured: 'desc' as const };
 
-    const [products, total] = await prisma.$transaction([
+    const [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
         orderBy,
@@ -58,7 +58,7 @@ export const listProducts = unstable_cache(
   },
   ['list-products'],
   {
-    revalidate: 60,  // Re-fetch from DB at most once per minute
+    revalidate: 300,
     tags: ['products'],
   }
 );
