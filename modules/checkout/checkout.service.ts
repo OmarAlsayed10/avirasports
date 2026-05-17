@@ -90,6 +90,7 @@ export async function placeOrder(
     unitPriceEgp: number;
     quantity: number;
     imageUrl: string;
+    note: string | null;
   };
 
   const lineItems: LineItem[] = [];
@@ -124,6 +125,7 @@ export async function placeOrder(
       unitPriceEgp: unitPrice,
       quantity: cartItem.quantity,
       imageUrl: product.images[0]?.url ?? '',
+      note: cartItem.note ?? null,
     });
   }
 
@@ -199,6 +201,7 @@ export async function placeOrder(
           unitPriceEgp: li.unitPriceEgp,
           quantity: li.quantity,
           subtotalEgp: li.unitPriceEgp * li.quantity,
+          note: li.note,
         })),
       });
     });

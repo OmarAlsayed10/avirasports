@@ -283,6 +283,7 @@ model OrderItem {
   unitPriceEgp               Decimal         @db.Decimal(10, 2)
   quantity                   Int
   subtotalEgp                Decimal         @db.Decimal(10, 2)
+  note                       String?
   order                      Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product                    Product         @relation(fields: [productId], references: [id])
   variant                    ProductVariant? @relation(fields: [productVariantId], references: [id])

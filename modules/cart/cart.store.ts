@@ -14,6 +14,7 @@ export type CartItem = {
   quantity: number;
   stockCount?: number;
   attributes?: Record<string, string>;
+  note?: string;
 };
 
 type CartStore = {
@@ -21,6 +22,7 @@ type CartStore = {
   addItem: (item: Omit<CartItem, 'quantity'>, qty?: number) => void;
   removeItem: (productId: string, variantId?: string) => void;
   updateQuantity: (productId: string, qty: number, variantId?: string) => void;
+  updateNote: (productId: string, note: string, variantId?: string) => void;
   clearCart: () => void;
   itemCount: () => number;
   totalEgp: () => number;
@@ -60,6 +62,15 @@ export const useCartStore = create<CartStore>()(
           items: state.items.map((i) =>
             i.productId === productId && i.variantId === variantId
               ? { ...i, quantity: Math.max(1, qty) }
+              : i
+          ),
+        })),
+
+      updateNote: (productId, note, variantId) =>
+        set((state) => ({
+          items: state.items.map((i) =>
+            i.productId === productId && i.variantId === variantId
+              ? { ...i, note: note || undefined }
               : i
           ),
         })),

@@ -55,6 +55,9 @@ export function CartItemRow({ item, variant, onUpdateQuantity, onRemove }: CartI
       <div className="flex-1 min-w-0">
         <p className={`${t.name} line-clamp-2 leading-tight`}>{item.name}</p>
         <CartItemAttributes attributes={item.attributes} />
+        {item.note && isDrawer && (
+          <p className={cartTokens.itemNote}>{item.note}</p>
+        )}
         <p className="text-xs text-text-secondary dark:text-text-footer-link mt-0.5">
           {formatEgpSimple(item.unitPriceEgp)}
         </p>

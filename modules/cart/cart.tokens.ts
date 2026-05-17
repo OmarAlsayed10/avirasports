@@ -50,6 +50,7 @@ export const cartTokens = {
     colorCircle: 'w-4 h-4 rounded-full border border-border-primary/30 dark:border-white/20 shrink-0',
     text: 'text-xs text-text-secondary dark:text-text-footer-link',
   },
+  itemNote: 'text-xs text-text-secondary dark:text-text-footer-link italic mt-0.5 line-clamp-2',
   item: {
     drawer: {
       wrapper: 'flex gap-3',

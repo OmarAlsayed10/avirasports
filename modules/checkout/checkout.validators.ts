@@ -16,6 +16,7 @@ const cartItemSchema = z.object({
   productId: z.string().cuid(),
   variantId: z.string().cuid().optional(),
   quantity: z.number().int().min(1).max(100),
+  note: z.string().max(200).optional(),
 });
 
 export const placeOrderSchema = z.object({

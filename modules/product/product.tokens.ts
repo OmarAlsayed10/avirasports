@@ -51,6 +51,8 @@ export const productTokens = {
     },
     outOfStockMsg: 'text-nav-sm text-text-secondary',
     actionsRow: 'flex gap-3',
+    noteLabel: 'block text-sm font-medium text-text-primary dark:text-text-on-dark mb-1',
+    noteTextarea: 'w-full px-3 py-2.5 border border-border-primary/30 dark:border-white/15 rounded-lg text-sm text-text-primary dark:text-text-on-dark bg-bg-white dark:bg-bg-surface placeholder-text-placeholder dark:placeholder-text-footer-link focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none transition-colors',
   },
   specs: {
     grid: 'grid grid-cols-2 gap-3',

@@ -65,6 +65,7 @@ export default function CheckoutPage() {
           productId: item.productId,
           variantId: item.variantId,
           quantity: item.quantity,
+          note: item.note,
         })),
       });
 

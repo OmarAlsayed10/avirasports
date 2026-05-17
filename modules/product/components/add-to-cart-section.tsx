@@ -34,6 +34,7 @@ export function AddToCartSection({ product, variants }: AddToCartSectionProps) {
     variants.length === 1 ? variants[0].id : null
   );
   const [quantity, setQuantity] = useState(1);
+  const [note, setNote] = useState('');
 
   const addItem = useCartStore((s) => s.addItem);
   const setCartDrawerOpen = useUIStore((s) => s.setCartDrawerOpen);
@@ -65,6 +66,7 @@ export function AddToCartSection({ product, variants }: AddToCartSectionProps) {
         unitPriceEgp: effectivePrice,
         stockCount,
         attributes: selectedVariant?.attributes ?? undefined,
+        note: note.trim() || undefined,
       },
       quantity
     );
@@ -109,6 +111,18 @@ export function AddToCartSection({ product, variants }: AddToCartSectionProps) {
         onChange={setQuantity}
         max={Math.min(stockCount, 99)}
       />
+
+      <div>
+        <label className={productTokens.detail.noteLabel}>{t.product.noteLabel}</label>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder={t.product.notePlaceholder}
+          rows={2}
+          maxLength={200}
+          className={productTokens.detail.noteTextarea}
+        />
+      </div>
 
       <div className={productTokens.detail.actionsRow}>
         <button

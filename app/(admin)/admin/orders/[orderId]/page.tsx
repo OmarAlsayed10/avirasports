@@ -192,6 +192,9 @@ export default async function AdminOrderDetailPage({
                       )}
                     </div>
                   )}
+                {item.note && (
+                  <p className="text-xs text-gray-500 italic mt-1">"{item.note}"</p>
+                )}
               </div>
               <div className="text-right shrink-0">
                 <p className="text-sm font-semibold text-gray-900">

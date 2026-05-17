@@ -158,6 +158,8 @@ const en = {
     buyNItems: (qty: number) => `Buy ${qty} items`,
     offerPrice: (price: string) => `EGP ${price}`,
     saveAmount: (savings: string) => `save EGP ${savings}`,
+    noteLabel: 'Size / Notes',
+    notePlaceholder: 'e.g. Size M, any specific requirements…',
   },
   cart: {
     title: 'Your Cart',
@@ -808,6 +810,8 @@ const ar: typeof en = {
     buyNItems: (qty: number) => `اشترِ ${qty} قطع`,
     offerPrice: (price: string) => `${price} ج.م`,
     saveAmount: (savings: string) => `وفّر ${savings} ج.م`,
+    noteLabel: 'المقاس / ملاحظات',
+    notePlaceholder: 'مثال: مقاس M، أي متطلبات خاصة…',
   },
   cart: {
     title: 'سلة التسوق',
