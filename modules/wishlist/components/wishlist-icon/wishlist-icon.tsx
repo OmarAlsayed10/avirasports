@@ -1,0 +1,142 @@
+'use client';
+
+import Link from 'next/link';
+import Image from 'next/image';
+import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
+import { useWishlistStore, type WishlistItem } from '@/modules/wishlist/wishlist.store';
+import { useCartStore } from '@/modules/cart/cart.store';
+import { useHasMounted } from '@/modules/_shared/hooks/use-has-mounted';
+import { useDropdown } from '@/modules/_shared/hooks/use-dropdown';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
+import { formatEgpSimple } from '@/modules/_shared/utils/format-egp';
+import { calcDiscountedPrice } from '@/modules/_shared/utils/calc-discounted-price';
+import { toast } from 'sonner';
+import { wishlistIconTokens as tk } from './wishlist-icon.tokens';
+
+function WishlistRow({ item, onClose }: { item: WishlistItem; onClose: () => void }) {
+  const removeItem = useWishlistStore((s) => s.removeItem);
+  const addItem = useCartStore((s) => s.addItem);
+  const { t } = useLocale();
+
+  const finalPrice = calcDiscountedPrice(item.priceEgp, item.discountPercent);
+
+  const handleMoveToCart = () => {
+    addItem({
+      productId: item.productId,
+      name: item.name,
+      brand: item.brand,
+      imageUrl: item.imageUrl,
+      unitPriceEgp: finalPrice,
+    });
+    removeItem(item.productId);
+    onClose();
+    toast.success(t.product.addedToCart);
+  };
+
+  return (
+    <div className={tk.row.wrapper}>
+      <Link href={`/product/${item.slug}`} onClick={onClose} className={tk.row.imageLink}>
+        <Image src={item.imageUrl} alt={item.name} fill className="object-contain p-1.5" sizes="64px" />
+        {item.discountPercent && (
+          <span className={tk.row.discountBadge}>-{item.discountPercent}%</span>
+        )}
+      </Link>
+
+      <div className={tk.row.body}>
+        <div>
+          <p className={tk.row.brand}>{item.brand}</p>
+          <Link href={`/product/${item.slug}`} onClick={onClose} className={tk.row.nameLink}>
+            {item.name}
+          </Link>
+          <div className={tk.row.priceRow}>
+            <span className={tk.row.price}>{formatEgpSimple(finalPrice)}</span>
+            {item.discountPercent && (
+              <span className={tk.row.originalPrice}>{formatEgpSimple(item.priceEgp)}</span>
+            )}
+          </div>
+        </div>
+
+        <div className={tk.row.controls}>
+          <button onClick={handleMoveToCart} className={tk.row.moveToCartBtn}>
+            <ShoppingCart className="w-3 h-3" aria-hidden="true" />
+            {t.wishlist.moveToCart}
+          </button>
+          <button
+            onClick={() => removeItem(item.productId)}
+            className={tk.row.removeBtn}
+            aria-label={t.wishlist.remove(item.name)}
+          >
+            <Trash2 className="w-3 h-3" aria-hidden="true" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function WishlistIcon() {
+  const hasMounted = useHasMounted();
+  const { t } = useLocale();
+  const { open, setOpen, ref } = useDropdown();
+  const items = useWishlistStore((s) => s.items);
+  const itemCount = hasMounted ? items.length : 0;
+
+  const close = () => setOpen(false);
+
+  return (
+    <div ref={ref} className={tk.wrapper}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className={tk.btn}
+        aria-label={itemCount > 0 ? t.wishlist.openWishlist(itemCount) : t.nav.wishlist}
+      >
+        <Heart className="w-6 h-6 text-text-primary dark:text-text-on-dark" />
+        {itemCount > 0 && (
+          <span className={tk.badge}>{itemCount > 9 ? '9+' : itemCount}</span>
+        )}
+      </button>
+
+      {open && (
+        <div className={tk.dropdown}>
+          <div className={tk.dropdownHeader}>
+            <h2 className={tk.dropdownTitle}>
+              {t.wishlist.title}
+              {itemCount > 0 && (
+                <span className="ml-1 text-text-secondary dark:text-text-footer-link font-normal">
+                  ({itemCount})
+                </span>
+              )}
+            </h2>
+          </div>
+
+          {!hasMounted || items.length === 0 ? (
+            <div className={tk.emptyState.wrapper}>
+              <Heart className={tk.emptyState.icon} />
+              <p className={tk.emptyState.title}>{t.wishlist.empty}</p>
+              <p className={tk.emptyState.sub}>{t.wishlist.emptySub}</p>
+              <button onClick={close} className={tk.emptyState.continueBtn}>
+                {t.wishlist.continueShopping}
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className={tk.dropdownItems}>
+                {items.map((item) => (
+                  <WishlistRow key={item.productId} item={item} onClose={close} />
+                ))}
+              </div>
+
+              <div className={tk.dropdownFooter}>
+                <button onClick={close} className={tk.continueBtn}>
+                  {t.wishlist.continueShopping}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default WishlistIcon;

@@ -1,0 +1,16 @@
+export const orderSummaryTokens = {
+  root: 'bg-bg-dark rounded-carousel p-6 text-text-on-dark space-y-5',
+  title: 'text-newsletter-sub font-semibold',
+  itemsList: 'space-y-3 max-h-48 overflow-y-auto',
+  itemRow: 'flex gap-3',
+  itemImageWrapper: 'relative w-12 h-12 flex-shrink-0 bg-bg-page/10 rounded-tag overflow-hidden',
+  itemQtyBadge: 'absolute -top-1 -right-1 w-4 h-4 bg-text-primary text-bg-white text-xs rounded-full flex items-center justify-center font-semibold',
+  itemName: 'text-xs font-medium line-clamp-2 leading-tight',
+  itemPrice: 'text-xs font-semibold whitespace-nowrap',
+  divider: 'border-text-on-dark/20',
+  couponLabel: 'text-xs text-text-footer-link mb-2',
+  totalsRow: 'flex justify-between text-nav-sm',
+  totalsLabel: 'text-text-footer-link',
+  discountRow: 'flex justify-between text-nav-sm text-success',
+  totalRow: 'flex justify-between text-newsletter-sub font-semibold',
+} as const;

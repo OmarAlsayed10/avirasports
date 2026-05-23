@@ -1,0 +1,16 @@
+export const categoryCardsTokens = {
+  section: 'py-12 md:py-16 bg-bg-page dark:bg-bg-dark',
+  inner: 'max-w-content mx-auto px-site',
+  header: 'flex flex-col md:flex-row md:items-end justify-between mb-8 gap-3',
+  eyebrow: 'text-xs font-semibold uppercase tracking-widest text-primary-btn mb-1',
+  heading: 'font-secondary text-3xl md:text-5xl font-black uppercase tracking-tight text-text-primary dark:text-text-on-dark',
+  viewAllLink: 'inline-flex items-center gap-1.5 text-sm font-semibold text-text-secondary dark:text-text-footer-link hover:text-primary-btn dark:hover:text-primary-btn transition-colors self-start md:self-auto',
+  largeGrid: 'grid gap-4 mb-4',
+  smallGrid: 'grid grid-cols-2 md:grid-cols-4 gap-4',
+  card: 'group relative overflow-hidden rounded-card-lg flex flex-col justify-between p-5 md:p-6 border border-white/5 hover:border-white/15 transition-all duration-300 hover:scale-[1.015] cursor-pointer',
+  cardOverlay: 'absolute inset-0 bg-black/50 group-hover:bg-black/40 transition-colors',
+  cardFallback: 'absolute inset-0 bg-gradient-to-br from-[#111111] to-[#1e1e1e]',
+  cardDot: 'relative z-10 w-2 h-2 rounded-full bg-primary-btn flex-shrink-0',
+  cardName: 'font-secondary text-xl md:text-2xl font-black uppercase tracking-tight text-white leading-none',
+  cardShopLabel: 'flex items-center gap-1 text-xs text-white/50 mt-1.5 group-hover:text-white/75 transition-colors',
+} as const;

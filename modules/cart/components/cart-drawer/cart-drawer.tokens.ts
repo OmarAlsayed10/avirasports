@@ -1,0 +1,22 @@
+export const cartDrawerTokens = {
+  overlay: 'fixed inset-0 z-[52] bg-black/50',
+  panel: 'fixed top-0 right-0 z-[55] h-full w-full max-w-md bg-bg-white dark:bg-bg-surface shadow-xl flex flex-col',
+  header: 'flex items-center justify-between px-6 py-4 border-b border-border-primary/20 dark:border-white/10',
+  title: 'text-newsletter-sub font-semibold text-text-primary dark:text-text-on-dark',
+  closeBtn: 'p-1 text-text-primary dark:text-text-on-dark hover:text-primary-btn transition-colors',
+  itemsList: 'flex-1 overflow-y-auto px-6 py-4 space-y-4',
+  footer: 'border-t border-border-primary/20 dark:border-white/10 px-6 py-4 space-y-3',
+  subtotalRow: 'flex justify-between items-center',
+  subtotalLabel: 'text-nav-sm font-medium text-text-primary dark:text-text-on-dark',
+  subtotalValue: 'text-newsletter-sub font-semibold text-text-primary dark:text-text-on-dark',
+  shippingNote: 'text-xs text-text-secondary dark:text-text-footer-link',
+  checkoutBtn: 'block w-full py-3 bg-primary-btn text-text-on-dark rounded-btn-sm text-nav-sm font-semibold text-center hover:bg-primary transition-colors',
+  continueBtn: 'block w-full text-center text-nav-sm font-medium text-text-primary dark:text-text-on-dark hover:text-primary-btn dark:hover:text-primary-btn transition-colors',
+  emptyState: {
+    wrapper: 'flex-1 flex flex-col items-center justify-center gap-4 px-6 py-12',
+    icon: 'w-16 h-16 text-text-placeholder dark:text-text-footer-link',
+    title: 'text-nav-sm font-semibold text-text-primary dark:text-text-on-dark',
+    sub: 'text-nav-sm text-text-secondary dark:text-text-footer-link text-center',
+    startBtn: 'px-6 py-3 bg-primary-btn text-text-on-dark rounded-btn-sm text-nav-sm font-semibold hover:bg-primary transition-colors',
+  },
+} as const;

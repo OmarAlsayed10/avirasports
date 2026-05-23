@@ -1,0 +1,15 @@
+export const variantSelectorTokens = {
+  root: 'space-y-4',
+  groupLabel: 'text-nav-sm font-semibold text-text-primary dark:text-text-on-dark mb-2 capitalize flex items-center gap-2',
+  colorHint: 'text-xs font-mono font-normal text-text-secondary',
+  optionRow: 'flex flex-wrap gap-2',
+  colorBtn: 'w-8 h-8 rounded-full border-2 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1',
+  colorBtnSelected: 'border-primary ring-2 ring-primary ring-offset-2 dark:ring-offset-bg-surface',
+  colorBtnAvailable: 'border-transparent hover:border-primary/60',
+  colorBtnUnavailable: 'border-transparent opacity-30 cursor-not-allowed',
+  sizeBtn: 'px-4 py-2 rounded-btn-sm border text-nav-sm font-medium transition-colors',
+  sizeBtnSelected: 'border-primary bg-primary text-text-on-dark',
+  sizeBtnInStock: 'border-border-primary/40 dark:border-white/20 text-text-primary dark:text-text-on-dark hover:border-primary',
+  sizeBtnOutOfStock: 'border-border-primary/30 dark:border-white/15 text-text-placeholder dark:text-text-footer-link/50 line-through cursor-not-allowed',
+  sizeBtnUnavailable: 'border-border-primary/20 dark:border-white/10 text-text-placeholder dark:text-text-footer-link/50 opacity-50 cursor-not-allowed',
+} as const;
