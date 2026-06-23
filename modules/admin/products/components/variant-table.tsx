@@ -1,9 +1,11 @@
 'use client';
 
-import { Trash2 } from 'lucide-react';
-import type { UseFormRegister, FieldErrors, FieldArrayWithId } from 'react-hook-form';
+import { Trash2, X, ImageIcon } from 'lucide-react';
+import type { UseFormRegister, FieldErrors, FieldArrayWithId, UseFormWatch } from 'react-hook-form';
 import type { AdminProductInput } from '@/modules/product/product.validators';
 import type { Translations } from '@/modules/_shared/i18n/i18n.translations';
+import type { PendingFileMap } from './product-form-provider';
+import { cloudinaryImageUrl } from '@/infrastructure/storage/cloudinary';
 
 interface VariantTableProps {
   fields: FieldArrayWithId<AdminProductInput, 'variants', 'id'>[];
@@ -11,6 +13,10 @@ interface VariantTableProps {
   register: UseFormRegister<AdminProductInput>;
   errors: FieldErrors<AdminProductInput>;
   onRemove: (index: number) => void;
+  watch: UseFormWatch<AdminProductInput>;
+  pendingFiles: PendingFileMap;
+  onImageUpload: (index: number, file: File) => void;
+  onImageRemove: (index: number) => void;
   t: Translations;
 }
 
@@ -20,8 +26,69 @@ function attrLabel(key: string, t: Translations): string {
   return key;
 }
 
+function colorImageSrc(imageUrl: string | null | undefined, pendingFiles: PendingFileMap): string {
+  if (!imageUrl) return '';
+  if (imageUrl.startsWith('pending:')) return pendingFiles.get(imageUrl)?.preview ?? '';
+  return cloudinaryImageUrl(imageUrl, 'w_120,h_120,c_fill');
+}
+
 const inputCls =
   'px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary/40';
+
+function ColorImageCell({
+  index,
+  imageUrl,
+  pendingFiles,
+  onImageUpload,
+  onImageRemove,
+  t,
+}: {
+  index: number;
+  imageUrl: string | null | undefined;
+  pendingFiles: PendingFileMap;
+  onImageUpload: (index: number, file: File) => void;
+  onImageRemove: (index: number) => void;
+  t: Translations;
+}) {
+  const src = colorImageSrc(imageUrl, pendingFiles);
+
+  return (
+    <td className="px-3 py-2">
+      {src ? (
+        <div className="relative w-14 h-14 rounded-md border border-gray-200 overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt="" className="w-full h-full object-cover" />
+          <button
+            type="button"
+            onClick={() => onImageRemove(index)}
+            title={t.admin.removeImage}
+            className="absolute top-0.5 right-0.5 w-5 h-5 bg-white/90 rounded-full flex items-center justify-center shadow-sm hover:bg-white"
+          >
+            <X className="w-3 h-3 text-red-500" />
+          </button>
+        </div>
+      ) : (
+        <label
+          className="w-14 h-14 rounded-md border border-dashed border-gray-300 flex flex-col items-center justify-center gap-0.5 cursor-pointer hover:border-primary text-gray-400"
+          title={t.admin.addPhoto}
+        >
+          <ImageIcon className="w-4 h-4" />
+          <span className="text-[9px] leading-none text-center px-1">{t.admin.addPhoto}</span>
+          <input
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) onImageUpload(index, file);
+              e.target.value = '';
+            }}
+          />
+        </label>
+      )}
+    </td>
+  );
+}
 
 function EditableRow({
   field,
@@ -31,6 +98,10 @@ function EditableRow({
   register,
   errors,
   onRemove,
+  watch,
+  pendingFiles,
+  onImageUpload,
+  onImageRemove,
   t,
 }: {
   field: FieldArrayWithId<AdminProductInput, 'variants', 'id'>;
@@ -40,10 +111,15 @@ function EditableRow({
   register: UseFormRegister<AdminProductInput>;
   errors: FieldErrors<AdminProductInput>;
   onRemove: (i: number) => void;
+  watch: UseFormWatch<AdminProductInput>;
+  pendingFiles: PendingFileMap;
+  onImageUpload: (index: number, file: File) => void;
+  onImageRemove: (index: number) => void;
   t: Translations;
 }) {
   const attrs = field.attributes as Record<string, string>;
   const colorVal = colorKey ? (attrs[colorKey] ?? '') : '';
+  const imageUrl = watch(`variants.${fieldIdx}.imageUrl`);
 
   return (
     <tr key={field.id} className="hover:bg-gray-50/50">
@@ -61,6 +137,21 @@ function EditableRow({
             <span className="text-sm text-gray-400">—</span>
           )}
         </td>
+      )}
+
+      {colorKey && (
+        colorVal ? (
+          <ColorImageCell
+            index={fieldIdx}
+            imageUrl={imageUrl}
+            pendingFiles={pendingFiles}
+            onImageUpload={onImageUpload}
+            onImageRemove={onImageRemove}
+            t={t}
+          />
+        ) : (
+          <td className="px-3 py-2" />
+        )
       )}
 
       {otherAttrNames.map((attrName) => {
@@ -135,6 +226,11 @@ function TableHead({
             {attrLabel('color', t)}
           </th>
         )}
+        {colorKey && (
+          <th className="text-left px-3 py-2.5 font-medium text-gray-500 text-xs uppercase">
+            {t.admin.colorImageHeader}
+          </th>
+        )}
         {otherAttrNames.map((name) => (
           <th key={name} className="text-left px-3 py-2.5 font-medium text-gray-500 text-xs uppercase">
             {attrLabel(name.toLowerCase(), t)}
@@ -155,7 +251,7 @@ function TableHead({
   );
 }
 
-export function VariantTable({ fields, attrNames, register, errors, onRemove, t }: VariantTableProps) {
+export function VariantTable({ fields, attrNames, register, errors, onRemove, watch, pendingFiles, onImageUpload, onImageRemove, t }: VariantTableProps) {
   if (fields.length === 0) {
     return <p className="text-sm text-gray-400 italic mb-4">{t.admin.noVariantsYet}</p>;
   }
@@ -230,6 +326,10 @@ export function VariantTable({ fields, attrNames, register, errors, onRemove, t 
                       register={register}
                       errors={errors}
                       onRemove={onRemove}
+                      watch={watch}
+                      pendingFiles={pendingFiles}
+                      onImageUpload={onImageUpload}
+                      onImageRemove={onImageRemove}
                       t={t}
                     />
                   ))}
@@ -255,6 +355,11 @@ export function VariantTable({ fields, attrNames, register, errors, onRemove, t 
                 {attrLabel(name.toLowerCase(), t)}
               </th>
             ))}
+            {colorKey && (
+              <th className="text-left px-3 py-2.5 font-medium text-gray-500 text-xs uppercase">
+                {t.admin.colorImageHeader}
+              </th>
+            )}
             <th className="text-left px-3 py-2.5 font-medium text-gray-500 text-xs uppercase">
               {t.admin.stockHeader}
             </th>
@@ -291,6 +396,20 @@ export function VariantTable({ fields, attrNames, register, errors, onRemove, t 
                     </td>
                   );
                 })}
+                {colorKey && (
+                  (attrs[colorKey.toLowerCase()] ?? '') ? (
+                    <ColorImageCell
+                      index={i}
+                      imageUrl={watch(`variants.${i}.imageUrl`)}
+                      pendingFiles={pendingFiles}
+                      onImageUpload={onImageUpload}
+                      onImageRemove={onImageRemove}
+                      t={t}
+                    />
+                  ) : (
+                    <td className="px-3 py-2" />
+                  )
+                )}
                 <td className="px-3 py-2">
                   <input
                     {...register(`variants.${i}.stockCount`)}

@@ -10,9 +10,8 @@ import { QuantityOfferPopup } from '@/modules/product/components/quantity-offer-
 import { auth } from '@/infrastructure/auth/auth.config';
 import { Breadcrumb } from '@/modules/_shared/ui/breadcrumb';
 import { PriceDisplay } from '@/modules/_shared/ui/price-display';
-import { ProductGallery } from '@/modules/product/components/product-gallery';
+import { ProductDetailSection } from '@/modules/product/components/product-detail-section';
 import { ProductSpecs } from '@/modules/product/components/product-specs';
-import { AddToCartSection } from '@/modules/product/components/add-to-cart-section';
 import { ReviewsList } from '@/modules/product/components/reviews-list';
 import { ReviewForm } from '@/modules/product/components/review-form';
 import { RelatedProducts } from '@/modules/product/components/related-products';
@@ -206,9 +205,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
     attributes: v.attributes as Record<string, string>,
     priceOverrideEgp: v.priceOverrideEgp ? Number(v.priceOverrideEgp) : null,
     stockCount: v.stockCount,
+    imageUrl: v.imageUrl ?? null,
   }));
-
-  const totalStock = variants.reduce((sum, v) => sum + v.stockCount, 0);
 
   return (
     <div className="max-w-content mx-auto px-site py-8">
@@ -220,76 +218,63 @@ export default async function ProductPage({ params }: ProductPageProps) {
         ]}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mt-6">
-        <ProductGallery
-          images={product.images.map((img) => ({ url: img.url, alt: img.alt }))}
-          productName={displayName}
-        />
-
-        <div className="space-y-5">
-          <div>
-            <p className="text-sm font-medium text-text-secondary mb-1">{product.brand}</p>
-            <h1 className="text-detail-title font-semibold text-text-primary leading-tight">
-              {displayName}
-            </h1>
-            {product.modelNumber && (
-              <p className="text-sm text-text-secondary mt-1">
-                {t.product.model}: {product.modelNumber}
-              </p>
-            )}
-          </div>
-
-          {product.reviewCount > 0 && (
-            <div className="flex items-center gap-2">
-              <div className="flex" aria-label={`${product.ratingAvg} out of 5 stars`} aria-hidden="true">
-                {[1, 2, 3, 4, 5].map((s) => (
-                  <Star
-                    key={s}
-                    className={`w-4 h-4 ${
-                      s <= Math.round(product.ratingAvg)
-                        ? 'fill-yellow-400 text-yellow-400'
-                        : 'fill-gray-200 text-gray-200'
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="text-sm text-text-secondary">
-                {product.ratingAvg.toFixed(1)} ({t.product.ratingCount(product.reviewCount)})
-              </span>
-            </div>
-          )}
-
-          <PriceDisplay
-            priceEgp={basePrice}
-            discountPercent={product.discountPercent}
-            size="lg"
-          />
-
-          {specs.length > 0 && <ProductSpecs specs={specs} locale={locale} />}
-
-          <OfferBanner offers={offers} locale={locale} />
-
-          <AddToCartSection
-            product={{
-              id: product.id,
-              slug: product.slug,
-              name: product.name,
-              nameAr: product.nameAr ?? undefined,
-              brand: product.brand,
-              imageUrl: primaryImage,
-              basePriceEgp: basePrice,
-              discountPercent: product.discountPercent,
-            }}
-            variants={variants}
-          />
-
-          {totalStock > 0 ? (
-            <p className="text-sm text-success font-medium">{t.product.inStock}</p>
-          ) : (
-            <p className="text-sm text-sale font-medium">{t.product.outOfStock}</p>
+      <ProductDetailSection
+        images={product.images.map((img) => ({ url: img.url, alt: img.alt }))}
+        productName={displayName}
+        product={{
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          nameAr: product.nameAr ?? undefined,
+          brand: product.brand,
+          imageUrl: primaryImage,
+          basePriceEgp: basePrice,
+          discountPercent: product.discountPercent,
+        }}
+        variants={variants}
+      >
+        <div>
+          <p className="text-sm font-medium text-text-secondary mb-1">{product.brand}</p>
+          <h1 className="text-detail-title font-semibold text-text-primary leading-tight">
+            {displayName}
+          </h1>
+          {product.modelNumber && (
+            <p className="text-sm text-text-secondary mt-1">
+              {t.product.model}: {product.modelNumber}
+            </p>
           )}
         </div>
-      </div>
+
+        {product.reviewCount > 0 && (
+          <div className="flex items-center gap-2">
+            <div className="flex" aria-label={`${product.ratingAvg} out of 5 stars`} aria-hidden="true">
+              {[1, 2, 3, 4, 5].map((s) => (
+                <Star
+                  key={s}
+                  className={`w-4 h-4 ${
+                    s <= Math.round(product.ratingAvg)
+                      ? 'fill-yellow-400 text-yellow-400'
+                      : 'fill-gray-200 text-gray-200'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-sm text-text-secondary">
+              {product.ratingAvg.toFixed(1)} ({t.product.ratingCount(product.reviewCount)})
+            </span>
+          </div>
+        )}
+
+        <PriceDisplay
+          priceEgp={basePrice}
+          discountPercent={product.discountPercent}
+          size="lg"
+        />
+
+        {specs.length > 0 && <ProductSpecs specs={specs} locale={locale} />}
+
+        <OfferBanner offers={offers} locale={locale} />
+      </ProductDetailSection>
 
       {quantityOffers.length > 0 && (
         <div className="mt-8">

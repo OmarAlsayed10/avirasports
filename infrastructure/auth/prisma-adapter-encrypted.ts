@@ -25,7 +25,7 @@ export function encryptedPrismaAdapter(prisma: PrismaClient): Adapter {
   return {
     ...base,
     linkAccount: async (account) => {
-      return base.linkAccount!(encryptAccount(account));
+      await base.linkAccount!(encryptAccount(account));
     },
     getAccount: base.getAccount
       ? async (providerAccountId, provider) => {

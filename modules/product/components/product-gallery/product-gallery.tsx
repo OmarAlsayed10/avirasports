@@ -6,9 +6,11 @@ import { cn } from '@/modules/_shared/utils/cn';
 import { productGalleryTokens } from './product-gallery.tokens';
 import type { ProductGalleryProps } from './product-gallery.types';
 
-export function ProductGallery({ images, productName }: ProductGalleryProps) {
+export function ProductGallery({ images, productName, overrideImageUrl }: ProductGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const selectedImage = images[selectedIndex] ?? { url: '/placeholder-product.jpg', alt: productName };
+  const selectedImage = overrideImageUrl
+    ? { url: overrideImageUrl, alt: productName }
+    : (images[selectedIndex] ?? { url: '/placeholder-product.jpg', alt: productName });
 
   return (
     <div className={productGalleryTokens.root}>

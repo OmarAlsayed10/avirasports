@@ -9,8 +9,8 @@ import { VariantGenerator } from './variant-generator';
 import { VariantTable } from './variant-table';
 
 export function VariantsSection() {
-  const { form } = useProductForm();
-  const { control, register, watch, formState: { errors } } = form;
+  const { form, pendingFiles, setPendingFiles } = useProductForm();
+  const { control, register, watch, setValue, formState: { errors } } = form;
   const { t } = useLocale();
 
   const { fields, remove, append } = useFieldArray({ control, name: 'variants' });
@@ -19,6 +19,37 @@ export function VariantsSection() {
     const hasColor = fields.some((f) => Boolean((f.attributes as Record<string, string>)?.color));
     return hasColor ? ['size', 'color'] : ['size'];
   }, [fields]);
+
+  const handleImageUpload = (index: number, file: File) => {
+    const current = watch(`variants.${index}.imageUrl`);
+    if (current?.startsWith('pending:')) {
+      setPendingFiles((prev) => {
+        const next = new Map(prev);
+        const p = next.get(current);
+        if (p) URL.revokeObjectURL(p.preview);
+        next.delete(current);
+        return next;
+      });
+    }
+    const tempId = `pending:variant-img-${crypto.randomUUID()}`;
+    const preview = URL.createObjectURL(file);
+    setPendingFiles((prev) => new Map(prev).set(tempId, { file, preview }));
+    setValue(`variants.${index}.imageUrl`, tempId, { shouldDirty: true });
+  };
+
+  const handleImageRemove = (index: number) => {
+    const current = watch(`variants.${index}.imageUrl`);
+    if (current?.startsWith('pending:')) {
+      setPendingFiles((prev) => {
+        const next = new Map(prev);
+        const p = next.get(current);
+        if (p) URL.revokeObjectURL(p.preview);
+        next.delete(current);
+        return next;
+      });
+    }
+    setValue(`variants.${index}.imageUrl`, null, { shouldDirty: true });
+  };
 
   return (
     <SectionShell title={t.admin.variants}>
@@ -32,6 +63,10 @@ export function VariantsSection() {
         register={register}
         errors={errors}
         onRemove={remove}
+        watch={watch}
+        pendingFiles={pendingFiles}
+        onImageUpload={handleImageUpload}
+        onImageRemove={handleImageRemove}
         t={t}
       />
     </SectionShell>

@@ -6,6 +6,7 @@ import { addressSchema } from '@/modules/account/account.validators';
 import { egyptianPhoneSchema } from '@/modules/_shared/validators/phone.validators';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
+import { deleteCloudinaryAsset } from '@/infrastructure/storage/cloudinary';
 import type { ActionResult } from '@/modules/_shared/types/action-result.type';
 
 const updateProfileSchema = z.object({
@@ -20,10 +21,28 @@ export async function updateProfileImage(imageUrl: string): Promise<ActionResult
   const session = await auth();
   if (!session?.user?.id) return { ok: false, error: 'Not authenticated', code: 'UNAUTH' };
 
-  const url = z.string().url().max(1000).safeParse(imageUrl);
-  if (!url.success) return { ok: false, error: 'Invalid image URL', code: 'VALIDATION' };
+  // Accepts a full https URL (Google avatar) or a bare Cloudinary public ID (our uploads, e.g. "avira/profiles/<hash>").
+  const ref = z
+    .string()
+    .min(1)
+    .max(1000)
+    .refine((v) => /^https:\/\//.test(v) || /^[\w-]+(\/[\w-]+)*$/.test(v), 'Invalid image reference')
+    .safeParse(imageUrl);
+  if (!ref.success) return { ok: false, error: 'Invalid image URL', code: 'VALIDATION' };
 
-  await prisma.user.update({ where: { id: session.user.id }, data: { image: url.data } });
+  await prisma.user.update({ where: { id: session.user.id }, data: { image: ref.data } });
+  return { ok: true };
+}
+
+export async function deleteProfileImage(): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user?.id) return { ok: false, error: 'Not authenticated', code: 'UNAUTH' };
+
+  const user = await prisma.user.findUnique({ where: { id: session.user.id }, select: { image: true } });
+  // Only our own Cloudinary asset gets destroyed; deleteCloudinaryAsset no-ops on non-Cloudinary URLs (e.g. Google avatars).
+  if (user?.image) await deleteCloudinaryAsset(user.image);
+
+  await prisma.user.update({ where: { id: session.user.id }, data: { image: null } });
   return { ok: true };
 }
 

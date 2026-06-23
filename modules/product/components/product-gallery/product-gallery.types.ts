@@ -6,4 +6,5 @@ export interface ProductImage {
 export interface ProductGalleryProps {
   images: ProductImage[];
   productName: string;
+  overrideImageUrl?: string | null;
 }

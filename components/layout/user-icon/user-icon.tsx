@@ -8,15 +8,6 @@ import { UserCircle, User, MapPin, Package, LogOut, ChevronRight, Loader2, Layou
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { userIconTokens as tk } from './user-icon.tokens';
 
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
-}
-
 export function UserIcon() {
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
@@ -48,7 +39,6 @@ export function UserIcon() {
 
   const { name, email, image } = session.user ?? {};
   const isAdmin = session.user.role === 'ADMIN';
-  const initials = name ? getInitials(name) : '?';
 
   const menuItems = isAdmin
     ? [{ href: '/admin', label: t.account.adminPanel, icon: LayoutDashboard }]
@@ -68,7 +58,7 @@ export function UserIcon() {
         {image ? (
           <Image src={image} alt={name ?? 'Avatar'} width={32} height={32} className="w-full h-full object-cover" />
         ) : (
-          <span className={tk.initials}>{initials}</span>
+          <User className="w-4 h-4 text-bg-dark" />
         )}
       </button>
 
@@ -80,7 +70,7 @@ export function UserIcon() {
                 {image ? (
                   <Image src={image} alt={name ?? 'Avatar'} width={44} height={44} className="w-full h-full object-cover" />
                 ) : (
-                  <span className={tk.avatarInitials}>{initials}</span>
+                  <User className="w-5 h-5 text-bg-dark" />
                 )}
               </div>
               <div className={tk.userInfo}>

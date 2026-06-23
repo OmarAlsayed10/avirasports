@@ -64,7 +64,13 @@ export default async function EditProductPage({ params }: { params: { id: string
       stockCount: v.stockCount,
       imageUrl: v.imageUrl ?? null,
     })),
-    quantityOffers: existingQuantityOffers.map((qo) => ({
+    quantityOffers: existingQuantityOffers.map((qo: {
+      id: string;
+      quantity: number;
+      offerPriceEgp: unknown;
+      isActive: boolean;
+      popupIntervalMinutes: number;
+    }) => ({
       id: qo.id,
       quantity: qo.quantity,
       offerPriceEgp: Number(qo.offerPriceEgp),

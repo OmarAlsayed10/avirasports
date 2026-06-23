@@ -14,6 +14,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      // Safe with Google specifically: Google verifies email ownership, so an attacker
+      // cannot obtain a Google account for a victim's email. Auto-links Google to an
+      // existing user (incl. credentials users and legacy orphan rows) with the same email.
+      allowDangerousEmailAccountLinking: true,
     }),
     Credentials({
       credentials: {
@@ -51,20 +55,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return true;
     },
-    jwt: async ({ token, user }) => {
+    jwt: async ({ token, user, trigger, session }) => {
       if (user?.id) {
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { role: true },
+          select: { role: true, image: true },
         });
         token.sub = user.id;
         token.role = dbUser?.role ?? 'USER';
+        token.picture = dbUser?.image ?? user.image ?? null;
+      }
+      // Profile-image upload/delete calls updateSession({ image }) — reflect it (set or clear) in the token.
+      if (trigger === 'update' && session && 'image' in (session as object)) {
+        token.picture = (session as { image: string | null }).image ?? null;
       }
       return token;
     },
     session: async ({ session, token }) => {
       session.user.id = token.sub!;
       session.user.role = (token.role as string) ?? 'USER';
+      session.user.image = (token.picture as string | null) ?? null;
       return session;
     },
   },

@@ -12,4 +12,5 @@ export interface AddToCartSectionProduct {
 export interface AddToCartSectionProps {
   product: AddToCartSectionProduct;
   variants: import('../variant-selector/variant-selector.types').VariantOption[];
+  onVariantSelect?: (variant: import('../variant-selector/variant-selector.types').VariantOption | null) => void;
 }

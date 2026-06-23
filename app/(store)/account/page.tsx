@@ -1,5 +1,6 @@
 ﻿import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { auth } from '@/infrastructure/auth/auth.config';
 import { getOrderHistory } from '@/modules/order/order.queries';
 import { Package, MapPin, User, ChevronRight } from 'lucide-react';
@@ -9,10 +10,6 @@ import { getT } from '@/modules/_shared/i18n/locale';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = { title: 'My Account' };
-
-function getInitials(name: string) {
-  return name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
-}
 
 export default async function AccountPage() {
   const session = await auth();
@@ -26,8 +23,7 @@ export default async function AccountPage() {
   const previewOrders = recentOrders.slice(0, 3);
   const totalOrders = recentOrders.length;
 
-  const { name, email } = session.user;
-  const initials = name ? getInitials(name) : '?';
+  const { name, email, image } = session.user;
 
   const QUICK_LINKS = [
     { href: '/account/orders', label: t.account.orderHistory, icon: Package, desc: t.account.ordersCount(totalOrders) },
@@ -38,8 +34,12 @@ export default async function AccountPage() {
   return (
     <div className="max-w-content mx-auto px-site py-12 space-y-8">
       <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-full bg-primary-btn flex items-center justify-center flex-shrink-0">
-          <span className="font-secondary font-black text-xl text-bg-dark">{initials}</span>
+        <div className="w-16 h-16 rounded-full bg-primary-btn flex items-center justify-center overflow-hidden flex-shrink-0">
+          {image ? (
+            <Image src={image} alt={name ?? 'Avatar'} width={64} height={64} className="w-full h-full object-cover" />
+          ) : (
+            <User className="w-8 h-8 text-bg-dark" />
+          )}
         </div>
         <div>
           <h1 className="text-section-heading font-semibold text-text-primary dark:text-text-on-dark">

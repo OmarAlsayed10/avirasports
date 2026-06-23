@@ -1,5 +1,15 @@
 import nodemailer from 'nodemailer';
 
+/** Escape user-supplied text before interpolating into an HTML email body (prevents HTML/script injection). */
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -19,8 +29,12 @@ export async function sendFeedbackEmail({
   name?: string;
   email?: string;
 }) {
-  const filled = '★'.repeat(rating);
-  const empty = '☆'.repeat(5 - rating);
+  const safeRating = Math.max(0, Math.min(5, Math.round(rating)));
+  const filled = '★'.repeat(safeRating);
+  const empty = '☆'.repeat(5 - safeRating);
+  const safeName = name ? escapeHtml(name) : '';
+  const safeEmail = email ? escapeHtml(email) : '';
+  const safeMessage = escapeHtml(message);
   await transporter.sendMail({
     from: `"Avira Sports" <${process.env.SMTP_USER}>`,
     to: process.env.SMTP_USER,
@@ -30,9 +44,9 @@ export async function sendFeedbackEmail({
       <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
         <h2 style="font-size:22px;font-weight:600;color:#1a1a1a;margin:0 0 8px">New Feedback</h2>
         <p style="font-size:28px;letter-spacing:4px;margin:0 0 16px">${filled}${empty}</p>
-        <p style="font-size:14px;color:#333;line-height:1.6;margin:0 0 16px;white-space:pre-wrap">${message}</p>
-        ${name ? `<p style="font-size:12px;color:#999;margin:4px 0">From: ${name}</p>` : ''}
-        ${email ? `<p style="font-size:12px;color:#999;margin:4px 0">Email: ${email}</p>` : ''}
+        <p style="font-size:14px;color:#333;line-height:1.6;margin:0 0 16px;white-space:pre-wrap">${safeMessage}</p>
+        ${safeName ? `<p style="font-size:12px;color:#999;margin:4px 0">From: ${safeName}</p>` : ''}
+        ${safeEmail ? `<p style="font-size:12px;color:#999;margin:4px 0">Email: ${safeEmail}</p>` : ''}
       </div>
     `,
   });

@@ -14,7 +14,7 @@ import { calcDiscountedPrice } from '@/modules/_shared/utils/calc-discounted-pri
 import { addToCartSectionTokens } from './add-to-cart-section.tokens';
 import type { AddToCartSectionProps } from './add-to-cart-section.types';
 
-export function AddToCartSection({ product, variants }: AddToCartSectionProps) {
+export function AddToCartSection({ product, variants, onVariantSelect }: AddToCartSectionProps) {
   const hasMounted = useHasMounted();
   const { t } = useLocale();
   const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
@@ -89,7 +89,10 @@ export function AddToCartSection({ product, variants }: AddToCartSectionProps) {
         <VariantSelector
           variants={variants}
           selectedId={selectedVariantId}
-          onSelect={(id) => setSelectedVariantId(id)}
+          onSelect={(id) => {
+            setSelectedVariantId(id);
+            onVariantSelect?.(variants.find((v) => v.id === id) ?? null);
+          }}
         />
       )}
 

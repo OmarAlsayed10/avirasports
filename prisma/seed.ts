@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { slugify } from '../lib/utils/slugify';
+import { slugify } from '../modules/_shared/utils/slugify';
 
 const prisma = new PrismaClient();
 

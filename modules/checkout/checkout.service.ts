@@ -143,73 +143,98 @@ export async function placeOrder(
 
   const totalEgp = Math.max(0, subtotal + shippingCost - discountEgp);
 
-  const orderCount = await prisma.order.count();
-  const orderNumber = generateOrderNumber(orderCount + 1);
+  // orderNumber is unique; under concurrent checkouts a count-based number can collide,
+  // so we retry the whole transaction (which rolls back fully) with a fresh number on P2002.
+  let orderNumber = '';
+  const MAX_ATTEMPTS = 5;
 
   try {
-    await prisma.$transaction(async (tx) => {
-      for (const li of lineItems) {
-        if (li.variantId) {
-          const updated = await tx.productVariant.updateMany({
-            where: { id: li.variantId, stockCount: { gte: li.quantity } },
-            data: { stockCount: { decrement: li.quantity } },
-          });
-          if (updated.count === 0) {
-            throw new Error(`STOCK:${li.productName}`);
+    for (let attempt = 0; ; attempt++) {
+      const orderCount = await prisma.order.count();
+      orderNumber = generateOrderNumber(orderCount + 1 + attempt);
+
+      try {
+        await prisma.$transaction(async (tx) => {
+          for (const li of lineItems) {
+            if (li.variantId) {
+              const updated = await tx.productVariant.updateMany({
+                where: { id: li.variantId, stockCount: { gte: li.quantity } },
+                data: { stockCount: { decrement: li.quantity } },
+              });
+              if (updated.count === 0) {
+                throw new Error(`STOCK:${li.productName}`);
+              }
+            }
           }
-        }
-      }
 
-      if (couponId) {
-        await tx.coupon.update({
-          where: { id: couponId },
-          data: { redemptionCount: { increment: 1 } },
+          if (couponId) {
+            // Atomic guarded increment: only claims a redemption while under the cap.
+            const claimed = await tx.$executeRaw`
+              UPDATE "Coupon"
+              SET "redemptionCount" = "redemptionCount" + 1
+              WHERE "id" = ${couponId}
+                AND ("maxRedemptions" IS NULL OR "redemptionCount" < "maxRedemptions")`;
+            if (claimed === 0) throw new Error('COUPON_LIMIT');
+          }
+
+          const order = await tx.order.create({
+            data: {
+              orderNumber,
+              userId,
+              status: 'processing',
+              paymentMethod: 'CASH_ON_DELIVERY',
+              shippingMethod: 'STANDARD',
+              email: input.contact.email,
+              shippingFullName: input.contact.fullName,
+              shippingPhone: input.contact.phone,
+              shippingAddressLine: input.shipping.addressLine,
+              shippingCity: input.shipping.city,
+              shippingGovernorate: input.shipping.governorate,
+              shippingPostalCode: input.shipping.postalCode,
+              shippingCostEgp: shippingCost,
+              subtotalEgp: subtotal,
+              discountEgp,
+              totalEgp,
+              couponId,
+            },
+          });
+
+          await tx.orderItem.createMany({
+            data: lineItems.map((li) => ({
+              orderId: order.id,
+              productId: li.productId,
+              productVariantId: li.variantId ?? null,
+              productNameSnapshot: li.productName,
+              productBrandSnapshot: li.productBrand,
+              ...(li.variantAttributes != null && { variantAttributesSnapshot: li.variantAttributes }),
+              imageUrlSnapshot: li.imageUrl,
+              unitPriceEgp: li.unitPriceEgp,
+              quantity: li.quantity,
+              subtotalEgp: li.unitPriceEgp * li.quantity,
+              note: li.note,
+            })),
+          });
         });
+        break; // committed successfully
+      } catch (e) {
+        if (
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+          e.code === 'P2002' &&
+          attempt < MAX_ATTEMPTS - 1
+        ) {
+          continue; // orderNumber collision — regenerate and retry
+        }
+        throw e;
       }
-
-      const order = await tx.order.create({
-        data: {
-          orderNumber,
-          userId,
-          status: 'processing',
-          paymentMethod: 'CASH_ON_DELIVERY',
-          shippingMethod: 'STANDARD',
-          email: input.contact.email,
-          shippingFullName: input.contact.fullName,
-          shippingPhone: input.contact.phone,
-          shippingAddressLine: input.shipping.addressLine,
-          shippingCity: input.shipping.city,
-          shippingGovernorate: input.shipping.governorate,
-          shippingPostalCode: input.shipping.postalCode,
-          shippingCostEgp: shippingCost,
-          subtotalEgp: subtotal,
-          discountEgp,
-          totalEgp,
-          couponId,
-        },
-      });
-
-      await tx.orderItem.createMany({
-        data: lineItems.map((li) => ({
-          orderId: order.id,
-          productId: li.productId,
-          productVariantId: li.variantId ?? null,
-          productNameSnapshot: li.productName,
-          productBrandSnapshot: li.productBrand,
-          ...(li.variantAttributes != null && { variantAttributesSnapshot: li.variantAttributes }),
-          imageUrlSnapshot: li.imageUrl,
-          unitPriceEgp: li.unitPriceEgp,
-          quantity: li.quantity,
-          subtotalEgp: li.unitPriceEgp * li.quantity,
-          note: li.note,
-        })),
-      });
-    });
+    }
   } catch (e) {
     console.error('[placeOrder] Transaction error:', e);
     const msg = e instanceof Error ? e.message : '';
     if (msg.startsWith('STOCK:')) {
       return { ok: false, error: `${msg.slice(6)} is out of stock`, code: 'STOCK_UNAVAILABLE' };
+    }
+    if (msg === 'COUPON_LIMIT') {
+      return { ok: false, error: 'Coupon has reached its limit', code: 'COUPON_MAX_REDEEMED' };
     }
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       console.error('[placeOrder] Prisma error code:', e.code, 'meta:', e.meta);

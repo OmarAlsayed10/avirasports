@@ -5,11 +5,11 @@ import { useSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { updateProfile, updateProfileImage } from '@/modules/account/account.service';
+import { updateProfile, updateProfileImage, deleteProfileImage } from '@/modules/account/account.service';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Upload, Loader2 } from 'lucide-react';
+import { Upload, Loader2, User, Trash2 } from 'lucide-react';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { createZodErrorMap } from '@/modules/_shared/i18n/i18n.zod-error-map';
 
@@ -22,10 +22,6 @@ const profileSchema = z.object({
 });
 
 type ProfileInput = z.infer<typeof profileSchema>;
-
-function getInitials(name: string) {
-  return name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase();
-}
 
 export default function ProfilePage() {
   const { data: session, update: updateSession } = useSession();
@@ -87,9 +83,23 @@ export default function ProfilePage() {
     }
   };
 
+  const handleRemoveImage = async () => {
+    setUploading(true);
+    try {
+      const result = await deleteProfileImage();
+      if (result.ok) {
+        await updateSession({ image: null });
+        toast.success(t.account.profileUpdated);
+      } else {
+        toast.error(result.error);
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const image = session?.user?.image;
   const name = session?.user?.name ?? '';
-  const initials = name ? getInitials(name) : '?';
 
   return (
     <div className="max-w-lg mx-auto px-site py-12">
@@ -106,20 +116,33 @@ export default function ProfilePage() {
           {image ? (
             <Image src={image} alt={name} width={64} height={64} className="w-full h-full object-cover" />
           ) : (
-            <span className="font-secondary font-black text-xl text-bg-dark">{initials}</span>
+            <User className="w-8 h-8 text-bg-dark" />
           )}
         </div>
-        <label className={`flex items-center gap-2 px-4 py-2 border border-border-primary/40 dark:border-white/30 rounded-btn-sm text-nav-sm font-semibold text-text-primary dark:text-text-on-dark hover:border-primary dark:hover:border-primary-btn transition-colors cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
-          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-          {uploading ? t.account.saving : t.account.uploadPhoto}
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            disabled={uploading}
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); e.target.value = ''; }}
-          />
-        </label>
+        <div className="flex items-center gap-2">
+          <label className={`flex items-center gap-2 px-4 py-2 border border-border-primary/40 dark:border-white/30 rounded-btn-sm text-nav-sm font-semibold text-text-primary dark:text-text-on-dark hover:border-primary dark:hover:border-primary-btn transition-colors cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+            {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+            {uploading ? t.account.saving : t.account.uploadPhoto}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={uploading}
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); e.target.value = ''; }}
+            />
+          </label>
+          {image && (
+            <button
+              type="button"
+              onClick={handleRemoveImage}
+              disabled={uploading}
+              aria-label={t.account.removePhoto}
+              className="flex items-center justify-center w-9 h-9 border border-border-primary/40 dark:border-white/30 rounded-btn-sm text-sale hover:border-sale hover:bg-sale/5 transition-colors disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="bg-bg-white dark:bg-bg-surface rounded-card-lg border border-border-primary/10 dark:border-white/10 p-6 space-y-5" noValidate>

@@ -4,6 +4,7 @@ export type VariantOption = {
   attributes: Record<string, string>;
   priceOverrideEgp?: number | null | { toNumber: () => number };
   stockCount: number;
+  imageUrl?: string | null;
 };
 
 export interface VariantSelectorProps {
