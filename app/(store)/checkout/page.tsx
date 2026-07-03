@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useMemo } from 'react';
+import { useState, useEffect, useTransition, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +17,8 @@ import { Breadcrumb } from '@/modules/_shared/ui/breadcrumb';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { createZodErrorMap } from '@/modules/_shared/i18n/i18n.zod-error-map';
 import { useAddresses, type SavedAddress } from '@/modules/checkout/hooks/use-addresses';
+import { getDeliveryZones } from '@/modules/checkout/delivery.service';
+import { feeForGovernorate, type DeliveryZone } from '@/modules/_shared/constants/delivery-zones.constants';
 
 export default function CheckoutPage() {
   const hasMounted = useHasMounted();
@@ -30,6 +32,11 @@ export default function CheckoutPage() {
 
   const resolver = useMemo(() => zodResolver(shippingFormSchema, { errorMap: createZodErrorMap(t) }), [t]);
   const form = useForm<ShippingFormInput>({ resolver });
+
+  const [zones, setZones] = useState<DeliveryZone[]>([]);
+  useEffect(() => { getDeliveryZones().then(setZones); }, []);
+  const governorate = form.watch('governorate');
+  const shippingEgp = zones.length ? feeForGovernorate(zones, governorate) : null;
 
   const handleCouponApplied = ({ discountEgp: d, code }: { discountEgp: number; code: string }) => {
     if (code) {
@@ -135,6 +142,7 @@ export default function CheckoutPage() {
             discountEgp={discountEgp}
             appliedCoupon={appliedCoupon}
             onCouponApplied={handleCouponApplied}
+            shippingEgp={shippingEgp}
           />
         </div>
       </div>

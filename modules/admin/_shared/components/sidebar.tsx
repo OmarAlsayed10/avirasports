@@ -10,6 +10,7 @@ import {
   Layers,
   LayoutList,
   Ticket,
+  Truck,
   MoreHorizontal,
   X,
 } from "lucide-react";
@@ -37,6 +38,7 @@ export default function AdminSidebar({ locale }: { locale: Locale }) {
     { href: "/admin/brands", label: t.admin.brands, icon: Layers },
     { href: "/admin/homepage", label: t.admin.homepage, icon: LayoutList },
     { href: "/admin/offers", label: t.admin.offers, icon: Ticket },
+    { href: "/admin/delivery", label: t.admin.delivery, icon: Truck },
   ];
 
   const isActive = (href: string, exact?: boolean) =>

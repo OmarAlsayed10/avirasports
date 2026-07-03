@@ -379,6 +379,14 @@ model ProductQuantityOffer {
   @@index([productId])
 }
 
+// ─── Settings (generic key/value store) ─────────────────────────────────────────
+
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
 // ─── Newsletter ───────────────────────────────────────────────────────────────
 
 model NewsletterSubscription {

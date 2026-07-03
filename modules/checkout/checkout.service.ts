@@ -6,7 +6,7 @@ import { prisma, Prisma } from '@/infrastructure/db/prisma';
 import { placeOrderSchema } from '@/modules/checkout/checkout.validators';
 import { couponCodeSchema } from '@/modules/checkout/coupon.validators';
 import { z } from 'zod';
-import { SHIPPING_METHODS } from '@/modules/_shared/constants/shipping-methods.constants';
+import { getShippingCostForGovernorate } from '@/modules/checkout/delivery.service';
 import { rateLimit } from '@/infrastructure/rate-limit/limiter';
 import type { ActionResult } from '@/modules/_shared/types/action-result.type';
 
@@ -130,7 +130,7 @@ export async function placeOrder(
   }
 
   const subtotal = lineItems.reduce((sum, li) => sum + li.unitPriceEgp * li.quantity, 0);
-  const shippingCost = SHIPPING_METHODS.STANDARD.costEgp;
+  const shippingCost = await getShippingCostForGovernorate(input.shipping.governorate);
 
   let discountEgp = 0;
   let couponId: string | null = null;

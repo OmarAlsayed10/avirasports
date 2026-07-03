@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Trash2, X, ImageIcon } from 'lucide-react';
 import type { UseFormRegister, FieldErrors, FieldArrayWithId, UseFormWatch } from 'react-hook-form';
 import type { AdminProductInput } from '@/modules/product/product.validators';
@@ -32,6 +33,12 @@ function colorImageSrc(imageUrl: string | null | undefined, pendingFiles: Pendin
   return cloudinaryImageUrl(imageUrl, 'w_120,h_120,c_fill');
 }
 
+function colorImageFullSrc(imageUrl: string | null | undefined, pendingFiles: PendingFileMap): string {
+  if (!imageUrl) return '';
+  if (imageUrl.startsWith('pending:')) return pendingFiles.get(imageUrl)?.preview ?? '';
+  return cloudinaryImageUrl(imageUrl);
+}
+
 const inputCls =
   'px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-primary/40';
 
@@ -41,6 +48,7 @@ function ColorImageCell({
   pendingFiles,
   onImageUpload,
   onImageRemove,
+  onPreview,
   t,
 }: {
   index: number;
@@ -48,6 +56,7 @@ function ColorImageCell({
   pendingFiles: PendingFileMap;
   onImageUpload: (index: number, file: File) => void;
   onImageRemove: (index: number) => void;
+  onPreview: (src: string) => void;
   t: Translations;
 }) {
   const src = colorImageSrc(imageUrl, pendingFiles);
@@ -57,7 +66,12 @@ function ColorImageCell({
       {src ? (
         <div className="relative w-14 h-14 rounded-md border border-gray-200 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt="" className="w-full h-full object-cover" />
+          <img
+            src={src}
+            alt=""
+            onClick={() => onPreview(colorImageFullSrc(imageUrl, pendingFiles))}
+            className="w-full h-full object-cover cursor-zoom-in"
+          />
           <button
             type="button"
             onClick={() => onImageRemove(index)}
@@ -102,6 +116,7 @@ function EditableRow({
   pendingFiles,
   onImageUpload,
   onImageRemove,
+  onPreview,
   t,
 }: {
   field: FieldArrayWithId<AdminProductInput, 'variants', 'id'>;
@@ -115,6 +130,7 @@ function EditableRow({
   pendingFiles: PendingFileMap;
   onImageUpload: (index: number, file: File) => void;
   onImageRemove: (index: number) => void;
+  onPreview: (src: string) => void;
   t: Translations;
 }) {
   const attrs = field.attributes as Record<string, string>;
@@ -147,6 +163,7 @@ function EditableRow({
             pendingFiles={pendingFiles}
             onImageUpload={onImageUpload}
             onImageRemove={onImageRemove}
+            onPreview={onPreview}
             t={t}
           />
         ) : (
@@ -252,6 +269,39 @@ function TableHead({
 }
 
 export function VariantTable({ fields, attrNames, register, errors, onRemove, watch, pendingFiles, onImageUpload, onImageRemove, t }: VariantTableProps) {
+  const [preview, setPreview] = useState<string | null>(null);
+  useEffect(() => {
+    if (!preview) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setPreview(null);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [preview]);
+
+  const previewModal = preview && (
+    <div
+      className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4"
+      onClick={() => setPreview(null)}
+      role="dialog"
+      aria-modal="true"
+    >
+      <button
+        type="button"
+        onClick={() => setPreview(null)}
+        className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white"
+        aria-label={t.admin.removeImage}
+      >
+        <X className="w-5 h-5" />
+      </button>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={preview}
+        alt=""
+        className="max-w-full max-h-[85vh] object-contain rounded-lg bg-white"
+        onClick={(e) => e.stopPropagation()}
+      />
+    </div>
+  );
+
   if (fields.length === 0) {
     return <p className="text-sm text-gray-400 italic mb-4">{t.admin.noVariantsYet}</p>;
   }
@@ -330,6 +380,7 @@ export function VariantTable({ fields, attrNames, register, errors, onRemove, wa
                       pendingFiles={pendingFiles}
                       onImageUpload={onImageUpload}
                       onImageRemove={onImageRemove}
+                      onPreview={setPreview}
                       t={t}
                     />
                   ))}
@@ -338,6 +389,7 @@ export function VariantTable({ fields, attrNames, register, errors, onRemove, wa
             </div>
           );
         })}
+        {previewModal}
       </div>
     );
   }
@@ -404,6 +456,7 @@ export function VariantTable({ fields, attrNames, register, errors, onRemove, wa
                       pendingFiles={pendingFiles}
                       onImageUpload={onImageUpload}
                       onImageRemove={onImageRemove}
+                      onPreview={setPreview}
                       t={t}
                     />
                   ) : (
@@ -453,6 +506,7 @@ export function VariantTable({ fields, attrNames, register, errors, onRemove, wa
           })}
         </tbody>
       </table>
+      {previewModal}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Loader2 } from 'lucide-react';
+import { Loader2, Eye } from 'lucide-react';
 
 interface FormActionsProps {
   isPending: boolean;
@@ -6,9 +6,21 @@ interface FormActionsProps {
   submitLabel: string;
   updateLabel: string;
   cancelLabel: string;
+  previewLabel: string;
+  onPreview: () => void;
+  onCancel: () => void;
 }
 
-export function FormActions({ isPending, isEdit, submitLabel, updateLabel, cancelLabel }: FormActionsProps) {
+export function FormActions({
+  isPending,
+  isEdit,
+  submitLabel,
+  updateLabel,
+  cancelLabel,
+  previewLabel,
+  onPreview,
+  onCancel,
+}: FormActionsProps) {
   return (
     <div className="flex items-center gap-3">
       <button
@@ -19,12 +31,21 @@ export function FormActions({ isPending, isEdit, submitLabel, updateLabel, cance
         {isPending && <Loader2 className="w-4 h-4 animate-spin" />}
         {isEdit ? updateLabel : submitLabel}
       </button>
-      <a
-        href="/admin/products"
+      <button
+        type="button"
+        onClick={onPreview}
+        className="flex items-center gap-2 px-5 py-2.5 border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
+      >
+        <Eye className="w-4 h-4" />
+        {previewLabel}
+      </button>
+      <button
+        type="button"
+        onClick={onCancel}
         className="px-5 py-2.5 border border-gray-300 text-gray-600 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
       >
         {cancelLabel}
-      </a>
+      </button>
     </div>
   );
 }

@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import { formatEgpSimple } from '@/modules/_shared/utils/format-egp';
-import { SHIPPING_METHODS } from '@/modules/_shared/constants/shipping-methods.constants';
 import { CouponInput } from '../coupon-input/coupon-input';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { orderSummaryTokens } from './order-summary.tokens';
@@ -13,12 +12,12 @@ export function OrderSummary({
   discountEgp,
   appliedCoupon,
   onCouponApplied,
+  shippingEgp,
 }: OrderSummaryProps) {
   const { t } = useLocale();
   const isAr = t.dir === 'rtl';
   const subtotal = items.reduce((sum, i) => sum + i.unitPriceEgp * i.quantity, 0);
-  const shipping = SHIPPING_METHODS.STANDARD.costEgp;
-  const total = Math.max(0, subtotal + shipping - discountEgp);
+  const total = Math.max(0, subtotal + (shippingEgp ?? 0) - discountEgp);
 
   return (
     <div className={orderSummaryTokens.root}>
@@ -71,7 +70,7 @@ export function OrderSummary({
         </div>
         <div className={orderSummaryTokens.totalsRow}>
           <span className={orderSummaryTokens.totalsLabel}>{t.checkout.shipping}</span>
-          <span>{formatEgpSimple(shipping)}</span>
+          <span>{shippingEgp === null ? t.checkout.selectGovernorate : formatEgpSimple(shippingEgp)}</span>
         </div>
         {discountEgp > 0 && (
           <div className={orderSummaryTokens.discountRow}>

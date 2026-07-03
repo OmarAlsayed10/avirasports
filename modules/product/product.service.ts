@@ -86,43 +86,45 @@ export async function updateProduct(id: string, data: AdminProductInput) {
   const toCreate = variants.filter((v) => !v.id);
 
   try {
-    await prisma.productImage.deleteMany({ where: { productId: id } });
+    // One transaction on a single connection: sequential writes avoid exhausting the
+    // pool (connection_limit=1) and keep the whole save atomic — no partial updates.
+    await prisma.$transaction(
+      async (tx) => {
+        await tx.productImage.deleteMany({ where: { productId: id } });
 
-    const currentVariants = await prisma.productVariant.findMany({
-      where: { productId: id },
-      include: { orderItems: { take: 1 } },
-    });
+        const currentVariants = await tx.productVariant.findMany({
+          where: { productId: id },
+          include: { orderItems: { take: 1 } },
+        });
 
-    const formVariantIds = new Set(toUpdate.map((v) => v.id!));
-    const toDelete = currentVariants.filter(
-      (v) => !formVariantIds.has(v.id) && v.orderItems.length === 0
-    );
-    if (toDelete.length > 0) {
-      await prisma.productVariant.deleteMany({
-        where: { id: { in: toDelete.map((v) => v.id) } },
-      });
-    }
+        const formVariantIds = new Set(toUpdate.map((v) => v.id!));
+        const toDelete = currentVariants.filter(
+          (v) => !formVariantIds.has(v.id) && v.orderItems.length === 0
+        );
+        if (toDelete.length > 0) {
+          await tx.productVariant.deleteMany({
+            where: { id: { in: toDelete.map((v) => v.id) } },
+          });
+        }
 
-    await prisma.product.update({
-      where: { id },
-      data: {
-        ...rest,
-        specs,
-        images: {
-          create: images.map((img, i) => ({
-            url: img.url,
-            alt: img.alt || rest.name,
-            isPrimary: img.isPrimary,
-            sortOrder: img.sortOrder ?? i,
-          })),
-        },
-      },
-    });
+        await tx.product.update({
+          where: { id },
+          data: {
+            ...rest,
+            specs,
+            images: {
+              create: images.map((img, i) => ({
+                url: img.url,
+                alt: img.alt || rest.name,
+                isPrimary: img.isPrimary,
+                sortOrder: img.sortOrder ?? i,
+              })),
+            },
+          },
+        });
 
-    if (toUpdate.length > 0) {
-      await Promise.all(
-        toUpdate.map((v) =>
-          prisma.productVariant.update({
+        for (const v of toUpdate) {
+          await tx.productVariant.update({
             where: { id: v.id! },
             data: {
               sku: v.sku,
@@ -131,49 +133,47 @@ export async function updateProduct(id: string, data: AdminProductInput) {
               stockCount: v.stockCount,
               imageUrl: v.imageUrl ?? null,
             },
-          })
-        )
-      );
-    }
+          });
+        }
 
-    if (toCreate.length > 0) {
-      await prisma.productVariant.createMany({
-        data: toCreate.map((v) => ({
-          productId: id,
-          sku: v.sku,
-          attributes: v.attributes,
-          priceOverrideEgp: v.priceOverrideEgp ?? null,
-          stockCount: v.stockCount,
-          imageUrl: v.imageUrl ?? null,
-        })),
-      });
-    }
+        if (toCreate.length > 0) {
+          await tx.productVariant.createMany({
+            data: toCreate.map((v) => ({
+              productId: id,
+              sku: v.sku,
+              attributes: v.attributes,
+              priceOverrideEgp: v.priceOverrideEgp ?? null,
+              stockCount: v.stockCount,
+              imageUrl: v.imageUrl ?? null,
+            })),
+          });
+        }
 
-    try {
-      await prisma.productQuantityOffer.deleteMany({ where: { productId: id } });
-      if (quantityOffers.length > 0) {
-        await prisma.productQuantityOffer.createMany({
-          data: quantityOffers.map((qo: typeof quantityOffers[number]) => ({
-            productId: id,
-            quantity: qo.quantity,
-            offerPriceEgp: qo.offerPriceEgp,
-            isActive: qo.isActive,
-            popupIntervalMinutes: qo.popupIntervalMinutes,
-          })),
-        });
-      }
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2021') {
-        // Table not yet migrated on this environment — skip quantity offers
-      } else {
-        throw e;
-      }
-    }
+        await tx.productQuantityOffer.deleteMany({ where: { productId: id } });
+        if (quantityOffers.length > 0) {
+          await tx.productQuantityOffer.createMany({
+            data: quantityOffers.map((qo: typeof quantityOffers[number]) => ({
+              productId: id,
+              quantity: qo.quantity,
+              offerPriceEgp: qo.offerPriceEgp,
+              isActive: qo.isActive,
+              popupIntervalMinutes: qo.popupIntervalMinutes,
+            })),
+          });
+        }
+      },
+      { timeout: 15000 }
+    );
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+      const target = (e.meta?.target as string[] | undefined)?.join(',') ?? '';
+      if (target.includes('sku')) {
+        return { error: { variants: ['Duplicate SKU — each variant needs a unique SKU.'] } };
+      }
       return { error: { slug: ['A product with this slug already exists.'] } };
     }
-    throw e;
+    console.error('[updateProduct] failed:', e);
+    return { error: { slug: ['Could not save the product. Please try again.'] } };
   }
 
   if (removedImageUrls.length > 0) await deleteCloudinaryAssets(removedImageUrls);

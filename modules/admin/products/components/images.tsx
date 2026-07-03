@@ -1,11 +1,15 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useFieldArray } from 'react-hook-form';
-import { Trash2, Upload, ImageIcon } from 'lucide-react';
+import { toast } from 'sonner';
+import { Trash2, Upload, ImageIcon, X } from 'lucide-react';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { useProductForm } from './product-form-provider';
 import { SectionShell } from './section-shell';
 import { cloudinaryImageUrl } from '@/infrastructure/storage/cloudinary';
+import { imageUploadError } from '@/modules/_shared/constants/image-upload.constants';
+import { cn } from '@/modules/_shared/utils/cn';
 
 
 export function ImagesSection() {
@@ -15,7 +19,20 @@ export function ImagesSection() {
 
   const { fields, append, remove } = useFieldArray({ control, name: 'images' });
 
+  const [preview, setPreview] = useState<string | null>(null);
+  useEffect(() => {
+    if (!preview) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setPreview(null);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [preview]);
+
   const handleFileUpload = (file: File) => {
+    const err = imageUploadError(file);
+    if (err) {
+      toast.error(err === 'size' ? t.admin.imageTooLarge : t.admin.unsupportedImageType);
+      return;
+    }
     const tempId = `pending:${crypto.randomUUID()}`;
     const preview = URL.createObjectURL(file);
     setPendingFiles((prev) => new Map(prev).set(tempId, { file, preview }));
@@ -50,7 +67,11 @@ export function ImagesSection() {
           return (
             <div
               key={field.id}
-              className="relative group border border-gray-200 rounded-lg overflow-hidden aspect-square bg-gray-50"
+              onClick={() => displayUrl && setPreview(displayUrl)}
+              className={cn(
+                'relative group border border-gray-200 rounded-lg overflow-hidden aspect-square bg-gray-50',
+                displayUrl && 'cursor-zoom-in'
+              )}
             >
               {displayUrl ? (
                 <img src={displayUrl} alt={field.alt || 'Image'} className="w-full h-full object-cover" />
@@ -60,23 +81,25 @@ export function ImagesSection() {
                 </div>
               )}
 
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => handleRemove(i, field.url)}
-                  className="p-1.5 bg-white rounded text-red-500 hover:bg-red-50"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-                {!watch(`images.${i}.isPrimary`) && (
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1.5 pointer-events-none">
+                <div className="flex gap-1.5 pointer-events-auto">
                   <button
                     type="button"
-                    onClick={() => handleSetPrimary(i)}
-                    className="text-xs bg-white rounded px-1.5 py-0.5 text-gray-700 hover:bg-gray-50"
+                    onClick={(e) => { e.stopPropagation(); handleRemove(i, field.url); }}
+                    className="p-1.5 bg-white rounded text-red-500 hover:bg-red-50"
                   >
-                    {t.admin.setPrimary}
+                    <Trash2 className="w-3.5 h-3.5" />
                   </button>
-                )}
+                  {!watch(`images.${i}.isPrimary`) && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); handleSetPrimary(i); }}
+                      className="text-xs bg-white rounded px-1.5 py-0.5 text-gray-700 hover:bg-gray-50"
+                    >
+                      {t.admin.setPrimary}
+                    </button>
+                  )}
+                </div>
               </div>
 
               {watch(`images.${i}.isPrimary`) && (
@@ -103,6 +126,32 @@ export function ImagesSection() {
           />
         </label>
       </div>
+
+      <p className="text-xs text-gray-400 mt-2">{t.admin.maxImageSize}</p>
+
+      {preview && (
+        <div
+          className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setPreview(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <button
+            type="button"
+            onClick={() => setPreview(null)}
+            className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <img
+            src={preview}
+            alt="Preview"
+            className="max-w-full max-h-[85vh] object-contain rounded-lg bg-white"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </SectionShell>
   );
 }

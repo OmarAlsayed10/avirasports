@@ -1,12 +1,9 @@
 import { createHash } from 'crypto';
+import { imageUploadError, MAX_IMAGE_UPLOAD_MB } from '@/modules/_shared/constants/image-upload.constants';
 
 const cloudName = () => process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!;
 const apiKey = () => process.env.CLOUDINARY_API_KEY!;
 const apiSecret = () => process.env.CLOUDINARY_API_SECRET!;
-
-/** Raster image types we accept for upload. SVG is deliberately excluded (script payload / stored-XSS risk). */
-export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'] as const;
-export const MAX_IMAGE_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 MB
 
 /** Build a Cloudinary delivery URL from a stored public ID. Passes through full URLs and blob/data previews. */
 export function cloudinaryImageUrl(publicIdOrUrl: string, transform = 'w_200,h_200,c_fill'): string {
@@ -19,12 +16,9 @@ export function cloudinaryImageUrl(publicIdOrUrl: string, transform = 'w_200,h_2
 
 /** Reject anything that isn't an allowed raster image within the size cap. Returns null when valid. */
 export function validateImageUpload(file: File): { error: string; status: number } | null {
-  if (!(ALLOWED_IMAGE_TYPES as readonly string[]).includes(file.type)) {
-    return { error: 'Unsupported image type. Allowed: JPEG, PNG, WebP, AVIF.', status: 415 };
-  }
-  if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
-    return { error: 'Image exceeds the 5MB size limit.', status: 413 };
-  }
+  const code = imageUploadError(file);
+  if (code === 'type') return { error: 'Unsupported image type. Allowed: JPEG, PNG, WebP, AVIF.', status: 415 };
+  if (code === 'size') return { error: `Image exceeds the ${MAX_IMAGE_UPLOAD_MB}MB size limit.`, status: 413 };
   return null;
 }
 
