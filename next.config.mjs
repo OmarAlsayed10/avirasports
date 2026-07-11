@@ -8,12 +8,12 @@ const contentSecurityPolicy = [
   "object-src 'none'",
   "frame-ancestors 'none'",
   "form-action 'self'",
-  "img-src 'self' https://res.cloudinary.com https://lh3.googleusercontent.com data: blob:",
+  "img-src 'self' https://res.cloudinary.com https://lh3.googleusercontent.com https://www.facebook.com data: blob:",
   // Next.js injects inline bootstrap scripts; 'unsafe-eval' is only needed for the dev refresh runtime.
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
+  `script-src 'self' 'unsafe-inline' https://connect.facebook.net${isDev ? " 'unsafe-eval'" : ''}`,
   "style-src 'self' 'unsafe-inline'",
   "font-src 'self' data:",
-  `connect-src 'self' https://api.cloudinary.com${isDev ? ' ws:' : ''}`,
+  `connect-src 'self' https://api.cloudinary.com https://www.facebook.com https://connect.facebook.net${isDev ? ' ws:' : ''}`,
 ].join('; ');
 
 const securityHeaders = [
