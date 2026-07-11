@@ -63,34 +63,43 @@ export const listProducts = unstable_cache(
   }
 );
 
-export async function getProduct(slug: string) {
-  return prisma.product.findUnique({
-    where: { slug, isActive: true },
-    include: {
-      images: { orderBy: { sortOrder: 'asc' as const } },
-      variants: true,
-      category: true,
-      reviews: {
-        take: 10,
-        orderBy: { createdAt: 'desc' },
-        include: { user: { select: { name: true, image: true } } },
+export const getProduct = unstable_cache(
+  async (slug: string) => {
+    return prisma.product.findUnique({
+      where: { slug, isActive: true },
+      include: {
+        images: { orderBy: { sortOrder: 'asc' as const } },
+        variants: true,
+        category: true,
+        reviews: {
+          take: 10,
+          orderBy: { createdAt: 'desc' },
+          include: { user: { select: { name: true, image: true } } },
+        },
       },
-    },
-  });
-}
+    });
+  },
+  ['get-product'],
+  { revalidate: 300, tags: ['products'] }
+);
 
-export async function getRelatedProducts(productId: string, categoryId: string, limit = 4) {
-  return prisma.product.findMany({
-    where: { categoryId, id: { not: productId }, isActive: true },
-    take: limit,
-    include: {
-      images: { where: { isPrimary: true }, take: 1 },
-      variants: { select: { stockCount: true } },
-    },
-  });
-}
+export const getRelatedProducts = unstable_cache(
+  async (productId: string, categoryId: string, limit = 4) => {
+    return prisma.product.findMany({
+      where: { categoryId, id: { not: productId }, isActive: true },
+      take: limit,
+      include: {
+        images: { where: { isPrimary: true }, take: 1 },
+        variants: { select: { stockCount: true } },
+      },
+    });
+  },
+  ['get-related-products'],
+  { revalidate: 300, tags: ['products'] }
+);
 
-export async function getBestSellers(limit = 4, excludeProductId?: string) {
+export const getBestSellers = unstable_cache(
+  async (limit = 4, excludeProductId?: string) => {
   const topItems = await prisma.orderItem.groupBy({
     by: ['productId'],
     _sum: { quantity: true },
@@ -111,13 +120,17 @@ export async function getBestSellers(limit = 4, excludeProductId?: string) {
     },
   });
 
-  return ranked
-    .map((id:any) => products.find((p:any) => p.id === id))
-    .filter((p:any): p is NonNullable<typeof p> => p != null)
-    .slice(0, limit);
-}
+    return ranked
+      .map((id:any) => products.find((p:any) => p.id === id))
+      .filter((p:any): p is NonNullable<typeof p> => p != null)
+      .slice(0, limit);
+  },
+  ['get-best-sellers'],
+  { revalidate: 300, tags: ['products'] }
+);
 
-export async function getAlsoBought(productId: string, limit = 4) {
+export const getAlsoBought = unstable_cache(
+  async (productId: string, limit = 4) => {
   const orderItems = await prisma.orderItem.findMany({
     where: { productId },
     select: { orderId: true },
@@ -153,7 +166,10 @@ export async function getAlsoBought(productId: string, limit = 4) {
     .map((id:any) => products.find((p:any) => p.id === id))
     .filter((p:any): p is NonNullable<typeof p> => p != null)
     .slice(0, limit);
-}
+  },
+  ['get-also-bought'],
+  { revalidate: 300, tags: ['products'] }
+);
 
 export async function getUserProductReview(productId: string, userId: string) {
   return prisma.review.findUnique({
