@@ -6,6 +6,7 @@ import { Providers } from './providers';
 import { MobileMenu } from '@/components/layout/mobile-menu';
 import { SearchOverlay } from '@/modules/search/components/search-overlay';
 import { ScrollToTop } from '@/modules/_shared/ui/scroll-to-top';
+import { MetaPixel } from '@/modules/_shared/analytics/meta-pixel';
 import { getLocale } from '@/modules/_shared/i18n/locale';
 import { auth } from '@/infrastructure/auth/auth.config';
 
@@ -95,6 +96,7 @@ export default async function RootLayout({
         <Providers locale={locale} session={session}>
           <Suspense fallback={null}>
             <ScrollToTop />
+            <MetaPixel />
           </Suspense>
           <MobileMenu />
           <SearchOverlay />
