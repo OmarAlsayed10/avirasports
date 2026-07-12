@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { Star } from 'lucide-react';
@@ -15,6 +16,7 @@ import { ProductSpecs } from '@/modules/product/components/product-specs';
 import { ReviewsList } from '@/modules/product/components/reviews-list';
 import { ReviewForm } from '@/modules/product/components/review-form';
 import { RelatedProducts } from '@/modules/product/components/related-products';
+import { ProductGridSkeleton } from '@/modules/product/components/product-grid';
 import { getLocale, getT } from '@/modules/_shared/i18n/locale';
 import { specRowSchema } from '@/modules/product/product.validators';
 import type { SpecRow } from '@/modules/product/product.validators';
@@ -163,6 +165,41 @@ function toCardData(p: {
   };
 }
 
+async function RelatedSections({
+  productId,
+  categoryId,
+  t,
+}: {
+  productId: string;
+  categoryId: string;
+  t: Translations;
+}) {
+  const [related, alsoBought, bestSellers] = await Promise.all([
+    getRelatedProducts(productId, categoryId).catch(() => []),
+    getAlsoBought(productId).catch(() => []),
+    getBestSellers(4, productId).catch(() => []),
+  ]);
+  return (
+    <>
+      {alsoBought.length > 0 && (
+        <div className="mt-16">
+          <RelatedProducts title={t.product.alsoBought} products={alsoBought.map(toCardData)} />
+        </div>
+      )}
+      {bestSellers.length > 0 && (
+        <div className="mt-16">
+          <RelatedProducts title={t.product.bestSellers} products={bestSellers.map(toCardData)} />
+        </div>
+      )}
+      {related.length > 0 && (
+        <div className="mt-16">
+          <RelatedProducts title={t.product.similarProducts} products={related.map(toCardData)} />
+        </div>
+      )}
+    </>
+  );
+}
+
 export default async function ProductPage({ params }: ProductPageProps) {
   const [product, { locale, t }, session] = await Promise.all([
     getProduct(params.slug),
@@ -173,10 +210,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const userId = session?.user?.id ?? null;
 
-  const [related, alsoBought, bestSellers, existingReview, offers, quantityOffers] = await Promise.all([
-    getRelatedProducts(product.id, product.categoryId).catch(() => []),
-    getAlsoBought(product.id).catch(() => []),
-    getBestSellers(4, product.id).catch(() => []),
+  const [existingReview, offers, quantityOffers] = await Promise.all([
     userId ? getUserProductReview(product.id, userId).catch(() => null) : Promise.resolve(null),
     getProductOffers(product.id).catch(() => []),
     getProductQuantityOffers(product.id).catch(() => []),
@@ -315,32 +349,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
         />
       </div>
 
-      {alsoBought.length > 0 && (
-        <div className="mt-16">
-          <RelatedProducts
-            title={t.product.alsoBought}
-            products={alsoBought.map(toCardData)}
-          />
-        </div>
-      )}
-
-      {bestSellers.length > 0 && (
-        <div className="mt-16">
-          <RelatedProducts
-            title={t.product.bestSellers}
-            products={bestSellers.map(toCardData)}
-          />
-        </div>
-      )}
-
-      {related.length > 0 && (
-        <div className="mt-16">
-          <RelatedProducts
-            title={t.product.similarProducts}
-            products={related.map(toCardData)}
-          />
-        </div>
-      )}
+      <Suspense fallback={<div className="mt-16"><ProductGridSkeleton count={4} /></div>}>
+        <RelatedSections productId={product.id} categoryId={product.categoryId} t={t} />
+      </Suspense>
 
       {quantityOffers.length > 0 && (
         <QuantityOfferPopup
