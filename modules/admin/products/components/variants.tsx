@@ -10,7 +10,11 @@ import { SectionShell } from './section-shell';
 import { VariantGenerator } from './variant-generator';
 import { VariantTable } from './variant-table';
 
-export function VariantsSection() {
+interface VariantsSectionProps {
+  hasMultipleSizes?: boolean;
+}
+
+export function VariantsSection({ hasMultipleSizes }: VariantsSectionProps) {
   const { form, pendingFiles, setPendingFiles } = useProductForm();
   const { control, register, watch, setValue, getValues, formState: { errors } } = form;
   const { t } = useLocale();
@@ -81,7 +85,15 @@ export function VariantsSection() {
       <p className="text-xs text-gray-400 -mt-2 mb-1">{t.admin.variantsDesc}</p>
       <p className="text-xs text-gray-400 mb-5">{t.admin.maxImageSize}</p>
 
-      <VariantGenerator slug={watch('slug')} onGenerate={(newVariants) => append(newVariants)} />
+      <VariantGenerator
+        slug={watch('slug')}
+        hasMultipleSizes={hasMultipleSizes}
+        onGenerate={(newVariants) => append(newVariants)}
+      />
+
+      {errors.variants?.message && (
+        <p className="text-xs text-red-500 mb-4">{errors.variants.message}</p>
+      )}
 
       <VariantTable
         fields={fields}

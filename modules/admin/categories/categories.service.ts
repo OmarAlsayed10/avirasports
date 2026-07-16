@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/infrastructure/db/prisma';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { z } from 'zod';
 import { requireAdmin } from '@/modules/admin/_shared/require-admin';
 import { deleteCloudinaryAsset } from '@/infrastructure/storage/cloudinary';
@@ -13,7 +13,13 @@ const categorySchema = z.object({
   description: z.string().max(300).optional().nullable(),
   iconUrl: z.string().min(1).optional().nullable(),
   sortOrder: z.coerce.number().int().min(0).default(0),
+  hasMultipleSizes: z.enum(['true', 'false']).transform((setting) => setting === 'true'),
 });
+
+function revalidateCategories() {
+  revalidateTag('categories');
+  revalidatePath('/admin/categories');
+}
 
 export async function createCategory(_: unknown, formData: FormData) {
   await requireAdmin();
@@ -25,6 +31,7 @@ export async function createCategory(_: unknown, formData: FormData) {
     description: formData.get('description') || null,
     iconUrl: formData.get('iconUrl') || null,
     sortOrder: formData.get('sortOrder') || 0,
+    hasMultipleSizes: formData.get('hasMultipleSizes'),
   });
 
   if (!parsed.success) {
@@ -39,7 +46,7 @@ export async function createCategory(_: unknown, formData: FormData) {
   }
 
   await prisma.category.create({ data: parsed.data });
-  revalidatePath('/admin/categories');
+  revalidateCategories();
   return { success: true };
 }
 
@@ -54,6 +61,7 @@ export async function updateCategory(_: unknown, formData: FormData) {
     description: formData.get('description') || null,
     iconUrl: formData.get('iconUrl') || null,
     sortOrder: formData.get('sortOrder') || 0,
+    hasMultipleSizes: formData.get('hasMultipleSizes'),
   });
 
   if (!parsed.success) {
@@ -78,7 +86,7 @@ export async function updateCategory(_: unknown, formData: FormData) {
     await deleteCloudinaryAsset(old.iconUrl);
   }
 
-  revalidatePath('/admin/categories');
+  revalidateCategories();
   return { success: true };
 }
 
@@ -98,6 +106,6 @@ export async function deleteCategory(id: string) {
     await deleteCloudinaryAsset(category.iconUrl);
   }
 
-  revalidatePath('/admin/categories');
+  revalidateCategories();
   return { success: true };
 }

@@ -5,6 +5,7 @@ import { cn } from "@/modules/_shared/utils/cn";
 import { useLocale } from "@/modules/_shared/i18n/i18n.context";
 import { variantSelectorTokens } from "./variant-selector.tokens";
 import type { VariantSelectorProps } from "./variant-selector.types";
+import { ONE_SIZE } from "@/modules/_shared/constants/sizes.constants";
 
 function isColorKey(key: string): boolean {
   return key.toLowerCase() === "color";
@@ -18,8 +19,19 @@ export function VariantSelector({ variants, selectedId, onSelect }: VariantSelec
   const allKeys = useMemo(() => {
     const keys = new Set<string>();
     variants.forEach((v) => Object.keys(v.attributes).forEach((k) => keys.add(k)));
-    return Array.from(keys);
+    return Array.from(keys).filter((key) => {
+      const values = variants.map((variant) => variant.attributes[key]).filter(Boolean);
+      return new Set(values).size > 1;
+    });
   }, [variants]);
+
+  const attributeLabel = (key: string) => {
+    if (key.toLowerCase() === "size") return t.product.size;
+    if (key.toLowerCase() === "color") return t.product.color;
+    return key;
+  };
+
+  const attributeValue = (value: string) => value === ONE_SIZE ? t.product.oneSize : value;
 
   const valuesByKey = useMemo(() => {
     const result: Record<string, string[]> = {};
@@ -93,7 +105,7 @@ export function VariantSelector({ variants, selectedId, onSelect }: VariantSelec
         return (
           <div key={key}>
             <h3 className={vs.groupLabel}>
-              {key}
+              {attributeLabel(key)}
               {isColor && selected && (
                 <span className={vs.colorHint}>{selected}</span>
               )}
@@ -149,7 +161,7 @@ export function VariantSelector({ variants, selectedId, onSelect }: VariantSelec
                             : vs.sizeBtnUnavailable,
                     )}
                   >
-                    {val}
+                    {attributeValue(val)}
                   </button>
                 );
               })}

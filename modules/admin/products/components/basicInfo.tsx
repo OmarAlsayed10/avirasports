@@ -17,7 +17,7 @@ interface BasicInfoSectionProps {
 export function BasicInfoSection({ categories, brands }: BasicInfoSectionProps) {
   const { form, isEdit } = useProductForm();
   const { register, setValue, formState: { errors } } = form;
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
 
   return (
     <SectionShell title={t.admin.basicInfo}>
@@ -78,7 +78,9 @@ export function BasicInfoSection({ categories, brands }: BasicInfoSectionProps) 
           <select {...register('categoryId')} className={inputCls}>
             <option value="">{t.admin.selectCategory}</option>
             {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
+              <option key={cat.id} value={cat.id}>
+                {locale === 'ar' && cat.nameAr ? cat.nameAr : cat.name}
+              </option>
             ))}
           </select>
           {errors.categoryId && <p className={errorCls}>{errors.categoryId.message}</p>}

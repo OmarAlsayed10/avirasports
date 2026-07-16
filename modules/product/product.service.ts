@@ -7,12 +7,32 @@ import { adminProductSchema, type AdminProductInput } from '@/modules/product/pr
 import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/modules/admin/_shared/require-admin';
 import { deleteCloudinaryAssets } from '@/infrastructure/storage/cloudinary';
+import { getT } from '@/modules/_shared/i18n/locale';
+
+type ProductCategoryError = { categoryId: string[] } | { variants: string[] };
+
+async function productCategoryError(input: AdminProductInput): Promise<ProductCategoryError | null> {
+  const category = await prisma.category.findUnique({
+    where: { id: input.categoryId },
+    select: { hasMultipleSizes: true },
+  });
+  const { t } = getT();
+
+  if (!category) return { categoryId: [t.admin.categoryNotFound] };
+  if (category.hasMultipleSizes) return null;
+
+  const sizes = new Set(input.variants.map((variant) => variant.attributes.size).filter(Boolean));
+  return sizes.size > 1 ? { variants: [t.admin.oneSizeCategoryError] } : null;
+}
 
 export async function createProduct(data: AdminProductInput) {
   await requireAdmin();
 
   const parsed = adminProductSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
+
+  const categoryError = await productCategoryError(parsed.data);
+  if (categoryError) return { error: categoryError };
 
   const { images, variants, specs, quantityOffers, ...rest } = parsed.data;
 
@@ -72,6 +92,9 @@ export async function updateProduct(id: string, data: AdminProductInput) {
 
   const parsed = adminProductSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten().fieldErrors };
+
+  const categoryError = await productCategoryError(parsed.data);
+  if (categoryError) return { error: categoryError };
 
   const { images, variants, specs, quantityOffers, ...rest } = parsed.data;
 

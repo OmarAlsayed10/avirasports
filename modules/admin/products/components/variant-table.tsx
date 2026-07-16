@@ -7,6 +7,7 @@ import type { AdminProductInput } from '@/modules/product/product.validators';
 import type { Translations } from '@/modules/_shared/i18n/i18n.translations';
 import type { PendingFileMap } from './product-form-provider';
 import { cloudinaryImageUrl } from '@/infrastructure/storage/cloudinary';
+import { ONE_SIZE } from '@/modules/_shared/constants/sizes.constants';
 
 interface VariantTableProps {
   fields: FieldArrayWithId<AdminProductInput, 'variants', 'id'>[];
@@ -25,6 +26,10 @@ function attrLabel(key: string, t: Translations): string {
   if (key === 'size') return t.admin.sizeAttr;
   if (key === 'color') return t.admin.colorAttr;
   return key;
+}
+
+function attrValue(value: string, t: Translations): string {
+  return value === ONE_SIZE ? t.admin.oneSizeValue : value;
 }
 
 function colorImageSrc(imageUrl: string | null | undefined, pendingFiles: PendingFileMap): string {
@@ -176,7 +181,7 @@ function EditableRow({
         const val = attrs[key] ?? '';
         return (
           <td key={attrName} className="px-3 py-2">
-            <span className="text-sm text-gray-700">{val}</span>
+          <span className="text-sm text-gray-700">{attrValue(val, t)}</span>
           </td>
         );
       })}
@@ -342,7 +347,7 @@ export function VariantTable({ fields, attrNames, register, errors, onRemove, wa
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
                   {t.admin.sizeAttr}
                 </span>
-                <span className="text-sm font-bold text-gray-800">{size}</span>
+                <span className="text-sm font-bold text-gray-800">{attrValue(size, t)}</span>
                 {colors.length > 0 && (
                   <>
                     <span className="text-gray-300 text-xs">·</span>
@@ -443,7 +448,7 @@ export function VariantTable({ fields, attrNames, register, errors, onRemove, wa
                           <span className="text-xs font-mono text-gray-500">{val}</span>
                         </div>
                       ) : (
-                        <span className="text-sm text-gray-700">{val}</span>
+                        <span className="text-sm text-gray-700">{attrValue(val, t)}</span>
                       )}
                     </td>
                   );

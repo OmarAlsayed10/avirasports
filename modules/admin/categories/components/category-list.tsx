@@ -17,6 +17,7 @@ type Category = {
   description: string | null;
   iconUrl: string | null;
   sortOrder: number;
+  hasMultipleSizes: boolean;
   _count: { products: number };
 };
 
@@ -159,6 +160,18 @@ function CategoryForm({
           <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.sortOrderLabel}</label>
           <input name="sortOrder" type="number" min="0" defaultValue={category?.sortOrder ?? 0} className={inputCls} />
         </div>
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">{t.admin.categorySizeBehavior}</label>
+          <select
+            name="hasMultipleSizes"
+            defaultValue={category?.hasMultipleSizes === false ? 'false' : 'true'}
+            className={inputCls}
+          >
+            <option value="true">{t.admin.multipleSizes}</option>
+            <option value="false">{t.admin.oneSize}</option>
+          </select>
+          <p className="text-xs text-gray-400 mt-1">{t.admin.categorySizeBehaviorHint}</p>
+        </div>
       </div>
 
       <ImageUploadField initialUrl={category?.iconUrl} />
@@ -255,6 +268,7 @@ export default function CategoryList({ categories }: { categories: Category[] })
                 <th className="text-left px-4 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide">{t.admin.nameLabel.replace(' *', '')}</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide hidden sm:table-cell">{t.admin.slug}</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide hidden md:table-cell">{t.admin.description}</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide hidden md:table-cell">{t.admin.sizesLabel}</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide hidden lg:table-cell">{t.admin.image}</th>
                 <th className="text-center px-4 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide">{t.admin.productsCol}</th>
                 <th className="text-center px-4 py-3 font-medium text-gray-500 text-xs uppercase tracking-wide">{t.admin.order}</th>
@@ -272,6 +286,9 @@ export default function CategoryList({ categories }: { categories: Category[] })
                     <td className="px-4 py-3 text-gray-500 hidden sm:table-cell font-mono text-xs">{cat.slug}</td>
                     <td className="px-4 py-3 text-gray-500 hidden md:table-cell max-w-xs truncate">
                       {cat.description || <span className="italic text-gray-300">—</span>}
+                    </td>
+                    <td className="px-4 py-3 text-gray-500 hidden md:table-cell whitespace-nowrap">
+                      {cat.hasMultipleSizes ? t.admin.multipleSizes : t.admin.oneSize}
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell">
                       {cat.iconUrl ? (
@@ -301,7 +318,7 @@ export default function CategoryList({ categories }: { categories: Category[] })
                   </tr>
                   {editingId === cat.id && (
                     <tr key={`edit-${cat.id}`}>
-                      <td colSpan={7} className="px-4 py-3">
+                      <td colSpan={8} className="px-4 py-3">
                         <EditCategoryForm category={cat} onDone={() => setEditingId(null)} />
                       </td>
                     </tr>

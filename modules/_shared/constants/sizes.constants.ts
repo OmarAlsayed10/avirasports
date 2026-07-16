@@ -1,3 +1,5 @@
 export const DEFAULT_SIZES = [
   "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL", "6XL",
 ] as const;
+
+export const ONE_SIZE = "One Size";

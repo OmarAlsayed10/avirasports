@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { X, ImageIcon } from 'lucide-react';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
-import { DEFAULT_SIZES } from '@/modules/_shared/constants/sizes.constants';
+import { DEFAULT_SIZES, ONE_SIZE } from '@/modules/_shared/constants/sizes.constants';
 import { useProductForm } from './product-form-provider';
 
 type SizeConfig = { colors: string[]; stock: number };
@@ -117,10 +117,11 @@ function SizeColorPicker({ colors, colorPreviews, addLabel, stockLabel, stock, o
 
 interface VariantGeneratorProps {
   slug: string;
+  hasMultipleSizes?: boolean;
   onGenerate: (variants: GeneratedVariant[]) => void;
 }
 
-export function VariantGenerator({ slug, onGenerate }: VariantGeneratorProps) {
+export function VariantGenerator({ slug, hasMultipleSizes, onGenerate }: VariantGeneratorProps) {
   const { t } = useLocale();
   const { setPendingFiles } = useProductForm();
   const [configs, setConfigs] = useState<Record<string, SizeConfig>>({});
@@ -134,7 +135,21 @@ export function VariantGenerator({ slug, onGenerate }: VariantGeneratorProps) {
     };
   }, []);
 
-  const selectedSizes = DEFAULT_SIZES.filter((s) => configs[s]);
+  useEffect(() => {
+    setConfigs((currentConfigs) => {
+      if (hasMultipleSizes === false) {
+        return { [ONE_SIZE]: currentConfigs[ONE_SIZE] ?? { colors: [], stock: 10 } };
+      }
+      return currentConfigs[ONE_SIZE] ? {} : currentConfigs;
+    });
+  }, [hasMultipleSizes]);
+
+  const availableSizes: readonly string[] = hasMultipleSizes === undefined
+    ? []
+    : hasMultipleSizes
+      ? DEFAULT_SIZES
+      : [ONE_SIZE];
+  const selectedSizes = availableSizes.filter((size) => configs[size]);
 
   const toggleSize = (size: string) =>
     setConfigs((prev) => {
@@ -227,35 +242,45 @@ export function VariantGenerator({ slug, onGenerate }: VariantGeneratorProps) {
     <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6 space-y-4">
       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t.admin.quickGenerate}</p>
 
-      <div>
-        <p className="text-xs text-gray-500 mb-2">{t.admin.sizesLabel}</p>
+      {hasMultipleSizes === undefined ? (
+        <p className="text-sm text-gray-500">{t.admin.selectCategoryForSizes}</p>
+      ) : <div>
+        <p className="text-xs text-gray-500 mb-2">
+          {hasMultipleSizes ? t.admin.sizesLabel : t.admin.oneSize}
+        </p>
         <div className="flex flex-wrap gap-2">
-          {DEFAULT_SIZES.map((size) => (
+          {availableSizes.map((size) => (
             <button
               key={size}
               type="button"
+              disabled={!hasMultipleSizes}
               onClick={() => toggleSize(size)}
+              aria-pressed={Boolean(configs[size])}
               className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
                 configs[size]
                   ? 'bg-primary text-white border-primary'
                   : 'bg-white text-gray-600 border-gray-300 hover:border-primary'
               }`}
             >
-              {size}
+              {size === ONE_SIZE ? t.admin.oneSizeValue : size}
             </button>
           ))}
         </div>
-      </div>
+      </div>}
 
       {selectedSizes.length > 0 && (
         <div className="space-y-3">
-          <p className="text-xs text-gray-500">{t.admin.colorsStockLabel}</p>
+          <p className="text-xs text-gray-500">
+            {hasMultipleSizes ? t.admin.colorsStockLabel : t.admin.colorsStockOneSizeLabel}
+          </p>
           {selectedSizes.map((size) => (
             <div
               key={size}
               className="flex items-center gap-4 bg-white border border-gray-200 rounded-lg px-4 py-3"
             >
-              <span className="text-sm font-semibold text-gray-700 w-10 shrink-0">{size}</span>
+              <span className="text-sm font-semibold text-gray-700 min-w-10 shrink-0">
+                {size === ONE_SIZE ? t.admin.oneSizeValue : size}
+              </span>
               <SizeColorPicker
                 colors={configs[size].colors}
                 colorPreviews={colorPreviews}

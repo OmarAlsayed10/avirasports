@@ -5,8 +5,11 @@ import { Plus, Minus, Trash2 } from 'lucide-react';
 import { formatEgpSimple } from '@/modules/_shared/utils/format-egp';
 import { cartItemRowTokens } from './cart-item-row.tokens';
 import type { CartItemRowProps } from './cart-item-row.types';
+import { useLocale } from '@/modules/_shared/i18n/i18n.context';
+import { ONE_SIZE } from '@/modules/_shared/constants/sizes.constants';
 
 function CartItemAttributes({ attributes }: { attributes?: Record<string, string> }) {
+  const { t } = useLocale();
   if (!attributes || Object.keys(attributes).length === 0) return null;
   return (
     <div className={cartItemRowTokens.itemAttributes.wrapper}>
@@ -21,7 +24,7 @@ function CartItemAttributes({ attributes }: { attributes?: Record<string, string
           />
         ) : (
           <span key={key} className={cartItemRowTokens.itemAttributes.text}>
-            {value}
+            {value === ONE_SIZE ? t.product.oneSize : value}
           </span>
         )
       )}

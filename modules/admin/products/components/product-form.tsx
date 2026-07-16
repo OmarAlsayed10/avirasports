@@ -46,6 +46,8 @@ function ProductFormInnerWithEdit({
   const { t } = useLocale();
   const router = useRouter();
   const [previewOpen, setPreviewOpen] = useState(false);
+  const selectedCategoryId = form.watch('categoryId');
+  const selectedCategory = categories.find((category) => category.id === selectedCategoryId);
 
   const handleCancel = () => {
     if (form.formState.isDirty && !confirm(t.admin.discardChangesConfirm)) return;
@@ -60,7 +62,7 @@ function ProductFormInnerWithEdit({
       <QuantityOffersSection />
       <SpecsSection />
       <ImagesSection />
-      <VariantsSection />
+      <VariantsSection hasMultipleSizes={selectedCategory?.hasMultipleSizes} />
       <FormActions
         isPending={isPending}
         isEdit={!!productId}
