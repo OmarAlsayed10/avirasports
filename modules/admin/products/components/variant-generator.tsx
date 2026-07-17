@@ -3,7 +3,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { X, ImageIcon } from 'lucide-react';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
-import { DEFAULT_SIZES, ONE_SIZE } from '@/modules/_shared/constants/sizes.constants';
+import { DEFAULT_SIZES } from '@/modules/_shared/constants/sizes.constants';
 import { useProductForm } from './product-form-provider';
 
 type SizeConfig = { colors: string[]; stock: number };
@@ -126,6 +126,7 @@ export function VariantGenerator({ slug, hasMultipleSizes, onGenerate }: Variant
   const { setPendingFiles } = useProductForm();
   const [configs, setConfigs] = useState<Record<string, SizeConfig>>({});
   const [colorImages, setColorImages] = useState<Record<string, { file: File; preview: string }>>({});
+  const [selectedOneSize, setSelectedOneSize] = useState<string>('M');
   const colorImagesRef = useRef(colorImages);
   colorImagesRef.current = colorImages;
 
@@ -138,17 +139,24 @@ export function VariantGenerator({ slug, hasMultipleSizes, onGenerate }: Variant
   useEffect(() => {
     setConfigs((currentConfigs) => {
       if (hasMultipleSizes === false) {
-        return { [ONE_SIZE]: currentConfigs[ONE_SIZE] ?? { colors: [], stock: 10 } };
+        const keys = Object.keys(currentConfigs);
+        const existingKey = keys[0];
+        const existingConfig = existingKey ? currentConfigs[existingKey] : { colors: [], stock: 10 };
+        return { [selectedOneSize]: existingConfig };
       }
-      return currentConfigs[ONE_SIZE] ? {} : currentConfigs;
+      const keys = Object.keys(currentConfigs);
+      if (keys.length === 1 && keys[0] === selectedOneSize) {
+        return {};
+      }
+      return currentConfigs;
     });
-  }, [hasMultipleSizes]);
+  }, [hasMultipleSizes, selectedOneSize]);
 
   const availableSizes: readonly string[] = hasMultipleSizes === undefined
     ? []
     : hasMultipleSizes
       ? DEFAULT_SIZES
-      : [ONE_SIZE];
+      : [selectedOneSize];
   const selectedSizes = availableSizes.filter((size) => configs[size]);
 
   const toggleSize = (size: string) =>
@@ -244,29 +252,46 @@ export function VariantGenerator({ slug, hasMultipleSizes, onGenerate }: Variant
 
       {hasMultipleSizes === undefined ? (
         <p className="text-sm text-gray-500">{t.admin.selectCategoryForSizes}</p>
-      ) : <div>
-        <p className="text-xs text-gray-500 mb-2">
-          {hasMultipleSizes ? t.admin.sizesLabel : t.admin.oneSize}
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {availableSizes.map((size) => (
-            <button
-              key={size}
-              type="button"
-              disabled={!hasMultipleSizes}
-              onClick={() => toggleSize(size)}
-              aria-pressed={Boolean(configs[size])}
-              className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
-                configs[size]
-                  ? 'bg-primary text-white border-primary'
-                  : 'bg-white text-gray-600 border-gray-300 hover:border-primary'
-              }`}
-            >
-              {size === ONE_SIZE ? t.admin.oneSizeValue : size}
-            </button>
-          ))}
+      ) : (
+        <div>
+          <p className="text-xs text-gray-500 mb-2">
+            {hasMultipleSizes ? t.admin.sizesLabel : t.admin.oneSizePickLabel}
+          </p>
+          {hasMultipleSizes ? (
+            <div className="flex flex-wrap gap-2">
+              {availableSizes.map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  onClick={() => toggleSize(size)}
+                  aria-pressed={Boolean(configs[size])}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium border transition-colors ${
+                    configs[size]
+                      ? 'bg-primary text-white border-primary'
+                      : 'bg-white text-gray-600 border-gray-300 hover:border-primary'
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="max-w-xs">
+              <select
+                value={selectedOneSize}
+                onChange={(e) => setSelectedOneSize(e.target.value)}
+                className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary/40"
+              >
+                {DEFAULT_SIZES.map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
-      </div>}
+      )}
 
       {selectedSizes.length > 0 && (
         <div className="space-y-3">
@@ -279,7 +304,7 @@ export function VariantGenerator({ slug, hasMultipleSizes, onGenerate }: Variant
               className="flex items-center gap-4 bg-white border border-gray-200 rounded-lg px-4 py-3"
             >
               <span className="text-sm font-semibold text-gray-700 min-w-10 shrink-0">
-                {size === ONE_SIZE ? t.admin.oneSizeValue : size}
+                {size}
               </span>
               <SizeColorPicker
                 colors={configs[size].colors}
