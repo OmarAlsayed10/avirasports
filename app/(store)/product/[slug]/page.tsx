@@ -17,6 +17,7 @@ import { ReviewsList } from '@/modules/product/components/reviews-list';
 import { ReviewForm } from '@/modules/product/components/review-form';
 import { RelatedProducts } from '@/modules/product/components/related-products';
 import { ProductGridSkeleton } from '@/modules/product/components/product-grid';
+import { ProductViewTracker } from '@/modules/product/components/product-view-tracker';
 import { getLocale, getT } from '@/modules/_shared/i18n/locale';
 import { specRowSchema } from '@/modules/product/product.validators';
 import type { SpecRow } from '@/modules/product/product.validators';
@@ -244,6 +245,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <div className="max-w-content mx-auto px-site py-8">
+      <ProductViewTracker
+        id={product.id}
+        name={product.name}
+        category={product.category?.name}
+        price={basePrice}
+      />
       <Breadcrumb
         items={[
           { label: t.shop.breadcrumb, href: '/shop' },

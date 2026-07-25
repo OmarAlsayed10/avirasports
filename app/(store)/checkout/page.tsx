@@ -19,6 +19,7 @@ import { createZodErrorMap } from '@/modules/_shared/i18n/i18n.zod-error-map';
 import { useAddresses, type SavedAddress } from '@/modules/checkout/hooks/use-addresses';
 import { getDeliveryZones } from '@/modules/checkout/delivery.service';
 import { feeForGovernorate, type DeliveryZone } from '@/modules/_shared/constants/delivery-zones.constants';
+import { trackPixelEvent } from '@/modules/_shared/analytics/meta-pixel-events';
 
 export default function CheckoutPage() {
   const hasMounted = useHasMounted();
@@ -37,6 +38,20 @@ export default function CheckoutPage() {
   useEffect(() => { getDeliveryZones().then(setZones); }, []);
   const governorate = form.watch('governorate');
   const shippingEgp = zones.length ? feeForGovernorate(zones, governorate) : null;
+
+  useEffect(() => {
+    if (items.length === 0) return;
+    const totalValue = items.reduce((sum, item) => sum + item.unitPriceEgp * item.quantity, 0);
+    trackPixelEvent.initiateCheckout(
+      items.map((i) => ({
+        content_id: i.productId,
+        content_name: i.name,
+        price: i.unitPriceEgp,
+        quantity: i.quantity,
+      })),
+      totalValue
+    );
+  }, []); // Fires once when checkout loads
 
   const handleCouponApplied = ({ discountEgp: d, code }: { discountEgp: number; code: string }) => {
     if (code) {

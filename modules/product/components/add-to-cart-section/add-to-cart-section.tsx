@@ -11,6 +11,7 @@ import { QuantitySelector } from '../quantity-selector';
 import { VariantSelector } from '../variant-selector';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { calcDiscountedPrice } from '@/modules/_shared/utils/calc-discounted-price';
+import { trackPixelEvent } from '@/modules/_shared/analytics/meta-pixel-events';
 import { addToCartSectionTokens } from './add-to-cart-section.tokens';
 import type { AddToCartSectionProps } from './add-to-cart-section.types';
 
@@ -57,6 +58,12 @@ export function AddToCartSection({ product, variants, onVariantSelect }: AddToCa
       },
       quantity
     );
+    trackPixelEvent.addToCart({
+      content_id: product.id,
+      content_name: product.name,
+      price: effectivePrice,
+      quantity: quantity,
+    });
     setCartDrawerOpen(true);
     toast.success(t.product.addedToCart);
   };
