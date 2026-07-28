@@ -12,6 +12,8 @@ export default async function EditProductPage({ params }: { params: { id: string
       include: {
         images: { orderBy: { sortOrder: 'asc' } },
         variants: true,
+        addOnOptions: true,
+        sizeWeights: true,
       },
     }),
     prisma.category.findMany({ orderBy: { sortOrder: 'asc' } }),
@@ -49,6 +51,8 @@ export default async function EditProductPage({ params }: { params: { id: string
     discountPercent: product.discountPercent ?? null,
     isActive: product.isActive,
     isFeatured: product.isFeatured,
+    isHolidayOffer: product.isHolidayOffer,
+    hasReturnPolicy: product.hasReturnPolicy,
     images: product.images.map((img) => ({
       id: img.id,
       url: img.url,
@@ -64,6 +68,8 @@ export default async function EditProductPage({ params }: { params: { id: string
       stockCount: v.stockCount,
       imageUrl: v.imageUrl ?? null,
     })),
+    addOnOptions: product.addOnOptions.map((option) => { const variants = option.variants as { sizes?: string[]; colors?: string[] }; return { id: option.id, name: option.name, nameAr: option.nameAr ?? '', imageUrl: option.imageUrl ?? '', basePriceEgp: Number(option.basePriceEgp), sizes: variants.sizes ?? [], colors: variants.colors ?? [] }; }),
+    sizeWeights: product.sizeWeights.map((entry) => ({ id: entry.id, size: entry.size as any, minWeightKg: entry.minWeightKg ? Number(entry.minWeightKg) : null, maxWeightKg: entry.maxWeightKg ? Number(entry.maxWeightKg) : null })),
     quantityOffers: existingQuantityOffers.map((qo: {
       id: string;
       quantity: number;

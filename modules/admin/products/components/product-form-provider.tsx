@@ -60,9 +60,12 @@ export function ProductFormProvider({ children, defaultValues, productId }: Prod
       isActive: true,
       isFeatured: false,
       isHolidayOffer: false,
+      hasReturnPolicy: true,
       images: [],
       variants: [],
       quantityOffers: [],
+      addOnOptions: [],
+      sizeWeights: [],
       ...defaultValues,
     },
   });

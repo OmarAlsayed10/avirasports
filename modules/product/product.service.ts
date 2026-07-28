@@ -34,13 +34,14 @@ export async function createProduct(data: AdminProductInput) {
   const categoryError = await productCategoryError(parsed.data);
   if (categoryError) return { error: categoryError };
 
-  const { images, variants, specs, quantityOffers, ...rest } = parsed.data;
+  const { images, variants, specs, quantityOffers, addOnOptions, sizeWeights, ...rest } = parsed.data;
 
   try {
     const product = await prisma.product.create({
       data: {
         ...rest,
         specs,
+        addOnOptions: { create: addOnOptions.map((option) => ({ name: option.name, nameAr: option.nameAr || null, imageUrl: option.imageUrl || null, basePriceEgp: option.basePriceEgp, variants: { sizes: option.sizes, colors: option.colors } })) },
         images: {
           create: images.map((img, i) => ({
             url: img.url,
@@ -49,6 +50,7 @@ export async function createProduct(data: AdminProductInput) {
             sortOrder: img.sortOrder ?? i,
           })),
         },
+        sizeWeights: { create: sizeWeights.map((entry) => ({ size: entry.size, minWeightKg: entry.minWeightKg ?? null, maxWeightKg: entry.maxWeightKg ?? null })) },
         variants: {
           create: variants.map((v) => ({
             sku: v.sku,
@@ -96,7 +98,7 @@ export async function updateProduct(id: string, data: AdminProductInput) {
   const categoryError = await productCategoryError(parsed.data);
   if (categoryError) return { error: categoryError };
 
-  const { images, variants, specs, quantityOffers, ...rest } = parsed.data;
+  const { images, variants, specs, quantityOffers, addOnOptions, sizeWeights, ...rest } = parsed.data;
 
   const newImageUrls = new Set(images.map((img) => img.url));
   const oldImages = await prisma.productImage.findMany({
@@ -114,6 +116,8 @@ export async function updateProduct(id: string, data: AdminProductInput) {
     await prisma.$transaction(
       async (tx) => {
         await tx.productImage.deleteMany({ where: { productId: id } });
+        await tx.productAddOn.deleteMany({ where: { productId: id } });
+        await tx.productSizeWeight.deleteMany({ where: { productId: id } });
 
         const currentVariants = await tx.productVariant.findMany({
           where: { productId: id },
@@ -135,6 +139,8 @@ export async function updateProduct(id: string, data: AdminProductInput) {
           data: {
             ...rest,
             specs,
+            sizeWeights: { create: sizeWeights.map((entry) => ({ size: entry.size, minWeightKg: entry.minWeightKg ?? null, maxWeightKg: entry.maxWeightKg ?? null })) },
+            addOnOptions: { create: addOnOptions.map((option) => ({ name: option.name, nameAr: option.nameAr || null, imageUrl: option.imageUrl || null, basePriceEgp: option.basePriceEgp, variants: { sizes: option.sizes, colors: option.colors } })) },
             images: {
               create: images.map((img, i) => ({
                 url: img.url,

@@ -71,6 +71,8 @@ export const getProduct = unstable_cache(
         images: { orderBy: { sortOrder: 'asc' as const } },
         variants: true,
         category: true,
+        addOnOptions: true,
+        sizeWeights: { orderBy: { size: 'asc' } },
         reviews: {
           take: 10,
           orderBy: { createdAt: 'desc' },

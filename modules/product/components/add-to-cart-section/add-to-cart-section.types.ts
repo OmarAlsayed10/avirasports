@@ -12,5 +12,6 @@ export interface AddToCartSectionProduct {
 export interface AddToCartSectionProps {
   product: AddToCartSectionProduct;
   variants: import('../variant-selector/variant-selector.types').VariantOption[];
+  quantityOffers?: { id: string; quantity: number; offerPriceEgp: number }[];
   onVariantSelect?: (variant: import('../variant-selector/variant-selector.types').VariantOption | null) => void;
 }

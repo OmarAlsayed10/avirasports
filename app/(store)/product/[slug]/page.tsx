@@ -2,11 +2,10 @@ import Link from 'next/link';
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { Star } from 'lucide-react';
+import { Scale, ShieldCheck, Star } from 'lucide-react';
 import { getProduct, getRelatedProducts, getBestSellers, getAlsoBought, getUserProductReview } from '@/modules/product/product.queries';
 import { getProductOffers, getProductQuantityOffers } from '@/modules/admin/offers/offers.queries';
 import { OfferBanner } from '@/modules/product/components/offer-banner';
-import { QuantityOffersBanner } from '@/modules/product/components/quantity-offers-banner';
 import { QuantityOfferPopup } from '@/modules/product/components/quantity-offer-popup';
 import { auth } from '@/infrastructure/auth/auth.config';
 import { Breadcrumb } from '@/modules/_shared/ui/breadcrumb';
@@ -94,6 +93,8 @@ function TabsSection({
   locale,
   reviewGate,
   t,
+  hasReturnPolicy,
+  sizeWeights,
 }: {
   description: string;
   specs: SpecRow[];
@@ -101,6 +102,8 @@ function TabsSection({
   locale: 'en' | 'ar';
   reviewGate: React.ReactNode;
   t: Translations;
+  hasReturnPolicy?: boolean;
+  sizeWeights?: { id: string; size: string; minWeightKg: unknown; maxWeightKg: unknown }[];
 }) {
   return (
     <div className="border-t border-border-primary/20 pt-8">
@@ -108,6 +111,41 @@ function TabsSection({
         <section>
           <h2 className="text-newsletter-sub font-semibold text-text-primary mb-4">{t.product.descriptionTab}</h2>
           <p className="text-base text-text-body leading-relaxed">{description}</p>
+          {hasReturnPolicy && (
+            <div className="mt-6 flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/5 px-4 py-3.5">
+              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+              <div>
+                <p className="text-sm font-semibold text-text-primary">
+                  {locale === 'ar' ? 'ضمان الاستبدال والاسترجاع' : 'Replacement & refund promise'}
+                </p>
+                <p className="mt-0.5 text-sm leading-6 text-text-secondary">
+                  {locale === 'ar'
+                    ? 'استبدال خلال 14 يوم واسترجاع المبلغ عند استلام المندوب للطلب.'
+                    : '14-day replacement and refund when delivery is with the courier.'}
+                </p>
+              </div>
+            </div>
+          )}
+          {sizeWeights && sizeWeights.length > 0 && (
+            <div className="mt-6 rounded-xl border border-border-primary/20 bg-bg-page p-4">
+              <div className="flex items-center gap-2 text-text-primary">
+                <Scale className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold">{locale === 'ar' ? 'دليل الوزن حسب المقاس' : 'Size & weight guide'}</h3>
+              </div>
+              <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                {sizeWeights.map((weight) => (
+                  <div key={weight.id} className="flex items-center justify-between rounded-lg bg-bg-white px-3 py-2 border border-border-primary/10">
+                    <span className="font-semibold text-text-primary">{weight.size}</span>
+                    <span className="text-sm text-text-secondary">
+                      {weight.minWeightKg != null && weight.maxWeightKg != null
+                        ? `${Number(weight.minWeightKg)}–${Number(weight.maxWeightKg)} kg`
+                        : '—'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
         {specs.length > 0 && (
           <section>
@@ -273,6 +311,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
           discountPercent: product.discountPercent,
         }}
         variants={variants}
+        quantityOffers={quantityOffers.map((qo) => ({
+          id: qo.id,
+          quantity: qo.quantity,
+          offerPriceEgp: Number(qo.offerPriceEgp),
+        }))}
       >
         <div>
           <p className="text-sm font-medium text-text-secondary mb-1">{product.brand}</p>
@@ -317,19 +360,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <OfferBanner offers={offers} locale={locale} />
       </ProductDetailSection>
 
-      {quantityOffers.length > 0 && (
-        <div className="mt-8">
-          <QuantityOffersBanner
-            offers={quantityOffers.map((qo) => ({
-              id: qo.id,
-              quantity: qo.quantity,
-              offerPriceEgp: Number(qo.offerPriceEgp),
-            }))}
-            basePrice={basePrice}
-            locale={locale}
-          />
-        </div>
-      )}
+
 
       <div className="mt-12">
         <TabsSection
@@ -337,6 +368,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
           specs={specs}
           locale={locale}
           t={t}
+          hasReturnPolicy={product.hasReturnPolicy}
+          sizeWeights={product.sizeWeights}
           reviews={product.reviews.map((r) => ({
             id: r.id,
             rating: r.rating,

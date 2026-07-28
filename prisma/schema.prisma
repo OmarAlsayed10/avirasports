@@ -146,6 +146,7 @@ model Product {
   gender          Gender           @default(ALL)
   isActive        Boolean          @default(true)
   isFeatured      Boolean          @default(false)
+  hasReturnPolicy Boolean          @default(true)
   isHolidayOffer  Boolean          @default(false)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
@@ -158,6 +159,8 @@ model Product {
   triggeredOffers OfferTriggerProduct[] @relation("OfferTriggerProducts")
   rewardOffers    Offer[]               @relation("OfferReward")
   quantityOffers  ProductQuantityOffer[]
+  addOnOptions    ProductAddOn[]
+  sizeWeights     ProductSizeWeight[]
 
   @@index([categoryId])
   @@index([brand])
@@ -177,6 +180,31 @@ model ProductVariant {
   orderItems       OrderItem[]
 }
 
+model ProductAddOn {
+  id           String   @id @default(cuid())
+  productId    String
+  name         String
+  nameAr       String?
+  imageUrl     String?
+  basePriceEgp Decimal  @db.Decimal(10, 2)
+  variants     Json     @default("{}")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductSizeWeight {
+  id          String   @id @default(cuid())
+  productId   String
+  size        String
+  minWeightKg Decimal? @db.Decimal(6, 2)
+  maxWeightKg Decimal? @db.Decimal(6, 2)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, size])
+}
 model ProductImage {
   id        String  @id @default(cuid())
   productId String

@@ -16,6 +16,8 @@ import { ProductFormProvider, useProductForm } from './product-form-provider';
 import { ImagesSection } from './images';
 import { QuantityOffersSection } from './quantity-offers';
 import { ProductPreviewModal } from './product-preview-modal';
+import { AddOnOptionsSection } from './add-on-options';
+import { SizeWeightsSection } from './size-weights';
 
 interface ProductFormProps {
   categories: Category[];
@@ -60,6 +62,8 @@ function ProductFormInnerWithEdit({
       <PricingSection />
       <SettingsSection />
       <QuantityOffersSection />
+      <AddOnOptionsSection />
+      <SizeWeightsSection />
       <SpecsSection />
       <ImagesSection />
       <VariantsSection hasMultipleSizes={selectedCategory?.hasMultipleSizes} />

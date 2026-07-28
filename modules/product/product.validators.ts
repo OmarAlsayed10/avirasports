@@ -48,6 +48,7 @@ export const adminProductSchema = z.object({
   isActive: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
   isHolidayOffer: z.boolean().default(false),
+  hasReturnPolicy: z.boolean().default(true),
   images: z.array(
     z.object({
       id: z.string().optional(),
@@ -74,6 +75,25 @@ export const adminProductSchema = z.object({
       offerPriceEgp: z.coerce.number().positive('Price must be positive'),
       isActive: z.boolean().default(true),
       popupIntervalMinutes: z.coerce.number().int().min(1).max(120).default(10),
+    })
+  ).default([]),
+  addOnOptions: z.array(
+    z.object({
+      id: z.string().optional(),
+      name: z.string().min(1, 'Piece name is required'),
+      nameAr: z.string().optional(),
+      imageUrl: z.string().optional().nullable(),
+      basePriceEgp: z.coerce.number().positive('Price must be positive'),
+      sizes: z.array(z.string()).default([]),
+      colors: z.array(z.string()).default([]),
+    })
+  ).default([]),
+  sizeWeights: z.array(
+    z.object({
+      id: z.string().optional(),
+      size: z.enum(['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL', '6XL'], { required_error: 'Choose a size' }),
+      minWeightKg: z.coerce.number().min(0).optional().nullable(),
+      maxWeightKg: z.coerce.number().min(0).optional().nullable(),
     })
   ).default([]),
 });

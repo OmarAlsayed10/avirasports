@@ -6,7 +6,7 @@ import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { DEFAULT_SIZES } from '@/modules/_shared/constants/sizes.constants';
 import { useProductForm } from './product-form-provider';
 
-type SizeConfig = { colors: string[]; stock: number };
+type SizeConfig = { colors: string[]; stock: number; minWeightKg: string; maxWeightKg: string };
 
 export type GeneratedVariant = {
   sku: string;
@@ -141,7 +141,7 @@ export function VariantGenerator({ slug, hasMultipleSizes, onGenerate }: Variant
       if (hasMultipleSizes === false) {
         const keys = Object.keys(currentConfigs);
         const existingKey = keys[0];
-        const existingConfig = existingKey ? currentConfigs[existingKey] : { colors: [], stock: 10 };
+        const existingConfig = existingKey ? currentConfigs[existingKey] : { colors: [], stock: 10, minWeightKg: '', maxWeightKg: '' };
         return { [selectedOneSize]: existingConfig };
       }
       const keys = Object.keys(currentConfigs);
@@ -163,7 +163,7 @@ export function VariantGenerator({ slug, hasMultipleSizes, onGenerate }: Variant
     setConfigs((prev) => {
       const next = { ...prev };
       if (next[size]) delete next[size];
-      else next[size] = { colors: [], stock: 10 };
+      else next[size] = { colors: [], stock: 10, minWeightKg: '', maxWeightKg: '' };
       return next;
     });
 
@@ -189,6 +189,9 @@ export function VariantGenerator({ slug, hasMultipleSizes, onGenerate }: Variant
 
   const updateStock = (size: string, stock: number) =>
     setConfigs((prev) => ({ ...prev, [size]: { ...prev[size], stock } }));
+
+  const updateWeight = (size: string, key: 'minWeightKg' | 'maxWeightKg', value: string) =>
+    setConfigs((prev) => ({ ...prev, [size]: { ...prev[size], [key]: value } }));
 
   const handleImageUpload = (hex: string, file: File) => {
     if (colorImages[hex]) URL.revokeObjectURL(colorImages[hex].preview);
@@ -220,16 +223,16 @@ export function VariantGenerator({ slug, hasMultipleSizes, onGenerate }: Variant
     const base = slug || 'product';
 
     const newVariants: GeneratedVariant[] = selectedSizes.flatMap((size) => {
-      const { colors, stock } = configs[size];
+      const { colors, stock, minWeightKg, maxWeightKg } = configs[size];
       return colors.length > 0
         ? colors.map((color): GeneratedVariant => ({
             sku: `${base}-${size}-${color.replace('#', '')}`,
-            attributes: { size, color },
+            attributes: { size, color, ...(minWeightKg ? { minWeightKg } : {}), ...(maxWeightKg ? { maxWeightKg } : {}) },
             stockCount: stock,
             priceOverrideEgp: null,
             imageUrl: colorImages[color] ? `pending:color-img-${color.replace('#', '')}` : null,
           }))
-        : [{ sku: `${base}-${size}`, attributes: { size }, stockCount: stock, priceOverrideEgp: null, imageUrl: null }];
+        : [{ sku: `${base}-${size}`, attributes: { size, ...(minWeightKg ? { minWeightKg } : {}), ...(maxWeightKg ? { maxWeightKg } : {}) }, stockCount: stock, priceOverrideEgp: null, imageUrl: null }];
     });
 
     const pendingEntries = Object.entries(colorImages)
@@ -306,7 +309,10 @@ export function VariantGenerator({ slug, hasMultipleSizes, onGenerate }: Variant
               <span className="text-sm font-semibold text-gray-700 min-w-10 shrink-0">
                 {size}
               </span>
-              <SizeColorPicker
+              <div className="grid grid-cols-2 gap-2 shrink-0">
+                <label className="text-xs text-gray-500">Weight from (kg)<input type="number" min="0" value={configs[size].minWeightKg} onChange={(e) => updateWeight(size, 'minWeightKg', e.target.value)} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" /></label>
+                <label className="text-xs text-gray-500">to (kg)<input type="number" min="0" value={configs[size].maxWeightKg} onChange={(e) => updateWeight(size, 'maxWeightKg', e.target.value)} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" /></label>
+              </div>              <SizeColorPicker
                 colors={configs[size].colors}
                 colorPreviews={colorPreviews}
                 addLabel={t.admin.addColor}

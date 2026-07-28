@@ -15,6 +15,9 @@ export type CartItem = {
   stockCount?: number;
   attributes?: Record<string, string>;
   note?: string;
+  addOnForProductId?: string;
+  addOnId?: string;
+  quantityOfferId?: string;
 };
 
 type CartStore = {
@@ -36,12 +39,12 @@ export const useCartStore = create<CartStore>()(
       addItem: (item, qty = 1) =>
         set((state) => {
           const existing = state.items.find(
-            (i) => i.productId === item.productId && i.variantId === item.variantId
+            (i) => i.productId === item.productId && i.variantId === item.variantId && i.addOnForProductId === item.addOnForProductId && i.quantityOfferId === item.quantityOfferId
           );
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.productId === item.productId && i.variantId === item.variantId
+                i.productId === item.productId && i.variantId === item.variantId && i.addOnForProductId === item.addOnForProductId && i.quantityOfferId === item.quantityOfferId
                   ? { ...i, quantity: i.quantity + qty }
                   : i
               ),

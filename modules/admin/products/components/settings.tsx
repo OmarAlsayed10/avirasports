@@ -23,6 +23,10 @@ export function SettingsSection() {
           <input type="checkbox" {...register('isHolidayOffer')} className="w-4 h-4 accent-primary rounded" />
           <span className="text-sm text-gray-700">{t.admin.holidayOffer}</span>
         </label>
+        <label className="flex items-center gap-2.5 cursor-pointer select-none">
+          <input type="checkbox" {...register('hasReturnPolicy')} className="w-4 h-4 accent-primary rounded" />
+          <span className="text-sm text-gray-700">14-day replacement & refund on delivery</span>
+        </label>
       </div>
     </SectionShell>
   );
