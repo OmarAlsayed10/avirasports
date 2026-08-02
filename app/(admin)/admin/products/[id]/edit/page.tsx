@@ -68,7 +68,7 @@ export default async function EditProductPage({ params }: { params: { id: string
       stockCount: v.stockCount,
       imageUrl: v.imageUrl ?? null,
     })),
-    addOnOptions: product.addOnOptions.map((option) => { const variants = option.variants as { sizes?: string[]; colors?: string[] }; return { id: option.id, name: option.name, nameAr: option.nameAr ?? '', imageUrl: option.imageUrl ?? '', basePriceEgp: Number(option.basePriceEgp), sizes: variants.sizes ?? [], colors: variants.colors ?? [] }; }),
+    addOnOptions: product.addOnOptions.map((option) => ({ id: option.id, name: option.name, nameAr: option.nameAr ?? '', basePriceEgp: Number(option.basePriceEgp) })),
     sizeWeights: product.sizeWeights.map((entry) => ({ id: entry.id, size: entry.size as any, minWeightKg: entry.minWeightKg ? Number(entry.minWeightKg) : null, maxWeightKg: entry.maxWeightKg ? Number(entry.maxWeightKg) : null })),
     quantityOffers: existingQuantityOffers.map((qo: {
       id: string;

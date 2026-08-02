@@ -49,7 +49,7 @@ export default function CartPage() {
         <div className={tk.page.list}>
           <div className={tk.page.itemsCard}>
             {items.map((item) => (
-              <div key={`${item.productId}-${item.variantId ?? ''}`} className={tk.page.itemPadding}>
+              <div key={`${item.productId}-${item.variantId ?? ''}-${item.addOnId ?? ''}`} className={tk.page.itemPadding}>
                 <CartItemRow
                   item={item}
                   variant="drawer"

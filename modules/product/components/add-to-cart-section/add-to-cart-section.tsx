@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Heart, ShoppingCart, Tag } from "lucide-react";
 import { toast } from "sonner";
 import { useCartStore } from "@/modules/cart/cart.store";
@@ -19,10 +20,11 @@ export function AddToCartSection({
   product,
   variants,
   quantityOffers = [],
-  onVariantSelect,
+  addOnOptions = [],
+  onVariantPreview,
 }: AddToCartSectionProps) {
   const hasMounted = useHasMounted();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
 
   const defaultOffer = quantityOffers.length > 0 ? quantityOffers[0] : null;
 
@@ -34,6 +36,12 @@ export function AddToCartSection({
   );
   const [quantity, setQuantity] = useState(defaultOffer?.quantity ?? 1);
   const [note, setNote] = useState("");
+  const [pieceVariantIds, setPieceVariantIds] = useState<
+    Record<string, string | null>
+  >({});
+  const [pieceImages, setPieceImages] = useState<Record<string, string | null>>(
+    {},
+  );
 
   const addItem = useCartStore((s) => s.addItem);
   const setCartDrawerOpen = useUIStore((s) => s.setCartDrawerOpen);
@@ -114,6 +122,33 @@ export function AddToCartSection({
     toast.success(t.product.addedToCart);
   };
 
+  const handleAddPiece = (piece: {
+    id: string;
+    name: string;
+    nameAr?: string | null;
+    basePriceEgp: number;
+  }) => {
+    const variant =
+      variants.find((v) => v.id === pieceVariantIds[piece.id]) ?? null;
+    addItem({
+      productId: product.id,
+      variantId: variant?.id,
+      name: piece.name,
+      nameAr: piece.nameAr ?? undefined,
+      brand: product.brand,
+      imageUrl: variant?.imageUrl || product.imageUrl,
+      unitPriceEgp: calcDiscountedPrice(
+        piece.basePriceEgp,
+        product.discountPercent,
+      ),
+      stockCount: variant?.stockCount ?? stockCount,
+      attributes: variant?.attributes ?? undefined,
+      addOnId: piece.id,
+    });
+    setCartDrawerOpen(true);
+    toast.success(t.product.addedToCart);
+  };
+
   const handleWishlist = () => {
     toggleWishlist({
       productId: product.id,
@@ -144,10 +179,8 @@ export function AddToCartSection({
         <VariantSelector
           variants={variants}
           selectedId={selectedVariantId}
-          onSelect={(id) => {
-            setSelectedVariantId(id);
-            onVariantSelect?.(variants.find((v) => v.id === id) ?? null);
-          }}
+          onSelect={setSelectedVariantId}
+          onPreview={(variant) => onVariantPreview?.(variant)}
         />
       )}
 
@@ -235,6 +268,80 @@ export function AddToCartSection({
               {t.product.youSave(savingsEgp)}
             </p>
           )}
+        </div>
+      )}
+
+      {addOnOptions.length > 0 && (
+        <div className="rounded-xl border border-border-primary/20 p-3 space-y-2">
+          <span className="text-xs font-semibold text-text-secondary uppercase tracking-wide">
+            {t.product.singlePiecesTitle}
+          </span>
+
+          {addOnOptions.map((piece) => (
+            <div
+              key={piece.id}
+              className="rounded-lg border border-border-primary/20 bg-bg-white p-3 text-sm space-y-3"
+            >
+              <div className="flex items-center gap-3">
+                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-tag bg-bg-page">
+                  <Image
+                    src={
+                      pieceImages[piece.id] ||
+                      product.imageUrl ||
+                      "/placeholder-product.jpg"
+                    }
+                    alt={piece.name}
+                    fill
+                    className="object-contain p-1"
+                    sizes="80px"
+                  />
+                </div>
+                <span className="flex-1 min-w-0 font-medium text-text-primary">
+                  {locale === "ar" && piece.nameAr ? piece.nameAr : piece.name}
+                </span>
+                <span className="shrink-0 font-semibold text-text-primary">
+                  {t.product.price(
+                    calcDiscountedPrice(
+                      piece.basePriceEgp,
+                      product.discountPercent,
+                    ).toString(),
+                  )}
+                </span>
+              </div>
+
+              <VariantSelector
+                variants={variants}
+                selectedId={pieceVariantIds[piece.id] ?? null}
+                onSelect={(id) =>
+                  setPieceVariantIds((current) => ({
+                    ...current,
+                    [piece.id]: id,
+                  }))
+                }
+                onPreview={(variant) =>
+                  setPieceImages((current) => ({
+                    ...current,
+                    [piece.id]: variant?.imageUrl ?? null,
+                  }))
+                }
+              />
+
+              <button
+                type="button"
+                onClick={() => handleAddPiece(piece)}
+                disabled={
+                  outOfStock ||
+                  (hasMultipleVariants && !pieceVariantIds[piece.id])
+                }
+                aria-label={`${t.product.addToCart} — ${piece.name}`}
+                className="w-full rounded-btn-sm bg-primary-btn px-3 py-2 text-xs font-semibold text-text-on-dark disabled:opacity-50"
+              >
+                {hasMultipleVariants && !pieceVariantIds[piece.id]
+                  ? t.product.options
+                  : t.product.addToCart}
+              </button>
+            </div>
+          ))}
         </div>
       )}
 

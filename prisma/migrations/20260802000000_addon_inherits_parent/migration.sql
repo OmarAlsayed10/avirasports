@@ -1,0 +1,2 @@
+ALTER TABLE "ProductAddOn" DROP COLUMN IF EXISTS "imageUrl";
+ALTER TABLE "ProductAddOn" DROP COLUMN IF EXISTS "variants";

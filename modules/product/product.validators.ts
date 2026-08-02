@@ -82,10 +82,7 @@ export const adminProductSchema = z.object({
       id: z.string().optional(),
       name: z.string().min(1, 'Piece name is required'),
       nameAr: z.string().optional(),
-      imageUrl: z.string().optional().nullable(),
       basePriceEgp: z.coerce.number().positive('Price must be positive'),
-      sizes: z.array(z.string()).default([]),
-      colors: z.array(z.string()).default([]),
     })
   ).default([]),
   sizeWeights: z.array(

@@ -85,7 +85,7 @@ export function CartDrawer() {
             <div className={cartDrawerTokens.itemsList}>
               {items.map((item) => (
                 <CartItemRow
-                  key={`${item.productId}-${item.variantId ?? ''}`}
+                  key={`${item.productId}-${item.variantId ?? ''}-${item.addOnId ?? ''}`}
                   item={item}
                   variant="drawer"
                   onUpdateQuantity={updateQuantity}

@@ -8,6 +8,7 @@ import { getOrderStatusLabels, ORDER_STATUS_COLORS } from '@/modules/_shared/con
 import type { Prisma } from '@prisma/client';
 import type { Metadata } from 'next';
 import { getT } from '@/modules/_shared/i18n/locale';
+import { variantAttributeLabel } from '@/modules/_shared/utils/variant-attribute-label';
 
 type OrderItem = Prisma.OrderItemGetPayload<Record<string, never>>;
 
@@ -186,7 +187,7 @@ export default async function AdminOrderDetailPage({
                             />
                           ) : (
                             <span key={k} className="text-xs text-gray-400">
-                              {k}: {v}
+                              {variantAttributeLabel(k, t)}: {v}
                             </span>
                           ),
                       )}

@@ -185,9 +185,7 @@ model ProductAddOn {
   productId    String
   name         String
   nameAr       String?
-  imageUrl     String?
   basePriceEgp Decimal  @db.Decimal(10, 2)
-  variants     Json     @default("{}")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)

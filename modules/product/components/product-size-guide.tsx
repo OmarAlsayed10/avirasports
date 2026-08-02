@@ -35,7 +35,7 @@ export function ProductSizeGuide({
                 </dt>
                 <dd className="text-sm text-text-secondary">
                   {weight.minWeightKg != null && weight.maxWeightKg != null
-                    ? `${weight.minWeightKg}–${weight.maxWeightKg} kg`
+                    ? t.weightRange(weight.minWeightKg, weight.maxWeightKg)
                     : "—"}
                 </dd>
               </div>

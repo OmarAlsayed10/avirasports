@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { cn } from '@/modules/_shared/utils/cn';
 import { productGalleryTokens } from './product-gallery.tokens';
@@ -8,8 +8,21 @@ import type { ProductGalleryProps } from './product-gallery.types';
 
 export function ProductGallery({ images, productName, overrideImageUrl }: ProductGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const selectedImage = overrideImageUrl
-    ? { url: overrideImageUrl, alt: productName }
+  const [externalUrl, setExternalUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!overrideImageUrl) return setExternalUrl(null);
+    const index = images.findIndex((img) => img.url === overrideImageUrl);
+    if (index >= 0) {
+      setSelectedIndex(index);
+      setExternalUrl(null);
+    } else {
+      setExternalUrl(overrideImageUrl);
+    }
+  }, [overrideImageUrl, images]);
+
+  const selectedImage = externalUrl
+    ? { url: externalUrl, alt: productName }
     : (images[selectedIndex] ?? { url: '/placeholder-product.jpg', alt: productName });
 
   return (
@@ -31,7 +44,10 @@ export function ProductGallery({ images, productName, overrideImageUrl }: Produc
             <button
               key={i}
               role="listitem"
-              onClick={() => setSelectedIndex(i)}
+              onClick={() => {
+                setSelectedIndex(i);
+                setExternalUrl(null);
+              }}
               aria-label={`View image ${i + 1}: ${img.alt}`}
               aria-current={i === selectedIndex}
               className={cn(

@@ -310,8 +310,8 @@ export function VariantGenerator({ slug, hasMultipleSizes, onGenerate }: Variant
                 {size}
               </span>
               <div className="grid grid-cols-2 gap-2 shrink-0">
-                <label className="text-xs text-gray-500">Weight from (kg)<input type="number" min="0" value={configs[size].minWeightKg} onChange={(e) => updateWeight(size, 'minWeightKg', e.target.value)} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" /></label>
-                <label className="text-xs text-gray-500">to (kg)<input type="number" min="0" value={configs[size].maxWeightKg} onChange={(e) => updateWeight(size, 'maxWeightKg', e.target.value)} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" /></label>
+                <label className="text-xs text-gray-500">{t.admin.weightFromKg}<input type="number" min="0" value={configs[size].minWeightKg} onChange={(e) => updateWeight(size, 'minWeightKg', e.target.value)} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" /></label>
+                <label className="text-xs text-gray-500">{t.admin.weightToKg}<input type="number" min="0" value={configs[size].maxWeightKg} onChange={(e) => updateWeight(size, 'maxWeightKg', e.target.value)} className="mt-1 w-full rounded border border-gray-300 px-2 py-1.5 text-sm" /></label>
               </div>              <SizeColorPicker
                 colors={configs[size].colors}
                 colorPreviews={colorPreviews}

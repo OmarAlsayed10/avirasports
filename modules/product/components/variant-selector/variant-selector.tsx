@@ -6,12 +6,13 @@ import { useLocale } from "@/modules/_shared/i18n/i18n.context";
 import { variantSelectorTokens } from "./variant-selector.tokens";
 import type { VariantSelectorProps } from "./variant-selector.types";
 import { ONE_SIZE } from "@/modules/_shared/constants/sizes.constants";
+import { variantAttributeLabel } from "@/modules/_shared/utils/variant-attribute-label";
 
 function isColorKey(key: string): boolean {
   return key.toLowerCase() === "color";
 }
 
-export function VariantSelector({ variants, selectedId, onSelect }: VariantSelectorProps) {
+export function VariantSelector({ variants, selectedId, onSelect, onPreview }: VariantSelectorProps) {
   const { t } = useLocale();
   const [selections, setSelections] = useState<Record<string, string>>({});
   const vs = variantSelectorTokens;
@@ -25,11 +26,7 @@ export function VariantSelector({ variants, selectedId, onSelect }: VariantSelec
     });
   }, [variants]);
 
-  const attributeLabel = (key: string) => {
-    if (key.toLowerCase() === "size") return t.product.size;
-    if (key.toLowerCase() === "color") return t.product.color;
-    return key;
-  };
+  const attributeLabel = (key: string) => variantAttributeLabel(key, t);
 
   const attributeValue = (value: string) => value === ONE_SIZE ? t.product.oneSize : value;
 
@@ -69,11 +66,22 @@ export function VariantSelector({ variants, selectedId, onSelect }: VariantSelec
     return { available, inStock };
   }
 
+  function previewFor(selection: Record<string, string>) {
+    if (!onPreview) return;
+    const entries = Object.entries(selection);
+    if (entries.length === 0) return onPreview(null);
+    const partial = variants.find((v) =>
+      entries.every(([k, val]) => v.attributes[k] === val),
+    );
+    onPreview(partial ?? null);
+  }
+
   function handleSelect(key: string, value: string) {
     if (selections[key] === value) {
       const next = { ...selections };
       delete next[key];
       setSelections(next);
+      previewFor(next);
       onSelect(null);
       return;
     }
@@ -89,6 +97,7 @@ export function VariantSelector({ variants, selectedId, onSelect }: VariantSelec
     });
 
     setSelections(next);
+    previewFor(next);
 
     const matched = variants.find((v) => allKeys.every((k) => v.attributes[k] === next[k]));
     onSelect(matched?.id ?? null);

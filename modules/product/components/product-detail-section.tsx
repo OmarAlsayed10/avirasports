@@ -13,10 +13,11 @@ interface ProductDetailSectionProps {
   product: AddToCartSectionProduct;
   variants: VariantOption[];
   quantityOffers?: { id: string; quantity: number; offerPriceEgp: number }[];
+  addOnOptions?: { id: string; name: string; nameAr?: string | null; basePriceEgp: number }[];
   children: React.ReactNode;
 }
 
-export function ProductDetailSection({ images, productName, product, variants, quantityOffers = [], children }: ProductDetailSectionProps) {
+export function ProductDetailSection({ images, productName, product, variants, quantityOffers = [], addOnOptions = [], children }: ProductDetailSectionProps) {
   const { t } = useLocale();
   const [colorImageUrl, setColorImageUrl] = useState<string | null>(null);
 
@@ -35,7 +36,8 @@ export function ProductDetailSection({ images, productName, product, variants, q
           product={product}
           variants={variants}
           quantityOffers={quantityOffers}
-          onVariantSelect={(v) => setColorImageUrl(v?.imageUrl ?? null)}
+          addOnOptions={addOnOptions}
+          onVariantPreview={(v) => setColorImageUrl(v?.imageUrl ?? null)}
         />
         {totalStock > 0 ? (
           <p className="text-sm text-success font-medium">{t.product.inStock}</p>

@@ -116,12 +116,10 @@ function TabsSection({
               <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
               <div>
                 <p className="text-sm font-semibold text-text-primary">
-                  {locale === 'ar' ? 'ضمان الاستبدال والاسترجاع' : 'Replacement & refund promise'}
+                  {t.product.returnPolicyTitle}
                 </p>
                 <p className="mt-0.5 text-sm leading-6 text-text-secondary">
-                  {locale === 'ar'
-                    ? 'استبدال خلال 14 يوم واسترجاع المبلغ عند استلام المندوب للطلب.'
-                    : '14-day replacement and refund when delivery is with the courier.'}
+                  {t.product.returnPolicyBody}
                 </p>
               </div>
             </div>
@@ -130,7 +128,7 @@ function TabsSection({
             <div className="mt-6 rounded-xl border border-border-primary/20 bg-bg-page p-4">
               <div className="flex items-center gap-2 text-text-primary">
                 <Scale className="h-5 w-5 text-primary" />
-                <h3 className="font-semibold">{locale === 'ar' ? 'دليل الوزن حسب المقاس' : 'Size & weight guide'}</h3>
+                <h3 className="font-semibold">{t.product.sizeWeightGuide}</h3>
               </div>
               <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                 {sizeWeights.map((weight) => (
@@ -138,7 +136,7 @@ function TabsSection({
                     <span className="font-semibold text-text-primary">{weight.size}</span>
                     <span className="text-sm text-text-secondary">
                       {weight.minWeightKg != null && weight.maxWeightKg != null
-                        ? `${Number(weight.minWeightKg)}–${Number(weight.maxWeightKg)} kg`
+                        ? t.product.weightRange(Number(weight.minWeightKg), Number(weight.maxWeightKg))
                         : '—'}
                     </span>
                   </div>
@@ -315,6 +313,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
           id: qo.id,
           quantity: qo.quantity,
           offerPriceEgp: Number(qo.offerPriceEgp),
+        }))}
+        addOnOptions={product.addOnOptions.map((option) => ({
+          id: option.id,
+          name: option.name,
+          nameAr: option.nameAr,
+          basePriceEgp: Number(option.basePriceEgp),
         }))}
       >
         <div>

@@ -15,17 +15,26 @@ export type CartItem = {
   stockCount?: number;
   attributes?: Record<string, string>;
   note?: string;
-  addOnForProductId?: string;
   addOnId?: string;
   quantityOfferId?: string;
 };
 
+const sameLine = (
+  item: CartItem,
+  productId: string,
+  variantId?: string,
+  addOnId?: string
+) =>
+  item.productId === productId &&
+  item.variantId === variantId &&
+  item.addOnId === addOnId;
+
 type CartStore = {
   items: CartItem[];
   addItem: (item: Omit<CartItem, 'quantity'>, qty?: number) => void;
-  removeItem: (productId: string, variantId?: string) => void;
-  updateQuantity: (productId: string, qty: number, variantId?: string) => void;
-  updateNote: (productId: string, note: string, variantId?: string) => void;
+  removeItem: (productId: string, variantId?: string, addOnId?: string) => void;
+  updateQuantity: (productId: string, qty: number, variantId?: string, addOnId?: string) => void;
+  updateNote: (productId: string, note: string, variantId?: string, addOnId?: string) => void;
   clearCart: () => void;
   itemCount: () => number;
   totalEgp: () => number;
@@ -39,12 +48,12 @@ export const useCartStore = create<CartStore>()(
       addItem: (item, qty = 1) =>
         set((state) => {
           const existing = state.items.find(
-            (i) => i.productId === item.productId && i.variantId === item.variantId && i.addOnForProductId === item.addOnForProductId && i.quantityOfferId === item.quantityOfferId
+            (i) => sameLine(i, item.productId, item.variantId, item.addOnId) && i.quantityOfferId === item.quantityOfferId
           );
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.productId === item.productId && i.variantId === item.variantId && i.addOnForProductId === item.addOnForProductId && i.quantityOfferId === item.quantityOfferId
+                sameLine(i, item.productId, item.variantId, item.addOnId) && i.quantityOfferId === item.quantityOfferId
                   ? { ...i, quantity: i.quantity + qty }
                   : i
               ),
@@ -53,26 +62,24 @@ export const useCartStore = create<CartStore>()(
           return { items: [...state.items, { ...item, quantity: qty }] };
         }),
 
-      removeItem: (productId, variantId) =>
+      removeItem: (productId, variantId, addOnId) =>
         set((state) => ({
-          items: state.items.filter(
-            (i) => !(i.productId === productId && i.variantId === variantId)
-          ),
+          items: state.items.filter((i) => !sameLine(i, productId, variantId, addOnId)),
         })),
 
-      updateQuantity: (productId, qty, variantId) =>
+      updateQuantity: (productId, qty, variantId, addOnId) =>
         set((state) => ({
           items: state.items.map((i) =>
-            i.productId === productId && i.variantId === variantId
+            sameLine(i, productId, variantId, addOnId)
               ? { ...i, quantity: Math.max(1, qty) }
               : i
           ),
         })),
 
-      updateNote: (productId, note, variantId) =>
+      updateNote: (productId, note, variantId, addOnId) =>
         set((state) => ({
           items: state.items.map((i) =>
-            i.productId === productId && i.variantId === variantId
+            sameLine(i, productId, variantId, addOnId)
               ? { ...i, note: note || undefined }
               : i
           ),

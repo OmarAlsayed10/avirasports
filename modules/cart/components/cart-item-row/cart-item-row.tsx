@@ -7,6 +7,7 @@ import { cartItemRowTokens } from './cart-item-row.tokens';
 import type { CartItemRowProps } from './cart-item-row.types';
 import { useLocale } from '@/modules/_shared/i18n/i18n.context';
 import { ONE_SIZE } from '@/modules/_shared/constants/sizes.constants';
+import { variantAttributeLabel } from '@/modules/_shared/utils/variant-attribute-label';
 
 function CartItemAttributes({ attributes }: { attributes?: Record<string, string> }) {
   const { t } = useLocale();
@@ -22,9 +23,13 @@ function CartItemAttributes({ attributes }: { attributes?: Record<string, string
             title={value}
             aria-label={`Color: ${value}`}
           />
-        ) : (
+        ) : key.toLowerCase() === 'size' ? (
           <span key={key} className={cartItemRowTokens.itemAttributes.text}>
             {value === ONE_SIZE ? t.product.oneSize : value}
+          </span>
+        ) : (
+          <span key={key} className={cartItemRowTokens.itemAttributes.text}>
+            {variantAttributeLabel(key, t)}: {value}
           </span>
         )
       )}
@@ -60,7 +65,7 @@ export function CartItemRow({ item, variant, onUpdateQuantity, onRemove }: CartI
         <div className={`flex items-center justify-between ${t.controls}`}>
           <div className={cartItemRowTokens.drawer.stepper}>
             <button
-              onClick={() => onUpdateQuantity(item.productId, item.quantity - 1, item.variantId)}
+              onClick={() => onUpdateQuantity(item.productId, item.quantity - 1, item.variantId, item.addOnId)}
               disabled={item.quantity <= 1}
               aria-label="Decrease quantity"
               className={t.stepperBtn}
@@ -69,7 +74,7 @@ export function CartItemRow({ item, variant, onUpdateQuantity, onRemove }: CartI
             </button>
             <span className={t.stepperQty}>{item.quantity}</span>
             <button
-              onClick={() => onUpdateQuantity(item.productId, item.quantity + 1, item.variantId)}
+              onClick={() => onUpdateQuantity(item.productId, item.quantity + 1, item.variantId, item.addOnId)}
               aria-label="Increase quantity"
               className={t.stepperBtn}
             >
@@ -77,7 +82,7 @@ export function CartItemRow({ item, variant, onUpdateQuantity, onRemove }: CartI
             </button>
           </div>
           <button
-            onClick={() => onRemove(item.productId, item.variantId)}
+            onClick={() => onRemove(item.productId, item.variantId, item.addOnId)}
             aria-label={`Remove ${item.name} from cart`}
             className={cartItemRowTokens.drawer.removeBtn}
           >

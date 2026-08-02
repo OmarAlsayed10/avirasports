@@ -41,7 +41,7 @@ export async function createProduct(data: AdminProductInput) {
       data: {
         ...rest,
         specs,
-        addOnOptions: { create: addOnOptions.map((option) => ({ name: option.name, nameAr: option.nameAr || null, imageUrl: option.imageUrl || null, basePriceEgp: option.basePriceEgp, variants: { sizes: option.sizes, colors: option.colors } })) },
+        addOnOptions: { create: addOnOptions.map((option) => ({ name: option.name, nameAr: option.nameAr || null, basePriceEgp: option.basePriceEgp })) },
         images: {
           create: images.map((img, i) => ({
             url: img.url,
@@ -140,7 +140,7 @@ export async function updateProduct(id: string, data: AdminProductInput) {
             ...rest,
             specs,
             sizeWeights: { create: sizeWeights.map((entry) => ({ size: entry.size, minWeightKg: entry.minWeightKg ?? null, maxWeightKg: entry.maxWeightKg ?? null })) },
-            addOnOptions: { create: addOnOptions.map((option) => ({ name: option.name, nameAr: option.nameAr || null, imageUrl: option.imageUrl || null, basePriceEgp: option.basePriceEgp, variants: { sizes: option.sizes, colors: option.colors } })) },
+            addOnOptions: { create: addOnOptions.map((option) => ({ name: option.name, nameAr: option.nameAr || null, basePriceEgp: option.basePriceEgp })) },
             images: {
               create: images.map((img, i) => ({
                 url: img.url,

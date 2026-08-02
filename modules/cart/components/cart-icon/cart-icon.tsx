@@ -61,7 +61,7 @@ export function CartIcon() {
                 <div className={cartIconTokens.dropdownItems}>
                   {items.map((item) => (
                     <CartItemRow
-                      key={`${item.productId}-${item.variantId ?? ''}`}
+                      key={`${item.productId}-${item.variantId ?? ''}-${item.addOnId ?? ''}`}
                       item={item}
                       variant="dropdown"
                       onUpdateQuantity={updateQuantity}

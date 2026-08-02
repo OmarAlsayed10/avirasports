@@ -11,4 +11,5 @@ export interface VariantSelectorProps {
   variants: VariantOption[];
   selectedId: string | null;
   onSelect: (variantId: string | null) => void;
+  onPreview?: (variant: VariantOption | null) => void;
 }

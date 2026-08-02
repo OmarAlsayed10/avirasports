@@ -50,14 +50,14 @@ export function SizeWeightsSection() {
                         <input
               type="number"
               min="0"
-              placeholder={'kg min'}
+              placeholder={t.admin.weightMinKg}
               {...form.register(`sizeWeights.${i}.minWeightKg`)}
               className="h-10 rounded-md border border-gray-300 px-3 text-sm"
             />
                        <input
               type="number"
               min="0"
-              placeholder={'kg max'}
+              placeholder={t.admin.weightMaxKg}
               {...form.register(`sizeWeights.${i}.maxWeightKg`)}
               className="h-10 rounded-md border border-gray-300 px-3 text-sm"
             />

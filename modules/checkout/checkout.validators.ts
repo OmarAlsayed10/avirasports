@@ -17,7 +17,6 @@ const cartItemSchema = z.object({
   variantId: z.string().cuid().optional(),
   quantity: z.number().int().min(1).max(100),
   note: z.string().max(200).optional(),
-  addOnForProductId: z.string().cuid().optional(),
   addOnId: z.string().cuid().optional(),
   quantityOfferId: z.string().cuid().optional(),
 });
